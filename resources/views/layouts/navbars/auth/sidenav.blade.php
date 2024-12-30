@@ -28,9 +28,9 @@
                 <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Laravel Examples</h6>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ Route::currentRouteName() == 'profile' ? 'active' : '' }}" href="{{ route('profile') }}">
-                    <div
-                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                <a class="nav-link {{ in_array(Route::currentRouteName(), ['customer.profile.show', 'customer.profile.edit']) ? 'active' : '' }}" 
+                   href="{{ route('customer.profile.edit') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Profile</span>
@@ -132,3 +132,57 @@
             href="https://www.creative-tim.com/product/argon-dashboard-pro-laravel" target="_blank" type="button">Upgrade to PRO</a>
     </div>
 </aside>
+
+<!-- Customer Sidebar -->
+@if(auth()->user()->role == 'customer')
+    <a class="nav-link {{ Request::is('customer/dashboard') ? 'active' : '' }}" 
+       href="{{ route('customer.dashboard') }}">
+        <i class="fas fa-tv"></i> Dashboard
+    </a>
+    <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" 
+       href="{{ route('customer.profile.edit') }}">
+        <i class="fas fa-user"></i> Profile
+    </a>
+    <a class="nav-link {{ Request::is('customer/search*') ? 'active' : '' }}" 
+       href="{{ route('customer.search') }}">
+        <i class="fas fa-search"></i> Cari & Pesan
+    </a>
+    <a class="nav-link {{ Request::is('customer/rentals*') ? 'active' : '' }}" 
+       href="{{ route('customer.rentals') }}">
+        <i class="fas fa-history"></i> Riwayat Sewa
+    </a>
+    <a class="nav-link {{ Request::is('customer/payments*') ? 'active' : '' }}" 
+       href="{{ route('customer.payments') }}">
+        <i class="fas fa-money-bill"></i> Pembayaran
+    </a>
+    <a class="nav-link {{ Request::is('customer/ratings*') ? 'active' : '' }}" 
+       href="{{ route('customer.ratings') }}">
+        <i class="fas fa-star"></i> Beri Rating
+    </a>
+@endif
+
+<!-- Admin Sidebar -->
+@if(auth()->user()->role == 'admin')
+    <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" 
+       href="{{ route('admin.dashboard') }}">
+        <i class="fas fa-tv"></i> Dashboard
+    </a>
+    <a class="nav-link {{ Request::is('admin/profile*') ? 'active' : '' }}" 
+       href="{{ route('admin.profile.edit') }}">
+        <i class="fas fa-user"></i> Profile
+    </a>
+    <!-- ... admin menu lainnya ... -->
+@endif
+
+<!-- Owner Sidebar -->
+@if(auth()->user()->role == 'owner')
+    <a class="nav-link {{ Request::is('owner/dashboard') ? 'active' : '' }}" 
+       href="{{ route('owner.dashboard') }}">
+        <i class="fas fa-tv"></i> Dashboard
+    </a>
+    <a class="nav-link {{ Request::is('owner/profile*') ? 'active' : '' }}" 
+       href="{{ route('owner.profile.edit') }}">
+        <i class="fas fa-user"></i> Profile
+    </a>
+    <!-- ... owner menu lainnya ... -->
+@endif

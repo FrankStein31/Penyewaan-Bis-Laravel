@@ -388,7 +388,8 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('3Yb2fhOybeLE0l03LVeAD9pbdxRcQG1ZFgIzfi6N',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiVWxyTVN0T0QyWEtBeVVKZWFVdkx1cDNWN0tQVFpsMjdUb084c3ZYZyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fX0=',1735533312);
+('4WXWx5lxFlXHWgZzPiEbkkIvFn63glHDYJ4J69fs',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiVXZpVDFxTWsyVkZld0xNVk9MUTVmaThUSElHaGIwd1VrMVFOMWVzNyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fX0=',1735538231),
+('ROeqO6KongIZy79SeLJ1rsYJJicjFOBCK12gPG9Y',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiOTlySmw4dFloOEVwdHpkcklCSmxER2ZqQjN1a3hGUnk0U2xwWnlHTyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1735538296);
 
 /*Table structure for table `users` */
 
@@ -417,13 +418,14 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_username_unique` (`username`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`firstname`,`lastname`,`email`,`role`,`phone`,`avatar`,`address`,`city`,`country`,`postal`,`about`,`email_verified_at`,`password`,`is_active`,`remember_token`,`created_at`,`updated_at`) values 
 (1,'Frankie','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2024-12-30 01:07:12'),
-(3,'admin',NULL,NULL,'admin@gmail.com','owner',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32');
+(3,'admin',NULL,NULL,'admin@gmail.com','admin',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32'),
+(9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$ddxhsu/n/Sb/nFfpmEYX1.iYHT2xynzQBdYaDTbSNUoMvaIgkUGgy',1,NULL,'2024-12-30 05:47:55','2024-12-30 05:48:37');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

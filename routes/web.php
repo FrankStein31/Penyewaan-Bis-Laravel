@@ -13,7 +13,7 @@ use App\Http\Controllers\RentalController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\PasswordResetController;
 
@@ -88,12 +88,13 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Customer Routes
-    Route::prefix('customer')->name('customer.')->group(function () {
+    Route::prefix('customer')->name('customer.')->middleware('auth')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'customerDashboard'])->name('dashboard');
         
-        // Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        // Profile Routes
+        Route::get('/profile', [UserProfileController::class, 'show'])->name('profile.show');
+        Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile/update', [UserProfileController::class, 'update'])->name('profile.update');
         
         // Booking
         Route::get('/search', [BusController::class, 'search'])->name('search');

@@ -126,25 +126,25 @@
                 <a class="nav-link {{ Request::is('owner/dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
                     <i class="fas fa-tv"></i> Dashboard
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.daily') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/daily') ? 'active' : '' }}" href="{{ route('owner.statistics.daily') }}">
                     <i class="fas fa-chart-line"></i> Statistik Harian
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.monthly') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/monthly') ? 'active' : '' }}" href="{{ route('owner.statistics.monthly') }}">
                     <i class="fas fa-chart-bar"></i> Statistik Bulanan
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.yearly') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/yearly') ? 'active' : '' }}" href="{{ route('owner.statistics.yearly') }}">
                     <i class="fas fa-chart-pie"></i> Statistik Tahunan
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.bus') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/bus') ? 'active' : '' }}" href="{{ route('owner.statistics.bus') }}">
                     <i class="fas fa-bus"></i> Statistik Penggunaan Bis
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.driver') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/driver') ? 'active' : '' }}" href="{{ route('owner.statistics.driver') }}">
                     <i class="fas fa-user-tie"></i> Jam Terbang Supir
                 </a>
-                <a class="nav-link" href="{{ route('owner.statistics.fleet') }}">
+                <a class="nav-link {{ Request::is('owner/statistics/fleet') ? 'active' : '' }}" href="{{ route('owner.statistics.fleet') }}">
                     <i class="fas fa-star"></i> Ranking Armada
                 </a>
-                <a class="nav-link" href="{{ route('owner.users.index') }}">
+                <a class="nav-link {{ Request::is('owner/users*') ? 'active' : '' }}" href="{{ route('owner.users.index') }}">
                     <i class="fas fa-users-cog"></i> Manajemen User
                 </a>
 
@@ -153,28 +153,28 @@
                 <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
                     <i class="fas fa-tv"></i> Dashboard
                 </a>
-                <a class="nav-link" href="{{ route('admin.drivers.index') }}">
+                <a class="nav-link {{ Request::is('admin/drivers*') ? 'active' : '' }}" href="{{ route('admin.drivers.index') }}">
                     <i class="fas fa-user-tie"></i> Data Supir
                 </a>
-                <a class="nav-link" href="{{ route('admin.conductors.index') }}">
+                <a class="nav-link {{ Request::is('admin/conductors*') ? 'active' : '' }}" href="{{ route('admin.conductors.index') }}">
                     <i class="fas fa-user"></i> Data Kernet
                 </a>
-                <a class="nav-link" href="{{ route('admin.buses.index') }}">
+                <a class="nav-link {{ Request::is('admin/buses*') ? 'active' : '' }}" href="{{ route('admin.buses.index') }}">
                     <i class="fas fa-bus"></i> Data Bis
                 </a>
-                <a class="nav-link" href="{{ route('admin.customers.index') }}">
+                <a class="nav-link {{ Request::is('admin/customers*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
                     <i class="fas fa-users"></i> Data Pelanggan
                 </a>
-                <a class="nav-link" href="{{ route('admin.rentals.index') }}">
+                <a class="nav-link {{ Request::is('admin/rentals*') ? 'active' : '' }}" href="{{ route('admin.rentals.index') }}">
                     <i class="fas fa-ticket-alt"></i> Transaksi Penyewaan
                 </a>
-                <a class="nav-link" href="{{ route('admin.buses.status') }}">
+                <a class="nav-link {{ Request::is('admin/bus-status') ? 'active' : '' }}" href="{{ route('admin.buses.status') }}">
                     <i class="fas fa-clock"></i> Status Bis
                 </a>
-                <a class="nav-link" href="{{ route('admin.payments.index') }}">
+                <a class="nav-link {{ Request::is('admin/payments*') ? 'active' : '' }}" href="{{ route('admin.payments.index') }}">
                     <i class="fas fa-money-bill"></i> Pembayaran
                 </a>
-                <a class="nav-link" href="{{ route('admin.requests.index') }}">
+                <a class="nav-link {{ Request::is('admin/requests*') ? 'active' : '' }}" href="{{ route('admin.requests.index') }}">
                     <i class="fas fa-bell"></i> Pengajuan
                 </a>
 
@@ -183,19 +183,19 @@
                 <a class="nav-link {{ Request::is('customer/dashboard') ? 'active' : '' }}" href="{{ route('customer.dashboard') }}">
                     <i class="fas fa-tv"></i> Dashboard
                 </a>
-                <a class="nav-link" href="{{ route('customer.profile.edit') }}">
+                <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
                     <i class="fas fa-user"></i> Profile
                 </a>
-                <a class="nav-link" href="{{ route('customer.search') }}">
+                <a class="nav-link {{ Request::is('customer/search*') ? 'active' : '' }}" href="{{ route('customer.search') }}">
                     <i class="fas fa-search"></i> Cari & Pesan
                 </a>
-                <a class="nav-link" href="{{ route('customer.rentals') }}">
+                <a class="nav-link {{ Request::is('customer/rentals*') ? 'active' : '' }}" href="{{ route('customer.rentals') }}">
                     <i class="fas fa-history"></i> Riwayat Sewa
                 </a>
-                <a class="nav-link" href="{{ route('customer.payments') }}">
+                <a class="nav-link {{ Request::is('customer/payments*') ? 'active' : '' }}" href="{{ route('customer.payments') }}">
                     <i class="fas fa-money-bill"></i> Pembayaran
                 </a>
-                <a class="nav-link" href="{{ route('customer.ratings') }}">
+                <a class="nav-link {{ Request::is('customer/ratings*') ? 'active' : '' }}" href="{{ route('customer.ratings') }}">
                     <i class="fas fa-star"></i> Beri Rating
                 </a>
             @endif

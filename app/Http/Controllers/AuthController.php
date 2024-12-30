@@ -26,14 +26,28 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        $user = User::where('email', $credentials['email'])->first();
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Email tidak ditemukan.',
+            ])->withInput($request->only('email'));
+        }
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+            
+            $role = auth()->user()->role;
+            if($role == 'admin') {
+                return redirect('/admin/dashboard');
+            } else if($role == 'owner') {
+                return redirect('/owner/dashboard');
+            }
+            return redirect('/customer/dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ]);
+            'password' => 'Password salah.',
+        ])->withInput($request->only('email'));
     }
 
     public function register(Request $request)
@@ -41,28 +55,30 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8'
         ]);
 
         $username = strtolower(str_replace(' ', '', $request->name));
 
-        $user = User::create([
+        $userData = [
             'username' => $username,
             'firstname' => $request->name,
             'lastname' => '',
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => bcrypt($request->password),
             'role' => 'customer',
             'address' => '',
             'city' => '',
             'country' => '',
             'postal' => '',
             'about' => ''
-        ]);
+        ];
+
+        $user = User::create($userData);
 
         Auth::login($user);
 
-        return redirect('/dashboard');
+        return redirect('/customer/dashboard');
     }
 
     public function logout(Request $request)
