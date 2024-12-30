@@ -1,38 +1,111 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\BusController;
+use App\Http\Controllers\DriverController;
+use App\Http\Controllers\ConductorController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\RentalController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\PasswordResetController;
 
-Route::get('/', function () {
-    return view('welcome');
+// Landing page (dapat diakses semua orang)
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Auth routes (hanya untuk guest/belum login)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->name('register.perform');
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])
+        ->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
+        ->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
+        ->name('password.update');
 });
 
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\UserProfileController;
-use App\Http\Controllers\ResetPassword;
-use App\Http\Controllers\ChangePassword;            
-            
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
-Route::get('/', function () {return redirect('/dashboard');})->middleware('auth');
-	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
-	Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');
-	Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login');
-	Route::post('/login', [LoginController::class, 'login'])->middleware('guest')->name('login.perform');
-	Route::get('/reset-password', [ResetPassword::class, 'show'])->middleware('guest')->name('reset-password');
-	Route::post('/reset-password', [ResetPassword::class, 'send'])->middleware('guest')->name('reset.perform');
-	Route::get('/change-password', [ChangePassword::class, 'show'])->middleware('guest')->name('change-password');
-	Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
-	Route::get('/dashboard', [HomeController::class, 'index'])->name('home')->middleware('auth');
-Route::group(['middleware' => 'auth'], function () {
-	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
-	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
-	Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
-	Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
-	Route::get('/profile-static', [PageController::class, 'profile'])->name('profile-static'); 
-	Route::get('/sign-in-static', [PageController::class, 'signin'])->name('sign-in-static');
-	Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static'); 
-	Route::get('/{page}', [PageController::class, 'index'])->name('page');
-	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
+// Protected routes (setelah login)
+Route::middleware(['auth'])->group(function () {
+    // Redirect after login based on role
+    Route::get('/dashboard', function () {
+        $role = auth()->user()->role;
+        return redirect()->route($role . '.dashboard');
+    })->name('dashboard');
+
+    // Owner Routes
+    Route::prefix('owner')->name('owner.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'ownerDashboard'])->name('dashboard');
+        
+        // Statistics Routes
+        Route::prefix('statistics')->name('statistics.')->group(function () {
+            Route::get('/daily', [StatisticsController::class, 'daily'])->name('daily');
+            Route::get('/monthly', [StatisticsController::class, 'monthly'])->name('monthly');
+            Route::get('/yearly', [StatisticsController::class, 'yearly'])->name('yearly');
+            Route::get('/bus', [StatisticsController::class, 'busUsage'])->name('bus');
+            Route::get('/driver', [StatisticsController::class, 'driverHours'])->name('driver');
+            Route::get('/fleet', [StatisticsController::class, 'fleetRanking'])->name('fleet');
+        });
+
+        Route::resource('users', UserController::class);
+    });
+
+    // Admin Routes
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+        
+        // Data Management
+        Route::resource('drivers', DriverController::class);
+        Route::resource('conductors', ConductorController::class);
+        Route::resource('buses', BusController::class);
+        Route::get('/bus-status', [BusController::class, 'status'])->name('buses.status');
+        Route::resource('customers', CustomerController::class);
+        
+        // Transaction Management
+        Route::resource('rentals', RentalController::class);
+        Route::resource('payments', PaymentController::class);
+        Route::put('/payment/{id}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
+        
+        // Request Management
+        Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+        Route::put('/request/{id}/approve', [RequestController::class, 'approve'])->name('requests.approve');
+        Route::put('/request/{id}/reject', [RequestController::class, 'reject'])->name('requests.reject');
+    });
+
+    // Customer Routes
+    Route::prefix('customer')->name('customer.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'customerDashboard'])->name('dashboard');
+        
+        // Profile
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        
+        // Booking
+        Route::get('/search', [BusController::class, 'search'])->name('search');
+        Route::post('/book/{bus}', [RentalController::class, 'book'])->name('book');
+        
+        // Rentals & Payments
+        Route::get('/rentals', [RentalController::class, 'myRentals'])->name('rentals');
+        Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
+        Route::post('/payment/{rental}', [PaymentController::class, 'pay'])->name('pay');
+        
+        // Ratings
+        Route::get('/ratings', [RatingController::class, 'index'])->name('ratings');
+        Route::post('/rate/{rental}', [RatingController::class, 'store'])->name('rate');
+    });
 });

@@ -242,7 +242,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `migrations` */
 
@@ -260,7 +260,8 @@ insert  into `migrations`(`id`,`migration`,`batch`) values
 (11,'2024_12_30_004734_create_driver_ratings_table',1),
 (12,'2024_12_30_004735_create_conductor_ratings_table',1),
 (13,'2024_12_30_010528_create_sessions_table',2),
-(14,'2024_12_30_022447_add_status_to_rentals_table',3);
+(14,'2024_12_30_022447_add_status_to_rentals_table',3),
+(15,'2024_03_14_create_ratings_table',4);
 
 /*Table structure for table `payments` */
 
@@ -306,6 +307,30 @@ CREATE TABLE `personal_access_tokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `personal_access_tokens` */
+
+/*Table structure for table `ratings` */
+
+DROP TABLE IF EXISTS `ratings`;
+
+CREATE TABLE `ratings` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `rental_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `ratable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ratable_id` bigint unsigned NOT NULL,
+  `rating` int NOT NULL COMMENT '1-5',
+  `comment` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ratings_rental_id_user_id_ratable_id_ratable_type_unique` (`rental_id`,`user_id`,`ratable_id`,`ratable_type`),
+  KEY `ratings_user_id_foreign` (`user_id`),
+  KEY `ratings_ratable_type_ratable_id_index` (`ratable_type`,`ratable_id`),
+  CONSTRAINT `ratings_rental_id_foreign` FOREIGN KEY (`rental_id`) REFERENCES `rentals` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `ratings_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*Data for the table `ratings` */
 
 /*Table structure for table `rentals` */
 
@@ -363,7 +388,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('jnS0MlTYYCNhDBzcISuCOLPhtVM3houl0kblNSsr',1,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiQ1A3QVJib0g3aEZlNWVMaGpyN1h6OGpXaE9YNTlHNlF4VWZQemtreSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jdXN0b21lci9kYXNoYm9hcmQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=',1735525537);
+('3Yb2fhOybeLE0l03LVeAD9pbdxRcQG1ZFgIzfi6N',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiVWxyTVN0T0QyWEtBeVVKZWFVdkx1cDNWN0tQVFpsMjdUb084c3ZYZyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fX0=',1735533312);
 
 /*Table structure for table `users` */
 
@@ -392,12 +417,13 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_username_unique` (`username`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`firstname`,`lastname`,`email`,`role`,`phone`,`avatar`,`address`,`city`,`country`,`postal`,`about`,`email_verified_at`,`password`,`is_active`,`remember_token`,`created_at`,`updated_at`) values 
-(1,'Frankie','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2024-12-30 01:07:12');
+(1,'Frankie','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2024-12-30 01:07:12'),
+(3,'admin',NULL,NULL,'admin@gmail.com','owner',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
