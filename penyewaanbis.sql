@@ -26,7 +26,7 @@ CREATE TABLE `bus_ratings` (
   `bus_id` bigint unsigned NOT NULL,
   `rental_id` bigint unsigned NOT NULL,
   `rating` int NOT NULL,
-  `review` text COLLATE utf8mb4_unicode_ci,
+  `review` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -46,13 +46,13 @@ DROP TABLE IF EXISTS `buses`;
 
 CREATE TABLE `buses` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `plate_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` enum('umum','pariwisata','antarkota') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `plate_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('umum','pariwisata','antarkota') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacity` int NOT NULL,
   `price_per_day` decimal(12,2) NOT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` enum('tersedia','disewa','maintenance') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'tersedia',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('tersedia','disewa','maintenance') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'tersedia',
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -61,32 +61,6 @@ CREATE TABLE `buses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `buses` */
-
-/*Table structure for table `cache` */
-
-DROP TABLE IF EXISTS `cache`;
-
-CREATE TABLE `cache` (
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expiration` int NOT NULL,
-  PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `cache` */
-
-/*Table structure for table `cache_locks` */
-
-DROP TABLE IF EXISTS `cache_locks`;
-
-CREATE TABLE `cache_locks` (
-  `key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `owner` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expiration` int NOT NULL,
-  PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `cache_locks` */
 
 /*Table structure for table `conductor_ratings` */
 
@@ -98,7 +72,7 @@ CREATE TABLE `conductor_ratings` (
   `conductor_id` bigint unsigned NOT NULL,
   `rental_id` bigint unsigned NOT NULL,
   `rating` int NOT NULL,
-  `review` text COLLATE utf8mb4_unicode_ci,
+  `review` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -118,11 +92,11 @@ DROP TABLE IF EXISTS `conductors`;
 
 CREATE TABLE `conductors` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` enum('available','on_duty','off') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
-  `photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('available','on_duty','off') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
+  `photo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
@@ -141,7 +115,7 @@ CREATE TABLE `driver_ratings` (
   `driver_id` bigint unsigned NOT NULL,
   `rental_id` bigint unsigned NOT NULL,
   `rating` int NOT NULL,
-  `review` text COLLATE utf8mb4_unicode_ci,
+  `review` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -161,77 +135,25 @@ DROP TABLE IF EXISTS `drivers`;
 
 CREATE TABLE `drivers` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `license_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `address` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `license_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `license_expire` date NOT NULL,
-  `status` enum('available','on_duty','off') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
-  `photo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('available','on_duty','off') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
+  `photo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `drivers_license_number_unique` (`license_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `drivers` */
 
-/*Table structure for table `failed_jobs` */
-
-DROP TABLE IF EXISTS `failed_jobs`;
-
-CREATE TABLE `failed_jobs` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `failed_jobs` */
-
-/*Table structure for table `job_batches` */
-
-DROP TABLE IF EXISTS `job_batches`;
-
-CREATE TABLE `job_batches` (
-  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `total_jobs` int NOT NULL,
-  `pending_jobs` int NOT NULL,
-  `failed_jobs` int NOT NULL,
-  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `options` mediumtext COLLATE utf8mb4_unicode_ci,
-  `cancelled_at` int DEFAULT NULL,
-  `created_at` int NOT NULL,
-  `finished_at` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `job_batches` */
-
-/*Table structure for table `jobs` */
-
-DROP TABLE IF EXISTS `jobs`;
-
-CREATE TABLE `jobs` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `attempts` tinyint unsigned NOT NULL,
-  `reserved_at` int unsigned DEFAULT NULL,
-  `available_at` int unsigned NOT NULL,
-  `created_at` int unsigned NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `jobs_queue_index` (`queue`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `jobs` */
+insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
+(2,'Driverrr Coba','2131730071','08512345678','paer','2025-01-03','available','1735608726_2131730071.JPG',1,'2024-12-31 01:24:16','2024-12-31 01:33:31'),
+(3,'kasir2','2131730071241','12345','afsadasdasd','2025-01-03','available','1735609673_Logo Polinema (Politeknik Negeri Malang) (1).png',0,'2024-12-31 01:47:53','2024-12-31 01:48:08');
 
 /*Table structure for table `migrations` */
 
@@ -242,26 +164,9 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `migrations` */
-
-insert  into `migrations`(`id`,`migration`,`batch`) values 
-(1,'0001_01_01_000001_create_cache_table',1),
-(2,'0001_01_01_000002_create_jobs_table',1),
-(3,'2024_12_29_005429_create_users_table',1),
-(4,'2024_12_29_131326_create_personal_access_tokens_table',1),
-(5,'2024_12_30_004045_create_buses_table',1),
-(6,'2024_12_30_004227_create_drivers_table',1),
-(7,'2024_12_30_004254_create_conductors_table',1),
-(8,'2024_12_30_004626_create_rentals_table',1),
-(9,'2024_12_30_004702_create_payments_table',1),
-(10,'2024_12_30_004734_create_bus_ratings_table',1),
-(11,'2024_12_30_004734_create_driver_ratings_table',1),
-(12,'2024_12_30_004735_create_conductor_ratings_table',1),
-(13,'2024_12_30_010528_create_sessions_table',2),
-(14,'2024_12_30_022447_add_status_to_rentals_table',3),
-(15,'2024_03_14_create_ratings_table',4);
 
 /*Table structure for table `payments` */
 
@@ -270,12 +175,12 @@ DROP TABLE IF EXISTS `payments`;
 CREATE TABLE `payments` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `rental_id` bigint unsigned NOT NULL,
-  `payment_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `amount` decimal(12,2) NOT NULL,
-  `payment_method` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payment_proof` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `status` enum('pending','success','failed') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `notes` text COLLATE utf8mb4_unicode_ci,
+  `payment_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payment_proof` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('pending','success','failed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -286,28 +191,6 @@ CREATE TABLE `payments` (
 
 /*Data for the table `payments` */
 
-/*Table structure for table `personal_access_tokens` */
-
-DROP TABLE IF EXISTS `personal_access_tokens`;
-
-CREATE TABLE `personal_access_tokens` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `tokenable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tokenable_id` bigint unsigned NOT NULL,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `abilities` text COLLATE utf8mb4_unicode_ci,
-  `last_used_at` timestamp NULL DEFAULT NULL,
-  `expires_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
-  KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*Data for the table `personal_access_tokens` */
-
 /*Table structure for table `ratings` */
 
 DROP TABLE IF EXISTS `ratings`;
@@ -316,10 +199,10 @@ CREATE TABLE `ratings` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `rental_id` bigint unsigned NOT NULL,
   `user_id` bigint unsigned NOT NULL,
-  `ratable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ratable_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ratable_id` bigint unsigned NOT NULL,
   `rating` int NOT NULL COMMENT '1-5',
-  `comment` text COLLATE utf8mb4_unicode_ci,
+  `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -338,21 +221,21 @@ DROP TABLE IF EXISTS `rentals`;
 
 CREATE TABLE `rentals` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `rental_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `rental_code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint unsigned NOT NULL,
   `bus_id` bigint unsigned NOT NULL,
   `driver_id` bigint unsigned NOT NULL,
   `conductor_id` bigint unsigned NOT NULL,
   `start_date` datetime NOT NULL,
   `end_date` datetime NOT NULL,
-  `pickup_location` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `destination` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pickup_location` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `destination` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `total_days` int NOT NULL,
   `total_price` decimal(12,2) NOT NULL,
-  `status` enum('pending','aktif','selesai','dibatalkan') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `rental_status` enum('pending','confirmed','ongoing','completed','cancelled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
-  `payment_status` enum('unpaid','partial','paid') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
-  `notes` text COLLATE utf8mb4_unicode_ci,
+  `status` enum('pending','aktif','selesai','dibatalkan') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `rental_status` enum('pending','confirmed','ongoing','completed','cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `payment_status` enum('unpaid','partial','paid') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'unpaid',
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -374,11 +257,11 @@ CREATE TABLE `rentals` (
 DROP TABLE IF EXISTS `sessions`;
 
 CREATE TABLE `sessions` (
-  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint unsigned DEFAULT NULL,
-  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` text COLLATE utf8mb4_unicode_ci,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `last_activity` int NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sessions_user_id_index` (`user_id`),
@@ -388,8 +271,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('4WXWx5lxFlXHWgZzPiEbkkIvFn63glHDYJ4J69fs',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiVXZpVDFxTWsyVkZld0xNVk9MUTVmaThUSElHaGIwd1VrMVFOMWVzNyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fX0=',1735538231),
-('ROeqO6KongIZy79SeLJ1rsYJJicjFOBCK12gPG9Y',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoiOTlySmw4dFloOEVwdHpkcklCSmxER2ZqQjN1a3hGUnk0U2xwWnlHTyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=',1735538296);
+('fMJyH1JN1Pf3FOBic2uwu9jxqukeexhfhy9PGzD6',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoicm9BSUVJVHltOThyREVPN0RrMEJKamVtSXYxSWhIWWFDOGhwRVExbSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fX0=',1735615324);
 
 /*Table structure for table `users` */
 
@@ -397,22 +279,22 @@ DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `firstname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lastname` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('owner','admin','customer') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'customer',
-  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `avatar` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `postal` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `about` text COLLATE utf8mb4_unicode_ci,
+  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `firstname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` enum('owner','admin','customer') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'customer',
+  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `city` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `about` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),

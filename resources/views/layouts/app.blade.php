@@ -1,76 +1,42 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-
-    <!-- Argon CSS & Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/argon-design-system-free@1.2.0/assets/css/argon-design-system.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/argon-dashboard@1.2.0/assets/css/argon-dashboard.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/nucleo-icons@1.7.0/css/nucleo-icons.css" rel="stylesheet">
-
+    <title>{{ config('app.name', 'PO Bis Ekasari') }}</title>
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <!-- Favicon -->
+    <link href="https://demos.creative-tim.com/argon-dashboard/assets/img/favicon.png" rel="icon" type="image/png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    
+    <!-- Icons -->
+    <!-- Keep only these -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://demos.creative-tim.com/argon-dashboard/assets/css/nucleo-icons.css" rel="stylesheet">
+    <link href="https://demos.creative-tim.com/argon-dashboard/assets/css/nucleo-svg.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    
+    <!-- CSS Files -->
+    <link id="pagestyle" href="https://demos.creative-tim.com/argon-dashboard/assets/css/argon-dashboard.min.css" rel="stylesheet">
+    
     <style>
-        body {
-            background-color: #f8f9fa;
+        /* Custom styles */
+        .sidenav {
+            width: 250px;
+            padding: 0.5rem;
         }
         
-        /* Sidebar */
-        .sidebar {
-            width: 200px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        
-        .sidebar .brand {
-            padding: 1rem;
-            font-size: 1.25rem;
-            font-weight: bold;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .sidebar .nav-link {
-            padding: 0.8rem 1rem;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background: #f8f9fa;
-            color: #0d6efd;
-        }
-        
-        .sidebar .nav-link i {
-            width: 20px;
-        }
-        
-        /* Main Content */
         .main-content {
-            margin-left: 200px;
+            margin-left: 250px;
             padding: 20px;
         }
         
-        /* Dashboard Cards */
         .dashboard-card {
             padding: 1.5rem;
             border-radius: 8px;
@@ -94,7 +60,6 @@
             opacity: 0.8;
         }
         
-        /* Table */
         .table-container {
             background: white;
             border-radius: 8px;
@@ -110,141 +75,400 @@
             background: #f8f9fa;
             border-radius: 4px;
         }
+
+        /* Tambahan style untuk icon */
+        .icon i {
+            font-size: 1rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+
+        .nav-link .icon {
+            background: #f6f9fc;
+            border-radius: 0.5rem;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+        }
+
+        .nav-link.active .icon {
+            background: #5e72e4;
+        }
+
+        .nav-link.active .icon i {
+            color: white !important;
+        }
+        
+        .icon-shape {
+            min-width: 32px;
+            width: 32px !important;
+            height: 32px !important;
+            background-color: #f6f9fc;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .icon-shape i {
+            font-size: 1rem;
+            color: #5e72e4;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-link.active .icon-shape {
+            background-color: #5e72e4;
+        }
+
+        .nav-link.active .icon-shape i {
+            color: white !important;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            margin: 0.1rem 0.8rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            height: 44px;
+        }
+        
+        .nav-link:hover {
+            background-color: #f6f9fc;
+        }
+
+        .nav-link.active {
+            background-color: #f6f9fc;
+        }
+
+        .nav-link.active .icon-shape {
+            background-color: #5e72e4;
+        }
+
+        .nav-link.active .icon-shape i {
+            color: white !important;
+        }
+        
+        .nav-link-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #67748e;
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link.active .nav-link-text {
+            color: #344767;
+            font-weight: 600;
+        }
+        
+        .icon-shape i.ni {
+            line-height: 1;
+            font-weight: 600;
+        }
+
+        .navbar-nav {
+            padding: 0.5rem;
+        }
+
+        /* Penyesuaian untuk form logout */
+        form.nav-link {
+            margin: 0 0.8rem;
+        }
+
+        form.nav-link a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            width: 100%;
+        }
     </style>
 </head>
 
-<body>
+<body class="g-sidenav-show bg-gray-100">
     @auth
     <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="brand">
-            PO Bis Ekasari
+    <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4" id="sidenav-main">
+        <div class="sidenav-header">
+            <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+            <a class="navbar-brand m-0" href="#">
+                <i class="fas fa-bus fa-2x"></i>
+                <span class="ms-1 font-weight-bold">PO Bis Ekasari</span>
+            </a>
         </div>
-        <nav class="mt-3">
-            <!-- Owner Sidebar -->
-            @if(auth()->user()->role == 'owner')
-                <a class="nav-link {{ Request::is('owner/dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
-                    <i class="fas fa-tv"></i> Dashboard
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/daily') ? 'active' : '' }}" href="{{ route('owner.statistics.daily') }}">
-                    <i class="fas fa-chart-line"></i> Statistik Harian
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/monthly') ? 'active' : '' }}" href="{{ route('owner.statistics.monthly') }}">
-                    <i class="fas fa-chart-bar"></i> Statistik Bulanan
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/yearly') ? 'active' : '' }}" href="{{ route('owner.statistics.yearly') }}">
-                    <i class="fas fa-chart-pie"></i> Statistik Tahunan
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/bus') ? 'active' : '' }}" href="{{ route('owner.statistics.bus') }}">
-                    <i class="fas fa-bus"></i> Statistik Penggunaan Bis
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/driver') ? 'active' : '' }}" href="{{ route('owner.statistics.driver') }}">
-                    <i class="fas fa-user-tie"></i> Jam Terbang Supir
-                </a>
-                <a class="nav-link {{ Request::is('owner/statistics/fleet') ? 'active' : '' }}" href="{{ route('owner.statistics.fleet') }}">
-                    <i class="fas fa-star"></i> Ranking Armada
-                </a>
-                <a class="nav-link {{ Request::is('owner/users*') ? 'active' : '' }}" href="{{ route('owner.users.index') }}">
-                    <i class="fas fa-users-cog"></i> Manajemen User
-                </a>
+        <hr class="horizontal dark mt-0">
+        
+        <div class="collapse navbar-collapse w-auto h-auto" id="sidenav-collapse-main">
+            <ul class="navbar-nav">
+                @if(auth()->user()->role == 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/drivers*') ? 'active' : '' }}" href="{{ route('admin.drivers.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Data Supir</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/conductors*') ? 'active' : '' }}" href="{{ route('admin.conductors.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Data Kernet</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/buses*') ? 'active' : '' }}" href="{{ route('admin.buses.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Data Bis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/customers*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Data Pelanggan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/rentals*') ? 'active' : '' }}" href="{{ route('admin.rentals.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Transaksi Penyewaan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/bus-status') ? 'active' : '' }}" href="{{ route('admin.buses.status') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Status Bis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/payments*') ? 'active' : '' }}" href="{{ route('admin.payments.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Pembayaran</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/requests*') ? 'active' : '' }}" href="{{ route('admin.requests.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Pengajuan</span>
+                        </a>
+                    </li>
+                    
+                @elseif(auth()->user()->role == 'owner')
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/dashboard') ? 'active' : '' }}" href="{{ route('owner.dashboard') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/daily') ? 'active' : '' }}" href="{{ route('owner.statistics.daily') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Statistik Harian</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/monthly') ? 'active' : '' }}" href="{{ route('owner.statistics.monthly') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Statistik Bulanan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/yearly') ? 'active' : '' }}" href="{{ route('owner.statistics.yearly') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Statistik Tahunan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/bus') ? 'active' : '' }}" href="{{ route('owner.statistics.bus') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Statistik Penggunaan Bis</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/driver') ? 'active' : '' }}" href="{{ route('owner.statistics.driver') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Jam Terbang Supir</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/statistics/fleet') ? 'active' : '' }}" href="{{ route('owner.statistics.fleet') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Ranking Armada</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/users*') ? 'active' : '' }}" href="{{ route('owner.users.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Manajemen User</span>
+                        </a>
+                    </li>
+                    
+                @else
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/dashboard') ? 'active' : '' }}" href="{{ route('customer.dashboard') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-tv"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/search*') ? 'active' : '' }}" href="{{ route('customer.search') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Cari & Pesan</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/rentals*') ? 'active' : '' }}" href="{{ route('customer.rentals') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Riwayat Sewa</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/payments*') ? 'active' : '' }}" href="{{ route('customer.payments') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Pembayaran</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/ratings*') ? 'active' : '' }}" href="{{ route('customer.ratings') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Beri Rating</span>
+                        </a>
+                    </li>
+                @endif
+                <li class="nav-item">
+                    <form method="POST" action="{{ route('logout') }}" class="nav-link">
+                        @csrf
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Logout</span>
+                        </a>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </aside>
 
-            <!-- Admin Sidebar -->
-            @elseif(auth()->user()->role == 'admin')
-                <a class="nav-link {{ Request::is('admin/dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
-                    <i class="fas fa-tv"></i> Dashboard
-                </a>
-                <a class="nav-link {{ Request::is('admin/drivers*') ? 'active' : '' }}" href="{{ route('admin.drivers.index') }}">
-                    <i class="fas fa-user-tie"></i> Data Supir
-                </a>
-                <a class="nav-link {{ Request::is('admin/conductors*') ? 'active' : '' }}" href="{{ route('admin.conductors.index') }}">
-                    <i class="fas fa-user"></i> Data Kernet
-                </a>
-                <a class="nav-link {{ Request::is('admin/buses*') ? 'active' : '' }}" href="{{ route('admin.buses.index') }}">
-                    <i class="fas fa-bus"></i> Data Bis
-                </a>
-                <a class="nav-link {{ Request::is('admin/customers*') ? 'active' : '' }}" href="{{ route('admin.customers.index') }}">
-                    <i class="fas fa-users"></i> Data Pelanggan
-                </a>
-                <a class="nav-link {{ Request::is('admin/rentals*') ? 'active' : '' }}" href="{{ route('admin.rentals.index') }}">
-                    <i class="fas fa-ticket-alt"></i> Transaksi Penyewaan
-                </a>
-                <a class="nav-link {{ Request::is('admin/bus-status') ? 'active' : '' }}" href="{{ route('admin.buses.status') }}">
-                    <i class="fas fa-clock"></i> Status Bis
-                </a>
-                <a class="nav-link {{ Request::is('admin/payments*') ? 'active' : '' }}" href="{{ route('admin.payments.index') }}">
-                    <i class="fas fa-money-bill"></i> Pembayaran
-                </a>
-                <a class="nav-link {{ Request::is('admin/requests*') ? 'active' : '' }}" href="{{ route('admin.requests.index') }}">
-                    <i class="fas fa-bell"></i> Pengajuan
-                </a>
-
-            <!-- Customer Sidebar -->
-            @else
-                <a class="nav-link {{ Request::is('customer/dashboard') ? 'active' : '' }}" href="{{ route('customer.dashboard') }}">
-                    <i class="fas fa-tv"></i> Dashboard
-                </a>
-                <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
-                    <i class="fas fa-user"></i> Profile
-                </a>
-                <a class="nav-link {{ Request::is('customer/search*') ? 'active' : '' }}" href="{{ route('customer.search') }}">
-                    <i class="fas fa-search"></i> Cari & Pesan
-                </a>
-                <a class="nav-link {{ Request::is('customer/rentals*') ? 'active' : '' }}" href="{{ route('customer.rentals') }}">
-                    <i class="fas fa-history"></i> Riwayat Sewa
-                </a>
-                <a class="nav-link {{ Request::is('customer/payments*') ? 'active' : '' }}" href="{{ route('customer.payments') }}">
-                    <i class="fas fa-money-bill"></i> Pembayaran
-                </a>
-                <a class="nav-link {{ Request::is('customer/ratings*') ? 'active' : '' }}" href="{{ route('customer.ratings') }}">
-                    <i class="fas fa-star"></i> Beri Rating
-                </a>
+    <!-- Main content -->
+    <main class="main-content position-relative border-radius-lg">
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
             @endif
 
-            <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                @csrf
-            </form>
-        </nav>
-    </div>
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
 
-    <!-- Main Content -->
-    <div class="main-content">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @yield('content')
-    </div>
+            @yield('content')
+        </div>
+    </main>
     @else
         @yield('content')
     @endauth
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+
+    <!-- Core JS Files -->
+    <script src="https://demos.creative-tim.com/argon-dashboard/assets/js/core/popper.min.js"></script>
+    <script src="https://demos.creative-tim.com/argon-dashboard/assets/js/core/bootstrap.min.js"></script>
+    <script src="https://demos.creative-tim.com/argon-dashboard/assets/js/plugins/perfect-scrollbar.min.js"></script>
+    <script src="https://demos.creative-tim.com/argon-dashboard/assets/js/plugins/smooth-scrollbar.min.js"></script>
+    <script src="https://demos.creative-tim.com/argon-dashboard/assets/js/argon-dashboard.min.js"></script>
+
+    <!-- Page specific scripts -->
+    @stack('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force icon refresh
+            const icons = document.querySelectorAll('.ni');
+            icons.forEach(icon => {
+                icon.style.display = 'none';
+                setTimeout(() => icon.style.display = '', 10);
+            });
+        });
+    </script>
     
-    <!-- Argon JS -->
-    <script src="https://cdn.jsdelivr.net/npm/argon-design-system-free@1.2.0/assets/js/argon-design-system.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/argon-dashboard@1.2.0/assets/js/argon-dashboard.min.js"></script>
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        var win = navigator.platform.indexOf('Win') > -1;
+        if (win && document.querySelector('#sidenav-scrollbar')) {
+            var options = {
+                damping: '0.5'
+            }
+            Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
+        }
+    </script>
 </body>
-
 </html>

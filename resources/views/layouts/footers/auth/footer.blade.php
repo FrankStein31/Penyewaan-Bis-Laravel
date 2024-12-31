@@ -1,14 +1,20 @@
-<footer class="footer pt-3  ">
+<footer class="footer pt-3">
     <div class="container-fluid">
-        <div class="row align-items-center justify-content-lg-between">
-            <div class="col-lg-6 mb-lg-0 mb-4">
-                <div class="copyright text-center text-sm text-muted text-lg-start">
-                    ©
-                    <script>
-                        document.write(new Date().getFullYear())
-                    </script>,
-                    made with <i class="fa fa-heart"></i> by
-                    <a href="https://www.instagram.com/steinliejoki?igsh=ODRkeGpuN3U3MGhp" class="font-weight-bold" target="_blank">Owner</a>
+        <div class="row">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="small mb-2">
+                        ©
+                        <script>
+                            document.write(new Date().getFullYear())
+                        </script>
+                        made with <i class="fa fa-heart text-danger mx-1"></i> by
+                        <a href="https://www.instagram.com/steinliejoki?igsh=ODRkeGpuN3U3MGhp" 
+                           class="font-weight-bold text-primary" 
+                           target="_blank">
+                            Owner
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

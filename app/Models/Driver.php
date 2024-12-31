@@ -8,9 +8,18 @@ class Driver extends Model
 {
     protected $fillable = [
         'name',
-        'phone',
         'license_number',
-        'status'
+        'phone',
+        'address',
+        'license_expire',
+        'status',
+        'photo',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'license_expire' => 'date',
+        'is_active' => 'boolean'
     ];
 
     public function rentals()

@@ -109,4 +109,12 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ratings', [RatingController::class, 'index'])->name('ratings');
         Route::post('/rate/{rental}', [RatingController::class, 'store'])->name('rate');
     });
+
+    // Driver Routes (dalam group middleware auth)
+    Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+    Route::get('/drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+    Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
+    Route::get('/drivers/{driver}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('/drivers/{driver}', [DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('/drivers/{driver}', [DriverController::class, 'destroy'])->name('drivers.destroy');
 });
