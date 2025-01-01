@@ -58,9 +58,12 @@ CREATE TABLE `buses` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `buses_plate_number_unique` (`plate_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `buses` */
+
+insert  into `buses`(`id`,`plate_number`,`type`,`capacity`,`price_per_day`,`description`,`image`,`status`,`is_active`,`created_at`,`updated_at`) values 
+(1,'AG 6454 BK','umum',32,120000.00,'bus apa lah','1735707605_Logo Polinema (Politeknik Negeri Malang) (1).png','tersedia',0,'2025-01-01 05:00:05','2025-01-01 05:00:58');
 
 /*Table structure for table `conductor_ratings` */
 
@@ -101,9 +104,12 @@ CREATE TABLE `conductors` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `conductors` */
+
+insert  into `conductors`(`id`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
+(1,'Kernet','08512345678','medan','on_duty','1735702663_2131730071.JPG',1,'2025-01-01 03:37:43','2025-01-01 03:38:46');
 
 /*Table structure for table `driver_ratings` */
 
@@ -153,7 +159,7 @@ CREATE TABLE `drivers` (
 
 insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
 (2,'Driverrr Coba','2131730071','08512345678','paer','2025-01-03','available','1735608726_2131730071.JPG',1,'2024-12-31 01:24:16','2024-12-31 01:33:31'),
-(3,'kasir2','2131730071241','12345','afsadasdasd','2025-01-03','available','1735609673_Logo Polinema (Politeknik Negeri Malang) (1).png',0,'2024-12-31 01:47:53','2024-12-31 01:48:08');
+(3,'kasir2','2131730071241','12345','afsadasdasd','2025-01-03','available','1735609673_Logo Polinema (Politeknik Negeri Malang) (1).png',1,'2024-12-31 01:47:53','2025-01-01 03:38:03');
 
 /*Table structure for table `migrations` */
 
@@ -271,7 +277,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('fMJyH1JN1Pf3FOBic2uwu9jxqukeexhfhy9PGzD6',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTozOntzOjY6Il90b2tlbiI7czo0MDoicm9BSUVJVHltOThyREVPN0RrMEJKamVtSXYxSWhIWWFDOGhwRVExbSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fX0=',1735615324);
+('6wvOpIMKu1n9ROGKAPrZQaZuPCF1lrZ6yFB8mLqu',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWU5wREc2b1FabVdBSFlSRkxXY3I3M1lnbk9mcndyd1Q1bXE1UGJuZSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9idXNlcyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7fQ==',1735707663);
 
 /*Table structure for table `users` */
 
@@ -300,14 +306,14 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_username_unique` (`username`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`firstname`,`lastname`,`email`,`role`,`phone`,`avatar`,`address`,`city`,`country`,`postal`,`about`,`email_verified_at`,`password`,`is_active`,`remember_token`,`created_at`,`updated_at`) values 
-(1,'Frankie','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2024-12-30 01:07:12'),
-(3,'admin',NULL,NULL,'admin@gmail.com','admin',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32'),
-(9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,NULL,'Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$ddxhsu/n/Sb/nFfpmEYX1.iYHT2xynzQBdYaDTbSNUoMvaIgkUGgy',1,NULL,'2024-12-30 05:47:55','2024-12-30 05:48:37');
+(1,'Frank','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,'1735705005_Logo Polinema (Politeknik Negeri Malang) (1).png','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2025-01-01 04:32:32'),
+(3,'admin','admin',NULL,'admin@gmail.com','admin',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32'),
+(9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,'1735707119_2131730071.JPG','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$6jLVNc4NH.i/YGfUn4U7DeMgv/r1GikLYuycBbO.V4C/b4oeV4I2u',1,NULL,'2024-12-30 05:47:55','2025-01-01 04:51:59');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
