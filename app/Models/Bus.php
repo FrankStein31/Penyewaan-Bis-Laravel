@@ -10,8 +10,16 @@ class Bus extends Model
         'plate_number',
         'type',
         'capacity',
-        'price',
-        'status'
+        'price_per_day',
+        'description',
+        'image',
+        'status',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'price_per_day' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
 
     public function rentals()

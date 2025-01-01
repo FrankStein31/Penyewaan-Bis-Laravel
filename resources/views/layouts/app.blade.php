@@ -404,7 +404,7 @@
                         </a>
                     </li>
                 @endif
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <form method="POST" action="{{ route('logout') }}" class="nav-link">
                         @csrf
                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();">
@@ -414,8 +414,46 @@
                             <span class="nav-link-text ms-1">Logout</span>
                         </a>
                     </form>
-                </li>
+                </li> -->
             </ul>
+            
+            <!-- Spacer untuk mendorong user info ke bawah -->
+            <!-- Spacer -->
+            <div style="flex-grow: 1;"></div>
+            
+            <!-- User info dan logout -->
+            <div style="padding: 1rem; border-top: 1px solid #e9ecef; margin-top: 1rem;">
+                <div style="display: flex; align-items: center;">
+                    <div>
+                        @if(auth()->user()->avatar)
+                            <img src="{{ asset('img/users/' . auth()->user()->avatar) }}" 
+                                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        @else
+                            <i class="fas fa-user" style="width: 40px; height: 40px; font-size: 24px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center;"></i>
+                        @endif
+                    </div>
+                    <div style="margin-left: 1rem;">
+                        <div style="font-weight: 600; font-size: 0.875rem;">
+                            {{ auth()->user()->firstname ?? auth()->user()->username }}
+                        </div>
+                        <div style="color: #6c757d; font-size: 0.75rem;">
+                            {{ ucfirst(auth()->user()->role) }}
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" style="margin-top: 1rem;">
+                    @csrf
+                    <a href="{{ route('logout') }}" 
+                       style="display: flex; align-items: center; text-decoration: none; padding: 0.5rem; border-radius: 0.375rem; transition: background-color 0.2s;"
+                       onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                       onmouseout="this.style.backgroundColor='transparent'"
+                       onclick="event.preventDefault(); this.closest('form').submit();">
+                        <i class="fas fa-sign-out-alt" style="color: #dc3545; width: 1rem; text-align: center;"></i>
+                        <span style="color: #dc3545; margin-left: 0.5rem;">Logout</span>
+                    </a>
+                </form>
+            </div>
         </div>
     </aside>
 
@@ -423,7 +461,7 @@
     <main class="main-content position-relative border-radius-lg">
         <!-- Content -->
         <div class="container-fluid py-4">
-            @if(session('success'))
+            <!-- @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -435,7 +473,7 @@
                     {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            @endif
+            @endif -->
 
             @yield('content')
         </div>

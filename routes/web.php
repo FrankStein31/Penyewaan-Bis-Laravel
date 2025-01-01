@@ -133,4 +133,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Routes untuk bus
+    Route::get('/buses', [BusController::class, 'index'])->name('buses.index');
+    Route::get('/buses/create', [BusController::class, 'create'])->name('buses.create');
+    Route::post('/buses', [BusController::class, 'store'])->name('buses.store');
+    Route::get('/buses/{bus}/edit', [BusController::class, 'edit'])->name('buses.edit');
+    Route::put('/buses/{bus}', [BusController::class, 'update'])->name('buses.update');
+    Route::delete('/buses/{bus}', [BusController::class, 'destroy'])->name('buses.destroy');
 });

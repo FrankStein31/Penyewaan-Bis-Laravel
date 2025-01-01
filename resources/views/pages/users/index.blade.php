@@ -7,8 +7,18 @@
             <div class="col-12">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show text-white" role="alert">
-                        <span class="alert-icon"><i class="ni ni-check-bold"></i></span>
+                        <span class="alert-icon"><i class="fas fa-check"></i></span>
                         <span class="alert-text">{{ session('success') }}</span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show text-white" role="alert">
+                        <span class="alert-icon"><i class="fas fa-times"></i></span>
+                        <span class="alert-text">{{ session('error') }}</span>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
