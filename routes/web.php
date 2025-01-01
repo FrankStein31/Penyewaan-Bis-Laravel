@@ -141,4 +141,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/buses/{bus}/edit', [BusController::class, 'edit'])->name('buses.edit');
     Route::put('/buses/{bus}', [BusController::class, 'update'])->name('buses.update');
     Route::delete('/buses/{bus}', [BusController::class, 'destroy'])->name('buses.destroy');
+
+    // Routes untuk customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
+    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
+    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
+    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
 });

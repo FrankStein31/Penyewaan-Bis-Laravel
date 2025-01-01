@@ -13,13 +13,13 @@ class DashboardController extends Controller
     public function ownerDashboard()
     {
         if (auth()->user()->role !== 'owner') {
-            return redirect('/')->with('error', 'Unauthorized access');
+            return redirect('/')->with('error', 'Akses tidak diizinkan');
         }
 
         $data = [
             'totalBis' => Bus::count(),
-            'bisTersedia' => Bus::where('status', 'available')->count(),
-            'bisDisewa' => Bus::where('status', 'rented')->count(),
+            'bisTersedia' => Bus::where('status', 'tersedia')->count(),
+            'bisDisewa' => Bus::where('status', 'disewa')->count(),
             'pendapatanBulan' => Payment::whereMonth('created_at', now()->month)
                                       ->where('status', 'verified')
                                       ->sum('amount'),
@@ -28,7 +28,11 @@ class DashboardController extends Controller
                 'data' => $this->getRentalData()
             ],
             'topBuses' => $this->getTopBuses(),
-            'topDrivers' => $this->getTopDrivers()
+            'topDrivers' => $this->getTopDrivers(),
+            'latestRentals' => Rental::with(['user', 'bus'])
+                                    ->latest()
+                                    ->take(5)
+                                    ->get()
         ];
 
         return view('owner.dashboard', $data);
@@ -37,15 +41,15 @@ class DashboardController extends Controller
     public function adminDashboard()
     {
         if (auth()->user()->role !== 'admin') {
-            return redirect('/')->with('error', 'Unauthorized access');
+            return redirect('/')->with('error', 'Akses tidak diizinkan');
         }
 
         $data = [
             'totalBis' => Bus::count(),
-            'bisTersedia' => Bus::where('status', 'available')->count(),
-            'bisDisewa' => Bus::where('status', 'rented')->count(),
+            'bisTersedia' => Bus::where('status', 'tersedia')->count(),
+            'bisDisewa' => Bus::where('status', 'disewa')->count(),
             'bisMaintenance' => Bus::where('status', 'maintenance')->count(),
-            'latestRentals' => Rental::with(['user', 'bus'])
+            'latestRentals' => Rental::with(['user', 'bus', 'driver'])
                                     ->latest()
                                     ->take(5)
                                     ->get(),
@@ -53,7 +57,11 @@ class DashboardController extends Controller
                                       ->where('status', 'pending')
                                       ->latest()
                                       ->take(5)
-                                      ->get()
+                                      ->get(),
+            'chartData' => [
+                'labels' => $this->getLast7Days(),
+                'data' => $this->getRentalData()
+            ]
         ];
 
         return view('admin.dashboard', $data);
@@ -62,7 +70,7 @@ class DashboardController extends Controller
     public function customerDashboard()
     {
         if (auth()->user()->role !== 'customer') {
-            return redirect('/')->with('error', 'Unauthorized access');
+            return redirect('/')->with('error', 'Akses tidak diizinkan');
         }
 
         $userId = auth()->id();
@@ -72,11 +80,15 @@ class DashboardController extends Controller
                                    ->where('user_id', $userId)
                                    ->where('status', 'active')
                                    ->first(),
-            'rentalHistory' => Rental::with(['bus', 'ratings'])
+            'rentalHistory' => Rental::with(['bus', 'driver', 'ratings', 'payment'])
                                     ->where('user_id', $userId)
                                     ->where('status', '!=', 'active')
                                     ->latest()
-                                    ->get()
+                                    ->get(),
+            'totalRentals' => Rental::where('user_id', $userId)->count(),
+            'totalPayments' => Payment::whereHas('rental', function($q) use ($userId) {
+                                $q->where('user_id', $userId);
+                            })->where('status', 'verified')->sum('amount')
         ];
 
         return view('customer.dashboard', $data);
@@ -117,4 +129,4 @@ class DashboardController extends Controller
                     ->take(5)
                     ->get();
     }
-} 
+}
