@@ -129,4 +129,57 @@ class BusController extends Controller
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
+
+    public function search(Request $request)
+    {
+        $query = Bus::query();
+        $query->where('is_active', true);
+        $query->where('status', 'tersedia');
+
+        // Filter berdasarkan tipe bus
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter berdasarkan kapasitas
+        if ($request->filled('capacity')) {
+            $query->where('capacity', '>=', $request->capacity);
+        }
+
+        // Filter berdasarkan rentang harga
+        if ($request->filled('price_min')) {
+            $query->where('price_per_day', '>=', $request->price_min);
+        }
+        if ($request->filled('price_max')) {
+            $query->where('price_per_day', '<=', $request->price_max);
+        }
+
+        // Search berdasarkan deskripsi
+        if ($request->filled('keyword')) {
+            $query->where(function($q) use ($request) {
+                $q->where('plate_number', 'like', '%' . $request->keyword . '%')
+                  ->orWhere('description', 'like', '%' . $request->keyword . '%');
+            });
+        }
+
+        $buses = $query->get();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'buses' => $buses
+            ]);
+        }
+
+        return view('pages.buses.search', compact('buses'));
+    }
+
+    public function book(Bus $bus)
+    {
+        // Pastikan bus tersedia
+        if ($bus->status !== 'tersedia') {
+            return back()->with('error', 'Bus tidak tersedia untuk disewa');
+        }
+
+        return view('pages.buses.book', compact('bus'));
+    }
 } 

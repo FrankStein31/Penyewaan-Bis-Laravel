@@ -1,66 +1,79 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Dashboard')
-
 @section('content')
-<div class="container-fluid">
-    <h2 class="mb-4">Dashboard Admin</h2>
-
+@include('layouts.navbars.auth.topnav', ['title' => 'Dashboard Admin'])
+<div class="container-fluid py-4">
     <!-- Status Bis -->
     <div class="row">
         <div class="col-md-3">
-            <div class="dashboard-card card-total-bis">
-                <h3>{{ $totalBis }} Unit</h3>
-                <p>Total Bis</p>
+            <div class="card mb-4">
+                <div class="card-body px-3 py-3 text-center bg-gradient-info">
+                    <h3 class="mb-2 text-white">{{ $totalBis }} Unit</h3>
+                    <p class="text-sm mb-0 text-white">Total Bis</p>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="dashboard-card card-tersedia">
-                <h3>{{ $bisTersedia }} Unit</h3>
-                <p>Bis Tersedia</p>
+            <div class="card mb-4">
+                <div class="card-body px-3 py-3 text-center bg-gradient-success">
+                    <h3 class="mb-2 text-white">{{ $bisTersedia }} Unit</h3>
+                    <p class="text-sm mb-0 text-white">Bis Tersedia</p>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="dashboard-card card-disewa">
-                <h3>{{ $bisDisewa }} Unit</h3>
-                <p>Bis Disewa</p>
+            <div class="card mb-4">
+                <div class="card-body px-3 py-3 text-center bg-gradient-warning">
+                    <h3 class="mb-2 text-white">{{ $bisDisewa }} Unit</h3>
+                    <p class="text-sm mb-0 text-white">Bis Disewa</p>
+                </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="dashboard-card card-maintenance">
-                <h3>{{ $bisMaintenance }} Unit</h3>
-                <p>Maintenance</p>
+            <div class="card mb-4">
+                <div class="card-body px-3 py-3 text-center bg-gradient-danger">
+                    <h3 class="mb-2 text-white">{{ $bisMaintenance }} Unit</h3>
+                    <p class="text-sm mb-0 text-white">Maintenance</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Permintaan Penyewaan Terbaru -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Permintaan Penyewaan Terbaru</h5>
+    <div class="card">
+        <div class="card-header pb-0">
+            <h6>Permintaan Penyewaan Terbaru</h6>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+        <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
                     <thead>
                         <tr>
-                            <th>Kode Sewa</th>
-                            <th>Penyewa</th>
-                            <th>Bis</th>
-                            <th>Tanggal</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kode Sewa</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Penyewa</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bis</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($latestRentals as $rental)
                         <tr>
-                            <td>{{ $rental->rental_code }}</td>
-                            <td>{{ $rental->user->firstname }}</td>
-                            <td>{{ $rental->bus->plate_number }}</td>
-                            <td>{{ $rental->start_date->format('d/m/Y') }}</td>
                             <td>
-                                <span class="badge badge-{{ 
+                                <p class="text-sm font-weight-bold mb-0 px-3">{{ $rental->rental_code }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">{{ $rental->user->firstname }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">{{ $rental->bus->plate_number }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">{{ $rental->start_date->format('d/m/Y') }}</p>
+                            </td>
+                            <td>
+                                <span class="badge badge-sm bg-gradient-{{ 
                                     $rental->status == 'pending' ? 'warning' : 
                                     ($rental->status == 'aktif' ? 'success' : 
                                     ($rental->status == 'selesai' ? 'info' : 'danger')) 
@@ -70,14 +83,14 @@
                             </td>
                             <td>
                                 <a href="{{ route('admin.rentals.show', $rental->id) }}" 
-                                   class="btn btn-sm btn-primary">
+                                   class="btn btn-sm bg-gradient-primary">
                                     <i class="fas fa-eye"></i>
                                 </a>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center">Belum ada permintaan penyewaan</td>
+                            <td colspan="6" class="text-center py-4">Belum ada permintaan penyewaan</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -88,44 +101,52 @@
 
     <!-- Pembayaran yang Perlu Diverifikasi -->
     <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="card-title mb-0">Pembayaran yang Perlu Diverifikasi</h5>
+        <div class="card-header pb-0">
+            <h6>Pembayaran yang Perlu Diverifikasi</h6>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+        <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
                     <thead>
                         <tr>
-                            <th>Kode Bayar</th>
-                            <th>Penyewa</th>
-                            <th>Jumlah</th>
-                            <th>Tanggal</th>
-                            <th>Bukti</th>
-                            <th>Aksi</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kode Bayar</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Penyewa</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jumlah</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th>
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($pendingPayments as $payment)
                         <tr>
-                            <td>{{ $payment->payment_code }}</td>
-                            <td>{{ $payment->rental->user->firstname }}</td>
-                            <td>Rp {{ number_format($payment->amount) }}</td>
-                            <td>{{ $payment->created_at->format('d/m/Y H:i') }}</td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-info">
+                                <p class="text-sm font-weight-bold mb-0 px-3">{{ $payment->payment_code }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">{{ $payment->rental->user->firstname }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">Rp {{ number_format($payment->amount) }}</p>
+                            </td>
+                            <td>
+                                <p class="text-sm font-weight-bold mb-0">{{ $payment->created_at->format('d/m/Y H:i') }}</p>
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-sm bg-gradient-info">
                                     <i class="fas fa-image"></i>
                                 </a>
                             </td>
                             <td>
                                 <a href="{{ route('admin.payments.verify', $payment->id) }}" 
-                                   class="btn btn-sm btn-success">
+                                   class="btn btn-sm bg-gradient-success">
                                     <i class="fas fa-check"></i>
                                 </a>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center">Tidak ada pembayaran yang perlu diverifikasi</td>
+                            <td colspan="6" class="text-center py-4">Tidak ada pembayaran yang perlu diverifikasi</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -134,4 +155,4 @@
         </div>
     </div>
 </div>
-@endsection 
+@endsection

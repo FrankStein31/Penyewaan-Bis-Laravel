@@ -51,4 +51,24 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'is_active' => 'boolean',
     ];
+
+    public function driverRatings()
+    {
+        return $this->hasMany(Rating::class, 'driver_id');
+    }
+
+    public function conductorRatings()
+    {
+        return $this->hasMany(Rating::class, 'conductor_id');
+    }
+
+    public function driverRentals()
+    {
+        return $this->hasMany(Rental::class, 'driver_id');
+    }
+
+    public function conductorRentals()
+    {
+        return $this->hasMany(Rental::class, 'conductor_id');
+    }
 }

@@ -78,53 +78,59 @@ class CustomerController extends Controller
         }
 
         $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $customer->id,
+            'username' => 'required|unique:users,username,' . $customer->id,
             'firstname' => 'required|string|max:255',
             'lastname' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $customer->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'email' => 'required|email|unique:users,email,' . $customer->id,
             'phone' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'postal' => 'nullable|string|max:255',
             'about' => 'nullable|string',
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|min:6|confirmed'
         ]);
 
         try {
-            $data = $request->except(['avatar', 'password']);
-            $data['is_active'] = $request->has('is_active');
-
+            $data = $request->except(['_token', '_method', 'avatar', 'password_confirmation']);
+            
+            // Handle password if provided
             if ($request->filled('password')) {
                 $data['password'] = Hash::make($request->password);
+            } else {
+                unset($data['password']);
             }
 
+            // Handle avatar upload
             if ($request->hasFile('avatar')) {
+                // Hapus avatar lama jika ada
                 if ($customer->avatar) {
                     $oldPath = public_path('img/users/' . $customer->avatar);
                     if (file_exists($oldPath)) {
                         unlink($oldPath);
                     }
                 }
-                
+
                 $avatar = $request->file('avatar');
                 $filename = time() . '_' . $avatar->getClientOriginalName();
                 $avatar->move(public_path('img/users'), $filename);
                 $data['avatar'] = $filename;
             }
 
+            // Handle is_active checkbox
+            $data['is_active'] = $request->has('is_active');
+
             $customer->update($data);
 
             return redirect()
-                ->route('customers.index')
-                ->with('success', 'Data customer berhasil diperbarui');
-
+                ->route('customer.customers.index')
+                ->with('success', 'Data pelanggan berhasil diperbarui!');
+            
         } catch (\Exception $e) {
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+                ->with('error', 'Gagal mengupdate data pelanggan: ' . $e->getMessage());
         }
     }
 

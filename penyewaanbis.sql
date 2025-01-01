@@ -58,12 +58,13 @@ CREATE TABLE `buses` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `buses_plate_number_unique` (`plate_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `buses` */
 
 insert  into `buses`(`id`,`plate_number`,`type`,`capacity`,`price_per_day`,`description`,`image`,`status`,`is_active`,`created_at`,`updated_at`) values 
-(1,'AG 6454 BK','umum',32,120000.00,'bus apa lah','1735707605_Logo Polinema (Politeknik Negeri Malang) (1).png','tersedia',0,'2025-01-01 05:00:05','2025-01-01 05:00:58');
+(1,'AG 6454 BK','umum',32,120000.00,'bus apa lah','1735707605_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-01 05:00:05','2025-01-01 09:35:51'),
+(2,'AG 6454 BG','antarkota',12,200000.00,'asdasaeesf','1735727245_2131730118.jpg','tersedia',1,'2025-01-01 10:27:25','2025-01-01 10:27:25');
 
 /*Table structure for table `conductor_ratings` */
 
@@ -104,12 +105,13 @@ CREATE TABLE `conductors` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `conductors` */
 
 insert  into `conductors`(`id`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(1,'Kernet','08512345678','medan','on_duty','1735702663_2131730071.JPG',1,'2025-01-01 03:37:43','2025-01-01 03:38:46');
+(1,'Kernet','08512345678','medan','on_duty','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-01 10:25:56'),
+(2,'Agus','12345','Kediri','available','1735727144_2131730071.JPG',1,'2025-01-01 10:25:44','2025-01-01 10:25:44');
 
 /*Table structure for table `driver_ratings` */
 
@@ -158,8 +160,8 @@ CREATE TABLE `drivers` (
 /*Data for the table `drivers` */
 
 insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(2,'Driverrr Coba','2131730071','08512345678','paer','2025-01-03','available','1735608726_2131730071.JPG',1,'2024-12-31 01:24:16','2024-12-31 01:33:31'),
-(3,'kasir2','2131730071241','12345','afsadasdasd','2025-01-03','available','1735609673_Logo Polinema (Politeknik Negeri Malang) (1).png',1,'2024-12-31 01:47:53','2025-01-01 03:38:03');
+(2,'Mail','2131730071','08512345678','paer','2025-01-03','on_duty','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-01 10:26:47'),
+(3,'Sifaul','2131730071241','12345','afsadasdasd','2025-01-03','available','1735727176_24164782705.jpg',1,'2024-12-31 01:47:53','2025-01-01 10:26:16');
 
 /*Table structure for table `migrations` */
 
@@ -254,9 +256,12 @@ CREATE TABLE `rentals` (
   CONSTRAINT `rentals_conductor_id_foreign` FOREIGN KEY (`conductor_id`) REFERENCES `conductors` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_driver_id_foreign` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rentals` */
+
+insert  into `rentals`(`id`,`rental_code`,`user_id`,`bus_id`,`driver_id`,`conductor_id`,`start_date`,`end_date`,`pickup_location`,`destination`,`total_days`,`total_price`,`status`,`rental_status`,`payment_status`,`notes`,`created_at`,`updated_at`) values 
+(4,'RNT202501010001',1,1,2,1,'2025-01-01 16:35:00','2025-01-04 16:35:00','aaaaaaaaaaaaaaa','aeeeeeeeeeeeer',-2,-240000.00,'pending','pending','unpaid','rrrrrrrrrrrrrrrr','2025-01-01 09:35:51','2025-01-01 09:35:51');
 
 /*Table structure for table `sessions` */
 
@@ -277,7 +282,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('6wvOpIMKu1n9ROGKAPrZQaZuPCF1lrZ6yFB8mLqu',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWU5wREc2b1FabVdBSFlSRkxXY3I3M1lnbk9mcndyd1Q1bXE1UGJuZSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9idXNlcyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7fQ==',1735707663);
+('3SOdHtoJ5AOH88NgPBN1b2NpkPe2nun6nJEjGH09',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOUdKbjhNYk0yRGdQclpwZWYxMFU3S2NvcWpzbDBNb2cxVE9SQTZybyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9yZW50YWxzIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mzt9',1735727979);
 
 /*Table structure for table `users` */
 
@@ -311,7 +316,7 @@ CREATE TABLE `users` (
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`firstname`,`lastname`,`email`,`role`,`phone`,`avatar`,`address`,`city`,`country`,`postal`,`about`,`email_verified_at`,`password`,`is_active`,`remember_token`,`created_at`,`updated_at`) values 
-(1,'Frank','Frankie','Steinlie','frankie.steinlie@gmail.com','customer',NULL,'1735705005_Logo Polinema (Politeknik Negeri Malang) (1).png','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Fullstack Developer',NULL,'$2y$12$cwYwPB5kXhkUSOi04wqAX.3eSMU5sbtn1Rrg9Sn3i62WrNX6orUnC',1,NULL,'2024-12-30 01:06:32','2025-01-01 04:32:32'),
+(1,'Frank','Frankie','Steinlie','frankie.steinlie@gmail.com','customer','08512345678','1735727104_2131730071.JPG','Jl. Garuda No.3C, Medan','Medan Kota','Indonesia','64212','Developer',NULL,'$2y$12$snLd.kqqLzuLAGMIylAQZOnlpIdu9qOPj4t.bWpMtK4odMBumo7AS',1,NULL,'2024-12-30 01:06:32','2025-01-01 10:25:04'),
 (3,'admin','admin',NULL,'admin@gmail.com','admin',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32'),
 (9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,'1735707119_2131730071.JPG','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$6jLVNc4NH.i/YGfUn4U7DeMgv/r1GikLYuycBbO.V4C/b4oeV4I2u',1,NULL,'2024-12-30 05:47:55','2025-01-01 04:51:59');
 

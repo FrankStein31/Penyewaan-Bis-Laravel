@@ -29,7 +29,7 @@
                     <div class="card-header pb-0">
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0">Data Customer</h6>
-                            <a href="{{ route('customers.create') }}" class="btn bg-gradient-primary btn-sm ms-auto">
+                            <a href="{{ route('customer.customers.create') }}" class="btn bg-gradient-primary btn-sm ms-auto">
                                 <i class="fas fa-plus"></i> Tambah Customer
                             </a>
                         </div>
@@ -84,11 +84,11 @@
                                             </span>
                                         </td>
                                         <td class="align-middle">
-                                            <a href="{{ route('customers.edit', $customer) }}" 
+                                            <a href="{{ route('customer.customers.edit', $customer) }}" 
                                                class="btn btn-sm bg-gradient-info text-white px-3 mb-0">
                                                 <i class="fas fa-pencil-alt me-2"></i> Edit
                                             </a>
-                                            <form action="{{ route('customers.destroy', $customer) }}" 
+                                            <form action="{{ route('customer.customers.destroy', $customer) }}" 
                                                   method="POST" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')

@@ -16,6 +16,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ProfileController;
 
 // Landing page (dapat diakses semua orang)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -85,6 +87,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
         Route::put('/request/{id}/approve', [RequestController::class, 'approve'])->name('requests.approve');
         Route::put('/request/{id}/reject', [RequestController::class, 'reject'])->name('requests.reject');
+
+        Route::get('/rentals', [RentalController::class, 'adminIndex'])->name('rentals.index');
+        Route::get('/rentals/{rental}', [RentalController::class, 'adminShow'])->name('rentals.show');
     });
 
     // Customer Routes
@@ -101,7 +106,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/book/{bus}', [RentalController::class, 'book'])->name('book');
         
         // Rentals & Payments
-        Route::get('/rentals', [RentalController::class, 'myRentals'])->name('rentals');
+        Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
+        Route::get('rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
+        Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
+        Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
+        Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
         Route::post('/payment/{rental}', [PaymentController::class, 'pay'])->name('pay');
         
@@ -142,11 +151,34 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/buses/{bus}', [BusController::class, 'update'])->name('buses.update');
     Route::delete('/buses/{bus}', [BusController::class, 'destroy'])->name('buses.destroy');
 
-    // Routes untuk customers
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/customers/create', [CustomerController::class, 'create'])->name('customers.create');
-    Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
-    Route::get('/customers/{customer}/edit', [CustomerController::class, 'edit'])->name('customers.edit');
-    Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
-    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+    // Routes untuk pencarian dan pemesanan bus
+    Route::get('/buses/search', [BusController::class, 'search'])->name('buses.search');
+    Route::get('/buses/{bus}/book', [BusController::class, 'book'])->name('buses.book');
+
+    // Routes untuk booking
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
+    // Routes untuk rental (tanpa prefix customer)
+    Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
+    Route::get('/rentals/create', [RentalController::class, 'create'])->name('rentals.create');
+    Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
+    Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
+    Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
+    
+    // Routes untuk customer dan rental dalam satu prefix
+    Route::prefix('customer')->name('customer.')->group(function () {
+        // Routes untuk customers
+        Route::resource('customers', CustomerController::class);
+        
+        // Routes untuk rental
+        Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
+        Route::get('rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
+        Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
+        Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
+        Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
+    });
+    
 });

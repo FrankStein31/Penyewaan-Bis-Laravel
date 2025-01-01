@@ -12,7 +12,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('customers.store') }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('customer.customers.store') }}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
@@ -146,7 +146,7 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-4">
-                                <a href="{{ route('customers.index') }}" class="btn btn-light m-0">Kembali</a>
+                                <a href="{{ route('customer.customers.index') }}" class="btn btn-light m-0">Kembali</a>
                                 <button type="submit" class="btn bg-gradient-primary m-0 ms-2">Simpan</button>
                             </div>
                         </form>

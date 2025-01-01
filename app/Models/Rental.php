@@ -14,14 +14,20 @@ class Rental extends Model
         'conductor_id',
         'start_date',
         'end_date',
+        'pickup_location',
+        'destination',
+        'total_days',
         'total_price',
         'status',
-        'payment_status'
+        'rental_status',
+        'payment_status',
+        'notes'
     ];
 
-    protected $dates = [
-        'start_date',
-        'end_date'
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+        'total_price' => 'decimal:2'
     ];
 
     public function user()
@@ -36,12 +42,17 @@ class Rental extends Model
 
     public function driver()
     {
-        return $this->belongsTo(Driver::class);
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     public function conductor()
     {
-        return $this->belongsTo(Conductor::class);
+        return $this->belongsTo(User::class, 'conductor_id');
+    }
+
+    public function ratings()
+    {
+        return $this->hasOne(Rating::class);
     }
 
     public function payment()
@@ -49,8 +60,22 @@ class Rental extends Model
         return $this->hasOne(Payment::class);
     }
 
-    public function ratings()
+    // Generate rental code
+    public static function generateRentalCode()
     {
-        return $this->hasMany(Rating::class);
+        $prefix = 'RNT';
+        $date = now()->format('Ymd');
+        $lastRental = self::whereDate('created_at', today())
+            ->latest()
+            ->first();
+
+        if ($lastRental) {
+            $lastNumber = intval(substr($lastRental->rental_code, -4));
+            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        } else {
+            $newNumber = '0001';
+        }
+
+        return $prefix . $date . $newNumber;
     }
 } 

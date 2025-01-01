@@ -12,7 +12,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('customers.update', $customer) }}" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('customer.customers.update', $customer) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="row">
@@ -155,7 +155,7 @@
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-4">
-                                <a href="{{ route('customers.index') }}" class="btn btn-light m-0">Kembali</a>
+                                <a href="{{ route('customer.customers.index') }}" class="btn btn-light m-0">Kembali</a>
                                 <button type="submit" class="btn bg-gradient-primary m-0 ms-2">Simpan Perubahan</button>
                             </div>
                         </form>
