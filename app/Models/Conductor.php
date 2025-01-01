@@ -10,7 +10,13 @@ class Conductor extends Model
         'name',
         'phone',
         'address',
-        'status'
+        'status',
+        'photo',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean'
     ];
 
     public function rentals()

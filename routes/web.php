@@ -117,4 +117,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/drivers/{driver}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
     Route::put('/drivers/{driver}', [DriverController::class, 'update'])->name('drivers.update');
     Route::delete('/drivers/{driver}', [DriverController::class, 'destroy'])->name('drivers.destroy');
+
+    // Routes untuk conductors
+    Route::get('/conductors', [ConductorController::class, 'index'])->name('conductors.index');
+    Route::get('/conductors/create', [ConductorController::class, 'create'])->name('conductors.create');
+    Route::post('/conductors', [ConductorController::class, 'store'])->name('conductors.store');
+    Route::get('/conductors/{conductor}/edit', [ConductorController::class, 'edit'])->name('conductors.edit');
+    Route::put('/conductors/{conductor}', [ConductorController::class, 'update'])->name('conductors.update');
+    Route::delete('/conductors/{conductor}', [ConductorController::class, 'destroy'])->name('conductors.destroy');
 });
