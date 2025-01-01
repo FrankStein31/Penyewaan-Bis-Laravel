@@ -84,8 +84,7 @@
                                         @enderror
                                         @if($user->avatar)
                                             <div class="mt-2">
-                                                <img src="{{ asset('storage/avatars/' . $user->avatar) }}" 
-                                                     alt="Current Avatar" class="avatar avatar-sm me-3">
+                                                <img src="{{ asset('img/users/' . $user->avatar) }}" alt="Current Avatar" class="avatar avatar-sm me-3">
                                                 <small class="text-muted">Avatar saat ini</small>
                                             </div>
                                         @endif

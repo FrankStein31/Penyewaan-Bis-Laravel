@@ -335,6 +335,7 @@
                             </div>
                             <span class="nav-link-text ms-1">Jam Terbang Supir</span>
                         </a>
+                        
                     </li>
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('owner/statistics/fleet') ? 'active' : '' }}" href="{{ route('owner.statistics.fleet') }}">

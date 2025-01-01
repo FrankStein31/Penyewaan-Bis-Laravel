@@ -43,7 +43,7 @@
                                             <div class="d-flex px-2 py-1">
                                                 <div>
                                                     @if($user->avatar)
-                                                        <img src="{{ asset('storage/avatars/' . $user->avatar) }}" class="avatar avatar-sm me-3" alt="user1">
+                                                        <img src="{{ asset('img/users/' . $user->avatar) }}" class="avatar avatar-sm me-3" alt="user1">
                                                     @else
                                                         <img src="{{ asset('img/default-avatar.png') }}" class="avatar avatar-sm me-3" alt="user1">
                                                     @endif

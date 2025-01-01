@@ -45,7 +45,7 @@ class UserController extends Controller
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
                 $filename = time() . '_' . $avatar->getClientOriginalName();
-                $avatar->move(public_path('storage/avatars'), $filename);
+                $avatar->move(public_path('img/users'), $filename);
                 $data['avatar'] = $filename;
             }
 
@@ -94,12 +94,15 @@ class UserController extends Controller
             
             if ($request->hasFile('avatar')) {
                 if ($user->avatar) {
-                    Storage::delete('public/avatars/' . $user->avatar);
+                    $oldPath = public_path('img/users/' . $user->avatar);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
                 }
                 
                 $avatar = $request->file('avatar');
                 $filename = time() . '_' . $avatar->getClientOriginalName();
-                $avatar->move(public_path('storage/avatars'), $filename);
+                $avatar->move(public_path('img/users'), $filename);
                 $data['avatar'] = $filename;
             }
 
@@ -127,7 +130,10 @@ class UserController extends Controller
     {
         try {
             if ($user->avatar) {
-                Storage::delete('public/avatars/' . $user->avatar);
+                $path = public_path('img/users/' . $user->avatar);
+                if (file_exists($path)) {
+                    unlink($path);
+                }
             }
             
             $user->delete();

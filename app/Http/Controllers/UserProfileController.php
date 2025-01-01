@@ -30,10 +30,28 @@ class UserProfileController extends Controller
             'city' => 'nullable',
             'country' => 'nullable',
             'postal' => 'nullable',
-            'about' => 'nullable'
+            'about' => 'nullable',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $user->update($request->all());
+        $data = $request->except('avatar');
+
+        if ($request->hasFile('avatar')) {
+            // Hapus foto lama jika ada
+            if ($user->avatar) {
+                $oldPath = public_path('img/users/' . $user->avatar);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            
+            $avatar = $request->file('avatar');
+            $filename = time() . '_' . $avatar->getClientOriginalName();
+            $avatar->move(public_path('img/users'), $filename);
+            $data['avatar'] = $filename;
+        }
+
+        $user->update($data);
 
         return back()->with('success', 'Profile berhasil diperbarui');
     }
