@@ -364,14 +364,6 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
-                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <span class="nav-link-text ms-1">Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link {{ Request::is('customer/search*') ? 'active' : '' }}" href="{{ route('customer.search') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-search"></i>
@@ -401,6 +393,14 @@
                                 <i class="fas fa-star"></i>
                             </div>
                             <span class="nav-link-text ms-1">Beri Rating</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Profile</span>
                         </a>
                     </li>
                 @endif
