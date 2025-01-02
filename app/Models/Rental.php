@@ -30,6 +30,11 @@ class Rental extends Model
         'total_price' => 'decimal:2'
     ];
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -53,11 +58,6 @@ class Rental extends Model
     public function ratings()
     {
         return $this->hasOne(Rating::class);
-    }
-
-    public function payment()
-    {
-        return $this->hasOne(Payment::class);
     }
 
     // Generate rental code

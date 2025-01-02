@@ -92,6 +92,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rentals/{rental}', [RentalController::class, 'adminShow'])->name('rentals.show');
         Route::put('/rentals/{rental}/update-status', [RentalController::class, 'updateStatus'])->name('rentals.update-status');
         Route::put('/rentals/{rental}/update-payment', [RentalController::class, 'updatePayment'])->name('rentals.update-payment');
+
+        // Payment Routes
+        Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
+        Route::put('/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
     });
 
     // Customer Routes
@@ -103,6 +107,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/profile/update', [UserProfileController::class, 'update'])->name('profile.update');
         
+        // Payment Routes
+        Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
+        Route::get('/rentals/{rental}/pay', [PaymentController::class, 'showPaymentForm'])->name('pay');
+        Route::post('/rentals/{rental}/process-payment', [PaymentController::class, 'pay'])->name('process-payment');
+        Route::post('/payments/store', [PaymentController::class, 'store'])->name('payments.store');
+        Route::get('/payments/history', [PaymentController::class, 'history'])->name('payments.history');
+        
         // Booking
         Route::get('/search', [BusController::class, 'search'])->name('search');
         Route::post('/book/{bus}', [RentalController::class, 'book'])->name('book');
@@ -113,13 +124,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
         Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
         Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
-        Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
-        Route::post('/payment/{rental}', [PaymentController::class, 'pay'])->name('pay');
         
         // Ratings
         Route::get('/ratings', [RatingController::class, 'index'])->name('ratings');
         Route::post('/rate/{rental}', [RatingController::class, 'store'])->name('rate');
+
+        // Routes untuk pembayaran
+        Route::post('/rentals/{rental}/pay', [PaymentController::class, 'pay'])->name('pay');
     });
+    Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])->name('customer.payments.pay');
+    Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])->name('customer.payments.form');
 
     // Driver Routes (dalam group middleware auth)
     Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');

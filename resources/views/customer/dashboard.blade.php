@@ -3,149 +3,132 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Selamat Datang di Dashboard Anda'])
     <div class="container-fluid py-4">
-        <!-- Penyewaan Aktif -->
         <div class="row">
-            <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header pb-0">
-                        <h6>Penyewaan Aktif</h6>
-                    </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        @if($activeRental)
-                        <div class="px-4 py-3">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="mb-2">Kode Sewa: {{ $activeRental->rental_code }}</h6>
-                                    <p class="text-sm mb-1">Bis: {{ $activeRental->bus->plate_number }}</p>
-                                    <p class="text-sm mb-1">Supir: {{ $activeRental->driver->name }}</p>
+            <!-- Card Status Penyewaan -->
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow-lg transition-all duration-200">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold text-muted">Belum Dibayar</p>
+                                    <h3 class="font-weight-bolder mb-0 mt-2">
+                                        {{ $rentals->where('payment_status', 'unpaid')->count() }}
+                                    </h3>
                                 </div>
-                                <div class="col-md-6">
-                                    <p class="text-sm mb-1">Mulai: {{ $activeRental->start_date->format('d/m/Y') }}</p>
-                                    <p class="text-sm mb-1">Selesai: {{ $activeRental->end_date->format('d/m/Y') }}</p>
-                                    <p class="text-sm mb-1">Status: 
-                                        <span class="badge badge-sm bg-gradient-success">{{ $activeRental->status }}</span>
-                                    </p>
+                            </div>
+                            <div class="col-4 d-flex align-items-center justify-content-center">
+                                <div class="icon-box d-flex align-items-center justify-content-center bg-gradient-danger shadow-danger">
+                                    <i class="fas fa-coins text-white text-lg opacity-10"></i>
                                 </div>
                             </div>
                         </div>
-                        @else
-                        <div class="text-center py-4">
-                            <p class="text-sm mb-3">Belum ada penyewaan aktif</p>
-                            <a href="{{ route('customer.search') }}" class="btn btn-sm bg-gradient-primary">
-                                Sewa Bis Sekarang
-                            </a>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header pb-0">
-                        <h6>Status Pembayaran</h6>
-                    </div>
-                    <div class="card-body px-0 pt-0 pb-2">
-                        @if($activeRental && $activeRental->payment)
-                        <div class="text-center py-3">
-                            <h3 class="mb-2">Rp {{ number_format($activeRental->total_price) }}</h3>
-                            <p class="text-sm mb-3">Status: 
-                                <span class="badge badge-sm bg-gradient-{{ 
-                                    $activeRental->payment_status == 'paid' ? 'success' : 
-                                    ($activeRental->payment_status == 'partial' ? 'warning' : 'danger') 
-                                }}">
-                                    {{ $activeRental->payment_status }}
-                                </span>
-                            </p>
-                            @if($activeRental->payment_status != 'paid')
-                            <a href="{{ route('customer.payments.create') }}" class="btn btn-sm bg-gradient-primary">
-                                Bayar Sekarang
-                            </a>
-                            @endif
-                        </div>
-                        @else
-                        <p class="text-center py-4 text-sm">Tidak ada pembayaran yang perlu dilakukan</p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Riwayat Penyewaan -->
-        <div class="card">
-            <div class="card-header pb-0">
-                <h6>Riwayat Penyewaan</h6>
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow-lg transition-all duration-200">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold text-muted">Belum Lunas</p>
+                                    <h3 class="font-weight-bolder mb-0 mt-2">
+                                        {{ $rentals->where('payment_status', 'partial')->count() }}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-4 d-flex align-items-center justify-content-center">
+                                <div class="icon-box d-flex align-items-center justify-content-center bg-gradient-warning shadow-warning">
+                                    <i class="fas fa-credit-card text-white text-lg opacity-10"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body px-0 pt-0 pb-2">
-                <div class="table-responsive p-0">
-                    <table class="table align-items-center mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kode Sewa</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bis</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Rating</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($rentalHistory as $rental)
-                            <tr>
-                                <td class="align-middle">
-                                    <div class="d-flex px-2 py-1">
-                                        <div class="d-flex flex-column justify-content-center">
-                                            <h6 class="mb-0 text-sm">{{ $rental->rental_code }}</h6>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p class="text-sm font-weight-bold mb-0">{{ $rental->bus->plate_number }}</p>
-                                </td>
-                                <td>
-                                    <p class="text-sm font-weight-bold mb-0">{{ $rental->start_date->format('d/m/Y') }}</p>
-                                </td>
-                                <td>
-                                    <p class="text-sm font-weight-bold mb-0">Rp {{ number_format($rental->total_price) }}</p>
-                                </td>
-                                <td>
-                                    <span class="badge badge-sm bg-gradient-{{ 
-                                        $rental->status == 'pending' ? 'warning' :
-                                        ($rental->status == 'aktif' ? 'info' :
-                                        ($rental->status == 'selesai' ? 'success' : 'danger'))
-                                    }}">
-                                        {{ ucfirst($rental->status) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    @if($rental->status == 'selesai' && !$rental->hasRating)
-                                    <a href="{{ route('customer.ratings.create', $rental->id) }}" 
-                                       class="btn btn-sm bg-gradient-warning">
-                                        Beri Rating
-                                    </a>
-                                    @elseif($rental->hasRating)
-                                    <div class="text-warning">
-                                        @for($i = 0; $i < 5; $i++)
-                                            @if($i < $rental->rating)
-                                                <i class="fas fa-star"></i>
-                                            @else
-                                                <i class="far fa-star"></i>
-                                            @endif
-                                        @endfor
-                                    </div>
-                                    @else
-                                    -
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="6" class="text-center py-4">Belum ada riwayat penyewaan</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow-lg transition-all duration-200">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold text-muted">Menunggu Konfirmasi Pembayaran</p>
+                                    <h3 class="font-weight-bolder mb-0 mt-2">
+                                        {{ $rentals->filter(function($rental) {
+                                            return $rental->payments->where('status', 'pending')->count() > 0;
+                                        })->count() }}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-4 d-flex align-items-center justify-content-center">
+                                <div class="icon-box d-flex align-items-center justify-content-center bg-gradient-info shadow-info">
+                                    <i class="fas fa-check text-white text-lg opacity-10"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm hover-shadow-lg transition-all duration-200">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <div class="numbers">
+                                    <p class="text-sm mb-0 text-uppercase font-weight-bold text-muted">Menunggu Konfirmasi Penyewaan</p>
+                                    <h3 class="font-weight-bolder mb-0 mt-2">
+                                        {{ $rentals->where('rental_status', 'pending')->count() }}
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-4 d-flex align-items-center justify-content-center">
+                                <div class="icon-box d-flex align-items-center justify-content-center bg-gradient-primary shadow-primary">
+                                    <i class="fas fa-clock text-white text-lg opacity-10"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        .hover-shadow-lg {
+            transition: all 0.3s ease;
+        }
+        
+        .hover-shadow-lg:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .icon-box {
+            transform: scale(1.1);
+        }
+
+        .numbers h3 {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .col-4 {
+            position: relative;
+        }
+
+        .icon-box i {
+            font-size: 1.2rem;
+        }
+    </style>
 @endsection

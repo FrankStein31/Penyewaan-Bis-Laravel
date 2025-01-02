@@ -38,6 +38,14 @@
                                 }}">
                                     {{ ucfirst($rental->rental_status) }}
                                 </span>
+                                @if($rental->rental_status === 'confirmed')
+                                    <div class="mt-2">
+                                        <small class="text-warning">
+                                            <i class="fas fa-info-circle"></i>
+                                            Pembayaran (minimal parsial) diperlukan untuk melanjutkan ke status ongoing
+                                        </small>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <hr class="horizontal dark">

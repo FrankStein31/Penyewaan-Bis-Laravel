@@ -41,26 +41,36 @@ class RentalController extends Controller
             $driver = Driver::findOrFail($request->driver_id);
             $conductor = Conductor::findOrFail($request->conductor_id);
 
-            // Cek apakah bus tersedia
+            // Cek ketersediaan
             if ($bus->status !== 'tersedia') {
                 return back()->with('error', 'Bus tidak tersedia untuk disewa');
             }
-
-            // Cek apakah driver dan conductor tersedia
             if ($driver->status !== 'available' || $conductor->status !== 'available') {
                 return back()->with('error', 'Driver atau conductor tidak tersedia');
             }
 
-            // Hitung total hari dan harga
+            // Parse tanggal dengan benar
             $startDate = Carbon::parse($request->start_date);
             $endDate = Carbon::parse($request->end_date);
-            
-            // Perbaiki perhitungan total hari
-            $totalDays = $endDate->diffInDays($startDate);
-            if ($totalDays == 0) {
-                $totalDays = 1; // Minimal 1 hari
+
+            // Validasi tanggal
+            if ($endDate->lt($startDate)) {
+                return back()->with('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai');
             }
-            
+
+            // Hitung total hari dengan benar - ubah urutan parameter diffInDays
+            $totalDays = $startDate->diffInDays($endDate) + 1;
+
+            // Debug log untuk memastikan perhitungan benar
+            \Log::info('Rental Calculation', [
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
+                'total_days' => $totalDays,
+                'price_per_day' => $bus->price_per_day,
+                'total_price' => $bus->price_per_day * $totalDays
+            ]);
+
+            // Hitung total harga
             $totalPrice = $bus->price_per_day * $totalDays;
 
             // Buat rental baru
@@ -238,16 +248,18 @@ class RentalController extends Controller
     public function adminIndex()
     {
         try {
-            $rentals = Rental::with([
-                'user', 
-                'bus', 
-                'driver', 
-                'conductor', 
-                'payment'
-            ])->latest()->get();
+            \Log::info('Accessing admin rental index');  // Log akses
             
-            return view('pages.rentals.admin.index', compact('rentals'));
+            $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])
+                            ->latest()
+                            ->get();
+            
+            \Log::info('Successfully retrieved rentals: ' . $rentals->count());  // Log jumlah data
+            
+            return view('admin.rentals.index', compact('rentals'));
         } catch (\Exception $e) {
+            \Log::error('Admin Rental Index Error: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());  // Log stack trace
             return back()->with('error', 'Terjadi kesalahan saat memuat data rental');
         }
     }
@@ -260,11 +272,21 @@ class RentalController extends Controller
                 'bus', 
                 'driver', 
                 'conductor', 
-                'payment'
+                'payments' => function($query) {
+                    $query->latest();
+                }
             ]);
             
-            return view('pages.rentals.admin.show', compact('rental'));
+            // Hitung total pembayaran yang sudah diverifikasi
+            $totalPaid = $rental->payments()
+                               ->where('status', 'success')
+                               ->sum('amount');
+                               
+            $remainingAmount = $rental->total_price - $totalPaid;
+            
+            return view('admin.rentals.show', compact('rental', 'totalPaid', 'remainingAmount'));
         } catch (\Exception $e) {
+            \Log::error('Admin Rental Show Error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat memuat detail rental');
         }
     }
@@ -278,8 +300,14 @@ class RentalController extends Controller
             $newStatus = $request->rental_status;
 
             // Validasi perubahan status
-            if ($newStatus === 'ongoing' && $rental->payment_status === 'unpaid') {
-                return back()->with('error', 'Status tidak dapat diubah ke ongoing karena belum ada pembayaran sama sekali. Minimal harus ada pembayaran parsial.');
+            if ($newStatus === 'ongoing') {
+                if ($rental->payment_status === 'unpaid') {
+                    return back()->with('error', 'Status tidak dapat diubah ke ongoing karena belum ada pembayaran sama sekali. Customer harus melakukan pembayaran minimal parsial.');
+                }
+
+                if ($rental->rental_status !== 'confirmed') {
+                    return back()->with('error', 'Status hanya bisa diubah ke ongoing setelah pesanan dikonfirmasi dan ada pembayaran.');
+                }
             }
 
             // Update rental status
@@ -290,7 +318,7 @@ class RentalController extends Controller
 
             // Update related resources based on status
             if ($newStatus === 'cancelled') {
-                // Reset bus dan crew status
+                // Reset status resources
                 if ($rental->bus) {
                     $rental->bus->update(['status' => 'tersedia']);
                 }
@@ -305,7 +333,7 @@ class RentalController extends Controller
             DB::commit();
             
             $message = match($newStatus) {
-                'confirmed' => "Status pesanan berhasil diubah menjadi CONFIRMED.\nSilakan tunggu pembayaran dari customer.",
+                'confirmed' => "Status pesanan berhasil diubah menjadi CONFIRMED.\nCustomer harus melakukan pembayaran (minimal parsial) untuk melanjutkan ke status ongoing.",
                 'ongoing' => $rental->payment_status === 'partial' ? 
                     "Status pesanan berhasil diubah menjadi ONGOING.\nPeringatan: Masih ada sisa pembayaran yang belum lunas!" :
                     "Status pesanan berhasil diubah menjadi ONGOING.\nPerjalanan dapat dimulai!",
@@ -401,5 +429,74 @@ class RentalController extends Controller
         ];
 
         return $statusMap[$rentalStatus] ?? 'pending';
+    }
+
+    public function requests()
+    {
+        $requests = Rental::where('rental_status', 'pending')
+                         ->with(['user', 'bus', 'driver', 'conductor'])
+                         ->latest()
+                         ->get();
+                         
+        return view('admin.rentals.requests', compact('requests'));
+    }
+
+    public function showRequest(Rental $rental)
+    {
+        if ($rental->rental_status !== 'pending') {
+            return redirect()->route('admin.rentals.show', $rental);
+        }
+        
+        $rental->load(['user', 'bus', 'driver', 'conductor']);
+        return view('admin.rentals.show-request', compact('rental'));
+    }
+
+    public function confirm(Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental->update([
+                'rental_status' => 'confirmed',
+                'status' => 'aktif'
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Rental berhasil dikonfirmasi');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Confirm Rental Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat mengkonfirmasi rental');
+        }
+    }
+
+    public function complete(Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental->update([
+                'rental_status' => 'completed',
+                'status' => 'selesai'
+            ]);
+
+            // Update status resources
+            if ($rental->bus) {
+                $rental->bus->update(['status' => 'tersedia']);
+            }
+            if ($rental->driver) {
+                $rental->driver->update(['status' => 'available']);
+            }
+            if ($rental->conductor) {
+                $rental->conductor->update(['status' => 'available']);
+            }
+
+            DB::commit();
+            return back()->with('success', 'Rental berhasil diselesaikan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Complete Rental Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat menyelesaikan rental');
+        }
     }
 } 

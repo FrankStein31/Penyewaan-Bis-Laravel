@@ -21,57 +21,81 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'bus_id' => 'required|exists:buses,id',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'destination' => 'required|string|max:255',
-            'notes' => 'nullable|string'
-        ]);
-
         try {
+            // Debug input
+            $input = $request->all();
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Input: " . json_encode($input) . "\n", 
+                FILE_APPEND);
+
+            $request->validate([
+                'bus_id' => 'required|exists:buses,id',
+                'start_date' => 'required|date|after_or_equal:today',
+                'end_date' => 'required|date|after_or_equal:start_date',
+                'destination' => 'required|string|max:255',
+                'notes' => 'nullable|string'
+            ]);
+
             $bus = Bus::findOrFail($request->bus_id);
 
-            // Cek apakah bus tersedia
             if ($bus->status !== 'tersedia') {
                 return back()->with('error', 'Bus tidak tersedia untuk disewa');
             }
 
-            // Cek apakah ada booking lain di rentang tanggal yang sama
-            $existingBooking = Booking::where('bus_id', $bus->id)
-                ->where('status', '!=', 'cancelled')
-                ->where(function($query) use ($request) {
-                    $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                          ->orWhereBetween('end_date', [$request->start_date, $request->end_date]);
-                })->exists();
-
-            if ($existingBooking) {
-                return back()->with('error', 'Bus sudah dipesan untuk tanggal tersebut');
-            }
-
-            // Hitung total hari dan harga
+            // Parse tanggal dengan cara yang berbeda
             $startDate = Carbon::parse($request->start_date);
             $endDate = Carbon::parse($request->end_date);
-            $totalDays = $endDate->diffInDays($startDate) + 1;
-            $totalPrice = $bus->price_per_day * $totalDays;
+
+            // Debug tanggal
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Dates: start={$startDate}, end={$endDate}\n", 
+                FILE_APPEND);
+
+            // Hitung total hari dengan cara yang berbeda
+            $totalDays = $startDate->copy()->startOfDay()
+                                  ->diffInDays($endDate->copy()->startOfDay()) + 1;
+
+            // Debug perhitungan
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Calculation: days={$totalDays}\n", 
+                FILE_APPEND);
+
+            // Hitung total harga
+            $totalPrice = abs($bus->price_per_day * $totalDays);
+
+            // Debug harga
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Price: per_day={$bus->price_per_day}, total={$totalPrice}\n", 
+                FILE_APPEND);
 
             // Buat booking
             $booking = Booking::create([
                 'user_id' => auth()->id(),
                 'bus_id' => $bus->id,
-                'start_date' => $request->start_date,
-                'end_date' => $request->end_date,
+                'start_date' => $startDate->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d'),
                 'destination' => $request->destination,
                 'notes' => $request->notes,
                 'total_price' => $totalPrice,
-                'status' => 'pending'
+                'status' => 'pending',
+                'total_days' => $totalDays
             ]);
+
+            // Debug booking
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Booking created: " . json_encode($booking->toArray()) . "\n", 
+                FILE_APPEND);
 
             return redirect()
                 ->route('bookings.show', $booking)
                 ->with('success', 'Pemesanan berhasil dibuat! Silahkan tunggu konfirmasi dari admin.');
 
         } catch (\Exception $e) {
+            // Debug error
+            file_put_contents(storage_path('logs/booking_debug.log'), 
+                date('Y-m-d H:i:s') . " Error: {$e->getMessage()}\n{$e->getTraceAsString()}\n", 
+                FILE_APPEND);
+            
             return back()
                 ->withInput()
                 ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

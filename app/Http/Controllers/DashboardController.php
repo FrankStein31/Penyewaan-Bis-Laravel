@@ -7,6 +7,7 @@ use App\Models\Driver;
 use App\Models\Rental;
 use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -69,29 +70,19 @@ class DashboardController extends Controller
 
     public function customerDashboard()
     {
-        if (auth()->user()->role !== 'customer') {
-            return redirect('/')->with('error', 'Akses tidak diizinkan');
+        try {
+            // Ambil semua rental untuk user yang login
+            $rentals = Rental::where('user_id', auth()->id())
+                            ->with(['payments'])
+                            ->latest()
+                            ->get();
+
+            return view('customer.dashboard', compact('rentals'));
+
+        } catch (\Exception $e) {
+            \Log::error('Dashboard Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memuat dashboard');
         }
-
-        $userId = auth()->id();
-        
-        $data = [
-            'activeRental' => Rental::with(['bus', 'driver', 'payment'])
-                                   ->where('user_id', $userId)
-                                   ->where('status', 'active')
-                                   ->first(),
-            'rentalHistory' => Rental::with(['bus', 'driver', 'ratings', 'payment'])
-                                    ->where('user_id', $userId)
-                                    ->where('status', '!=', 'active')
-                                    ->latest()
-                                    ->get(),
-            'totalRentals' => Rental::where('user_id', $userId)->count(),
-            'totalPayments' => Payment::whereHas('rental', function($q) use ($userId) {
-                                $q->where('user_id', $userId);
-                            })->where('status', 'verified')->sum('amount')
-        ];
-
-        return view('customer.dashboard', $data);
     }
 
     private function getLast7Days()
