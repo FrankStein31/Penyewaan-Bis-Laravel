@@ -58,13 +58,15 @@ CREATE TABLE `buses` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `buses_plate_number_unique` (`plate_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `buses` */
 
 insert  into `buses`(`id`,`plate_number`,`type`,`capacity`,`price_per_day`,`description`,`image`,`status`,`is_active`,`created_at`,`updated_at`) values 
 (1,'AG 6454 BK','umum',32,120000.00,'bus apa lah','1735707605_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-01 05:00:05','2025-01-01 09:35:51'),
-(2,'AG 6454 BG','antarkota',12,200000.00,'asdasaeesf','1735727245_2131730118.jpg','tersedia',1,'2025-01-01 10:27:25','2025-01-01 10:27:25');
+(2,'AG 6454 BG','antarkota',12,200000.00,'asdasaeesf','1735781184_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-01 10:27:25','2025-01-02 03:24:10'),
+(3,'BK 2120 DG','umum',25,50000.00,'asssssssssss','1735781194_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-02 00:38:27','2025-01-02 01:54:39'),
+(4,'AG 6454 BH','pariwisata',45,250000.00,'Ke gunung, kota, lembah ready','1735786298_Logo Polinema.png','tersedia',1,'2025-01-02 02:51:38','2025-01-02 02:51:38');
 
 /*Table structure for table `conductor_ratings` */
 
@@ -105,13 +107,14 @@ CREATE TABLE `conductors` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `conductors` */
 
 insert  into `conductors`(`id`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(1,'Kernet','08512345678','medan','on_duty','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-01 10:25:56'),
-(2,'Agus','12345','Kediri','available','1735727144_2131730071.JPG',1,'2025-01-01 10:25:44','2025-01-01 10:25:44');
+(1,'Kernet','111111111','medan','on_duty','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-02 00:36:53'),
+(2,'Agus','2222222222','Kediri','on_duty','1735781129_24164782705.jpg',1,'2025-01-01 10:25:44','2025-01-02 01:54:39'),
+(3,'Net','999999999','asfasczccccccccccccc','on_duty','1735786234_24164782705.jpg',1,'2025-01-02 02:50:34','2025-01-02 03:24:10');
 
 /*Table structure for table `driver_ratings` */
 
@@ -155,13 +158,14 @@ CREATE TABLE `drivers` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `drivers_license_number_unique` (`license_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `drivers` */
 
 insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(2,'Mail','2131730071','08512345678','paer','2025-01-03','on_duty','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-01 10:26:47'),
-(3,'Sifaul','2131730071241','12345','afsadasdasd','2025-01-03','available','1735727176_24164782705.jpg',1,'2024-12-31 01:47:53','2025-01-01 10:26:16');
+(2,'Mail','2131730071','333333333','paer','2025-01-03','on_duty','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-02 00:37:24'),
+(3,'Sifaul','2131730071241','4444444444','afsadasdasd','2025-01-03','on_duty','1735781164_2131730071.JPG',1,'2024-12-31 01:47:53','2025-01-02 01:54:39'),
+(4,'Mei','21317300711','8888888888','aaaaaaaaaaaaaaa\r\nasdasdsa','2026-12-02','on_duty','1735786159_2131730071.JPG',1,'2025-01-02 02:49:19','2025-01-02 03:24:10');
 
 /*Table structure for table `migrations` */
 
@@ -195,9 +199,13 @@ CREATE TABLE `payments` (
   UNIQUE KEY `payments_payment_code_unique` (`payment_code`),
   KEY `payments_rental_id_foreign` (`rental_id`),
   CONSTRAINT `payments_rental_id_foreign` FOREIGN KEY (`rental_id`) REFERENCES `rentals` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `payments` */
+
+insert  into `payments`(`id`,`rental_id`,`payment_code`,`amount`,`payment_method`,`payment_proof`,`status`,`notes`,`created_at`,`updated_at`) values 
+(5,7,'PAY202501020001',50000.00,'cash','payment-proofs/IiX6gR6OxKs0HOPt6TyF3EYviSRxGjYVxOro3xli.png','pending','1111111111','2025-01-02 04:42:56','2025-01-02 04:42:56'),
+(9,4,'PAY202501020002',100000.00,'cash','payment-proofs/iWFCcOyzegS7nxPOfbn6ISrUyGz7n4nGzfgICgw4.png','pending','aaaaaaaaaaaaaa','2025-01-02 05:04:46','2025-01-02 05:04:46');
 
 /*Table structure for table `ratings` */
 
@@ -256,12 +264,14 @@ CREATE TABLE `rentals` (
   CONSTRAINT `rentals_conductor_id_foreign` FOREIGN KEY (`conductor_id`) REFERENCES `conductors` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_driver_id_foreign` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rentals` */
 
 insert  into `rentals`(`id`,`rental_code`,`user_id`,`bus_id`,`driver_id`,`conductor_id`,`start_date`,`end_date`,`pickup_location`,`destination`,`total_days`,`total_price`,`status`,`rental_status`,`payment_status`,`notes`,`created_at`,`updated_at`) values 
-(4,'RNT202501010001',1,1,2,1,'2025-01-01 16:35:00','2025-01-04 16:35:00','aaaaaaaaaaaaaaa','aeeeeeeeeeeeer',-2,-240000.00,'pending','pending','unpaid','rrrrrrrrrrrrrrrr','2025-01-01 09:35:51','2025-01-01 09:35:51');
+(4,'RNT202501010001',1,1,2,1,'2025-01-01 16:35:00','2025-01-04 16:35:00','aaaaaaaaaaaaaaa','aeeeeeeeeeeeer',2,240000.00,'aktif','confirmed','partial','rrrrrrrrrrrrrrrr','2025-01-01 09:35:51','2025-01-02 05:04:46'),
+(7,'RNT202501020002',1,3,3,2,'2025-01-02 08:54:00','2025-01-03 08:54:00','qqqqqqqqqqq','qqqqqqqqqqqqq',1,50000.00,'aktif','confirmed','paid','qqqqqqqqqqqqqqq','2025-01-02 01:54:39','2025-01-02 04:42:56'),
+(15,'RNT202501020004',11,2,4,3,'2025-02-01 10:23:00','2025-02-08 10:24:00','111111111111','12222222222223',8,1600138.89,'pending','pending','unpaid','33333333333333','2025-01-02 03:24:10','2025-01-02 03:24:10');
 
 /*Table structure for table `sessions` */
 
@@ -282,7 +292,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('3SOdHtoJ5AOH88NgPBN1b2NpkPe2nun6nJEjGH09',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOUdKbjhNYk0yRGdQclpwZWYxMFU3S2NvcWpzbDBNb2cxVE9SQTZybyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9yZW50YWxzIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mzt9',1735727979);
+('F0UNJunEU5KbMYPDXIXotlg1IPq27jkeVJ9yNUIm',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTkpEcHU3SncxOGNWcnd0RHNwNlBXcWNKeVpSV1Jva3ZoNlhkQmJyWiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO30=',1735795020);
 
 /*Table structure for table `users` */
 
@@ -311,14 +321,15 @@ CREATE TABLE `users` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_username_unique` (`username`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`username`,`firstname`,`lastname`,`email`,`role`,`phone`,`avatar`,`address`,`city`,`country`,`postal`,`about`,`email_verified_at`,`password`,`is_active`,`remember_token`,`created_at`,`updated_at`) values 
-(1,'Frank','Frankie','Steinlie','frankie.steinlie@gmail.com','customer','08512345678','1735727104_2131730071.JPG','Jl. Garuda No.3C, Medan','Medan Kota','Indonesia','64212','Developer',NULL,'$2y$12$snLd.kqqLzuLAGMIylAQZOnlpIdu9qOPj4t.bWpMtK4odMBumo7AS',1,NULL,'2024-12-30 01:06:32','2025-01-01 10:25:04'),
-(3,'admin','admin',NULL,'admin@gmail.com','admin',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2024-12-30 03:30:32'),
-(9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,'1735707119_2131730071.JPG','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$6jLVNc4NH.i/YGfUn4U7DeMgv/r1GikLYuycBbO.V4C/b4oeV4I2u',1,NULL,'2024-12-30 05:47:55','2025-01-01 04:51:59');
+(1,'Frank','Frankie','Steinlie','frankie.steinlie@gmail.com','customer','08512345678','1735781223_Logo UKM Kerohanian Psdku Polinema Kediri.png','Jl. Garuda No.3C, Medan','Medan Kota','Indonesia','64212','Developer',NULL,'$2y$12$snLd.kqqLzuLAGMIylAQZOnlpIdu9qOPj4t.bWpMtK4odMBumo7AS',1,NULL,'2024-12-30 01:06:32','2025-01-02 01:27:03'),
+(3,'admin','admin',NULL,'admin@gmail.com','admin',NULL,'1735781319_back hitam 2.jpg',NULL,NULL,NULL,NULL,NULL,NULL,'$2y$12$LiHuhUDUWqyU6bXobgEm.uggk5rsTq/QGOWEVjvB0cLlwb9svzrnW',1,NULL,'2024-12-30 03:30:32','2025-01-02 01:28:39'),
+(9,'owner','owner','steinlie','owner@gmail.com','owner',NULL,'1735781330_back hitam 2.jpg','Jl. Garuda No.3C, Medan','Medan','Indonesia','64212','Owner',NULL,'$2y$12$6jLVNc4NH.i/YGfUn4U7DeMgv/r1GikLYuycBbO.V4C/b4oeV4I2u',1,NULL,'2024-12-30 05:47:55','2025-01-02 01:28:50'),
+(11,'steinlie','steinlie','frankie','steinlie@gmail.com','customer','12345','1735781232_Logo UKM Kerohanian Psdku Polinema Kediri.png','Pare','Pare','Pare','12123','asdasdasdaf',NULL,'$2y$12$wYTCLpqNOss1be00RtWTiOoEaj6/hzSp5w4d5Red3uD7ntUDtKV0a',1,NULL,'2025-01-01 11:37:07','2025-01-02 01:27:12');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
