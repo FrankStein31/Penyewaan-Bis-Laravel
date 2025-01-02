@@ -9,6 +9,7 @@ use App\Models\Driver;
 use App\Models\Conductor;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class RentalController extends Controller
 {
@@ -111,33 +112,59 @@ class RentalController extends Controller
     public function cancel(Rental $rental)
     {
         try {
+            DB::beginTransaction();
+            
+            // Debug log
+            \Log::info('Attempting to cancel rental: ' . $rental->id);
+            
             // Cek apakah rental milik user yang login
             if ($rental->user_id !== auth()->id()) {
+                \Log::warning('Unauthorized cancel attempt for rental: ' . $rental->id);
                 return back()->with('error', 'Anda tidak memiliki akses untuk membatalkan pesanan ini');
             }
 
             // Cek apakah status masih pending
             if ($rental->rental_status !== 'pending') {
+                \Log::warning('Invalid status for cancellation. Current status: ' . $rental->rental_status);
                 return back()->with('error', 'Hanya pesanan dengan status pending yang dapat dibatalkan');
             }
 
             // Update status rental
             $rental->update([
+                'status' => 'dibatalkan',
                 'rental_status' => 'cancelled',
-                'status' => 'cancelled',
-                'payment_status' => 'cancelled'
+                'payment_status' => 'unpaid'
             ]);
 
-            // Kembalikan status bus, driver dan conductor
-            $rental->bus->update(['status' => 'tersedia']);
-            $rental->driver->update(['status' => 'available']);
-            $rental->conductor->update(['status' => 'available']);
+            \Log::info('Rental status updated to cancelled');
+
+            // Kembalikan status bus menjadi tersedia
+            if ($rental->bus) {
+                $rental->bus->update(['status' => 'tersedia']);
+                \Log::info('Bus status updated to tersedia');
+            }
+
+            // Kembalikan status driver menjadi available
+            if ($rental->driver) {
+                $rental->driver->update(['status' => 'available']);
+                \Log::info('Driver status updated to available');
+            }
+
+            // Kembalikan status conductor menjadi available
+            if ($rental->conductor) {
+                $rental->conductor->update(['status' => 'available']);
+                \Log::info('Conductor status updated to available');
+            }
+
+            DB::commit();
+            \Log::info('Rental cancellation completed successfully');
 
             return redirect()
-                ->route('rentals.index')
+                ->route('customer.rentals.index')
                 ->with('success', 'Pesanan berhasil dibatalkan');
 
         } catch (\Exception $e) {
+            DB::rollBack();
             \Log::error('Cancel Rental Error: ' . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan saat membatalkan pesanan');
         }
@@ -240,5 +267,139 @@ class RentalController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan saat memuat detail rental');
         }
+    }
+
+    public function updateStatus(Request $request, Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $oldStatus = $rental->rental_status;
+            $newStatus = $request->rental_status;
+
+            // Validasi perubahan status
+            if ($newStatus === 'ongoing' && $rental->payment_status === 'unpaid') {
+                return back()->with('error', 'Status tidak dapat diubah ke ongoing karena belum ada pembayaran sama sekali. Minimal harus ada pembayaran parsial.');
+            }
+
+            // Update rental status
+            $rental->update([
+                'rental_status' => $newStatus,
+                'status' => $this->mapRentalStatus($newStatus)
+            ]);
+
+            // Update related resources based on status
+            if ($newStatus === 'cancelled') {
+                // Reset bus dan crew status
+                if ($rental->bus) {
+                    $rental->bus->update(['status' => 'tersedia']);
+                }
+                if ($rental->driver) {
+                    $rental->driver->update(['status' => 'available']);
+                }
+                if ($rental->conductor) {
+                    $rental->conductor->update(['status' => 'available']);
+                }
+            }
+
+            DB::commit();
+            
+            $message = match($newStatus) {
+                'confirmed' => "Status pesanan berhasil diubah menjadi CONFIRMED.\nSilakan tunggu pembayaran dari customer.",
+                'ongoing' => $rental->payment_status === 'partial' ? 
+                    "Status pesanan berhasil diubah menjadi ONGOING.\nPeringatan: Masih ada sisa pembayaran yang belum lunas!" :
+                    "Status pesanan berhasil diubah menjadi ONGOING.\nPerjalanan dapat dimulai!",
+                'completed' => "Status pesanan berhasil diubah menjadi COMPLETED.\nPesanan telah selesai.",
+                'cancelled' => "Status pesanan berhasil diubah menjadi CANCELLED.\nSemua resource telah direset.",
+                default => "Status pesanan berhasil diubah menjadi " . strtoupper($newStatus)
+            };
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Rental Status Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui status: ' . $e->getMessage());
+        }
+    }
+
+    public function updatePayment(Request $request, Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $request->validate([
+                'payment_status' => 'required|in:unpaid,partial,paid',
+                'amount' => 'required|numeric|min:0',
+                'payment_method' => 'required|string',
+                'payment_proof' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'notes' => 'nullable|string'
+            ]);
+
+            // Validasi status rental
+            if ($rental->rental_status !== 'confirmed') {
+                return back()->with('error', 'Pembayaran hanya dapat diproses untuk pesanan yang sudah dikonfirmasi');
+            }
+
+            // Update payment status di rental
+            $rental->update([
+                'payment_status' => $request->payment_status
+            ]);
+
+            // Generate payment code
+            $paymentCode = 'PAY-' . strtoupper(uniqid());
+
+            // Handle payment proof upload
+            $paymentProofPath = null;
+            if ($request->hasFile('payment_proof')) {
+                $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+            }
+
+            // Create payment record
+            $rental->payments()->create([
+                'payment_code' => $paymentCode,
+                'amount' => $request->amount,
+                'payment_method' => $request->payment_method,
+                'payment_proof' => $paymentProofPath,
+                'status' => 'success',
+                'notes' => $request->notes
+            ]);
+
+            // Jika pembayaran lunas atau parsial, otomatis ubah status rental menjadi ongoing
+            if ($request->payment_status === 'paid' || $request->payment_status === 'partial') {
+                $rental->update([
+                    'rental_status' => 'ongoing',
+                    'status' => 'aktif'
+                ]);
+            }
+
+            DB::commit();
+
+            $message = match($request->payment_status) {
+                'paid' => 'Pembayaran lunas. Status rental diubah menjadi ongoing.',
+                'partial' => 'Pembayaran parsial berhasil dicatat. Status rental diubah menjadi ongoing.',
+                default => 'Status pembayaran berhasil diperbarui'
+            };
+
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Update Payment Status Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat memperbarui pembayaran');
+        }
+    }
+
+    private function mapRentalStatus($rentalStatus)
+    {
+        $statusMap = [
+            'pending' => 'pending',
+            'confirmed' => 'aktif',
+            'ongoing' => 'aktif',
+            'completed' => 'selesai',
+            'cancelled' => 'dibatalkan'
+        ];
+
+        return $statusMap[$rentalStatus] ?? 'pending';
     }
 } 

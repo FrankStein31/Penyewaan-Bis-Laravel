@@ -10,9 +10,11 @@
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0">Detail Pesanan</h6>
                             @if($rental->rental_status === 'pending')
-                                <form action="{{ route('customer.rentals.cancel', $rental) }}" method="POST" class="ms-auto">
+                                <form action="{{ route('customer.rentals.cancel', $rental) }}" 
+                                      method="POST" class="ms-auto">
                                     @csrf
-                                    <button type="submit" class="btn btn-danger btn-sm"
+                                    <button type="submit" 
+                                            class="btn btn-danger btn-sm"
                                             onclick="return confirm('Yakin ingin membatalkan pesanan ini?')">
                                         <i class="fas fa-times"></i> Batalkan Pesanan
                                     </button>
@@ -28,7 +30,12 @@
                             </div>
                             <div class="col-md-6 text-end">
                                 <p class="text-sm mb-0">Status Pesanan:</p>
-                                <span class="badge bg-{{ $rental->rental_status === 'pending' ? 'warning' : ($rental->rental_status === 'confirmed' ? 'success' : 'danger') }}">
+                                <span class="badge bg-{{ 
+                                    $rental->rental_status === 'pending' ? 'warning' : 
+                                    ($rental->rental_status === 'confirmed' ? 'info' :
+                                    ($rental->rental_status === 'ongoing' ? 'primary' :
+                                    ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
+                                }}">
                                     {{ ucfirst($rental->rental_status) }}
                                 </span>
                             </div>
@@ -83,7 +90,7 @@
             </div>
 
             <div class="col-md-4">
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-body">
                         <h6 class="mb-0">Detail Bus</h6>
                         <hr class="horizontal dark">
@@ -101,6 +108,60 @@
                             <span class="font-weight-bold">
                                 Rp {{ number_format($rental->bus->price_per_day, 0, ',', '.') }}
                             </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-uppercase text-sm">Informasi Crew</h6>
+                        <div class="form-group">
+                            <label class="form-control-label">Driver</label>
+                            <p class="form-control-static">
+                                @if($rental->driver)
+                                    <div class="d-flex align-items-center">
+                                        @if($rental->driver->photo)
+                                            <img src="{{ Storage::url('drivers/'.$rental->driver->photo) }}" 
+                                                 class="avatar avatar-sm rounded-circle me-2" 
+                                                 alt="Driver Photo">
+                                        @endif
+                                        <div>
+                                            {{ $rental->driver->name }}
+                                            <small class="d-block text-secondary">
+                                                No. HP: {{ $rental->driver->phone }}
+                                            </small>
+                                            <!-- <small class="d-block text-secondary">
+                                                SIM: {{ $rental->driver->license_number }}
+                                                (Exp: {{ date('d/m/Y', strtotime($rental->driver->license_expire)) }})
+                                            </small> -->
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-secondary">Tidak ada</span>
+                                @endif
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-control-label">Kondektur</label>
+                            <p class="form-control-static">
+                                @if($rental->conductor)
+                                    <div class="d-flex align-items-center">
+                                        @if($rental->conductor->photo)
+                                            <img src="{{ asset('storage/conductors/' . $rental->conductor->photo) }}" 
+                                                 class="avatar avatar-sm rounded-circle me-2" 
+                                                 alt="Conductor Photo">
+                                        @endif
+                                        <div>
+                                            {{ $rental->conductor->name }}
+                                            <small class="d-block text-secondary">
+                                                No. HP: {{ $rental->conductor->phone }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                @else
+                                    <span class="text-secondary">Tidak ada</span>
+                                @endif
+                            </p>
                         </div>
                     </div>
                 </div>

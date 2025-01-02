@@ -42,12 +42,12 @@ class Rental extends Model
 
     public function driver()
     {
-        return $this->belongsTo(User::class, 'driver_id');
+        return $this->belongsTo(Driver::class, 'driver_id');
     }
 
     public function conductor()
     {
-        return $this->belongsTo(User::class, 'conductor_id');
+        return $this->belongsTo(Conductor::class, 'conductor_id');
     }
 
     public function ratings()

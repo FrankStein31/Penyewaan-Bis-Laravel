@@ -79,7 +79,9 @@
                                                 <div>
                                                     <span class="badge badge-sm bg-gradient-{{ 
                                                         $rental->rental_status === 'pending' ? 'warning' : 
-                                                        ($rental->rental_status === 'confirmed' ? 'success' : 'danger') 
+                                                        ($rental->rental_status === 'confirmed' ? 'info' :
+                                                        ($rental->rental_status === 'ongoing' ? 'primary' :
+                                                        ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                                     }} px-3 py-2">
                                                         {{ ucfirst($rental->rental_status) }}
                                                     </span>
@@ -97,12 +99,12 @@
                                             </td>
                                             <td class="ps-3">
                                                 <div class="d-flex align-items-center gap-2">
-                                                    <a href="{{ route('rentals.show', $rental) }}" 
+                                                    <a href="{{ route('customer.rentals.show', $rental) }}" 
                                                        class="btn btn-sm btn-info px-3">
                                                         <i class="fas fa-eye me-2"></i> Detail
                                                     </a>
-                                                    @if($rental->status === 'pending')
-                                                        <form action="{{ route('rentals.cancel', $rental) }}" 
+                                                    @if($rental->rental_status === 'pending')
+                                                        <form action="{{ route('customer.rentals.cancel', $rental) }}" 
                                                               method="POST" class="d-inline">
                                                             @csrf
                                                             <button type="submit" 

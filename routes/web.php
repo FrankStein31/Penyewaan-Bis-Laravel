@@ -90,10 +90,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/rentals', [RentalController::class, 'adminIndex'])->name('rentals.index');
         Route::get('/rentals/{rental}', [RentalController::class, 'adminShow'])->name('rentals.show');
+        Route::put('/rentals/{rental}/update-status', [RentalController::class, 'updateStatus'])->name('rentals.update-status');
+        Route::put('/rentals/{rental}/update-payment', [RentalController::class, 'updatePayment'])->name('rentals.update-payment');
     });
 
     // Customer Routes
-    Route::prefix('customer')->name('customer.')->middleware('auth')->group(function () {
+    Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'customerDashboard'])->name('dashboard');
         
         // Profile Routes
@@ -107,7 +109,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Rentals & Payments
         Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
-        Route::get('rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
+        Route::get('/rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
         Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
         Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
         Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
@@ -175,7 +177,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Routes untuk rental
         Route::get('/rentals', [RentalController::class, 'index'])->name('rentals.index');
-        Route::get('rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
+        Route::get('/rentals/get-available-crew', [RentalController::class, 'getAvailableCrew'])->name('rentals.get-available-crew');
         Route::post('/rentals', [RentalController::class, 'store'])->name('rentals.store');
         Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
         Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');

@@ -9,9 +9,25 @@
                     <div class="card-header pb-0">
                         <div class="d-flex align-items-center">
                             <h6 class="mb-0">Detail Penyewaan</h6>
-                            <a href="{{ route('admin.rentals.index') }}" class="btn btn-sm bg-gradient-secondary ms-auto">
-                                <i class="fas fa-arrow-left me-2"></i> Kembali
-                            </a>
+                            <div class="ms-auto">
+                                <!-- Status Update Form -->
+                                <form id="updateStatusForm" action="{{ route('admin.rentals.update-status', $rental) }}" 
+                                      method="POST" 
+                                      class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="rental_status" id="rentalStatus" class="form-select form-select-sm d-inline-block w-auto me-2">
+                                        <option value="pending" {{ $rental->rental_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                        <option value="confirmed" {{ $rental->rental_status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                        <option value="ongoing" {{ $rental->rental_status == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+                                        <option value="completed" {{ $rental->rental_status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                        <option value="cancelled" {{ $rental->rental_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    </select>
+                                    <button type="button" onclick="confirmStatusUpdate()" class="btn btn-sm btn-primary">
+                                        Update Status
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -29,13 +45,13 @@
                                 <div class="form-group">
                                     <label class="form-control-label">Status</label>
                                     <p class="form-control-static">
-                                        <span class="badge badge-sm bg-gradient-{{ 
-                                            $rental->status == 'pending' ? 'warning' : 
-                                            ($rental->status == 'confirmed' ? 'success' : 
-                                            ($rental->status == 'cancelled' ? 'danger' : 
-                                            ($rental->status == 'completed' ? 'info' : 'secondary'))) 
+                                        <span class="badge bg-{{ 
+                                            $rental->rental_status === 'pending' ? 'warning' : 
+                                            ($rental->rental_status === 'confirmed' ? 'info' :
+                                            ($rental->rental_status === 'ongoing' ? 'primary' :
+                                            ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                         }}">
-                                            {{ ucfirst($rental->status) }}
+                                            {{ ucfirst($rental->rental_status) }}
                                         </span>
                                     </p>
                                 </div>
@@ -81,7 +97,7 @@
                                         @if($rental->driver)
                                             <div class="d-flex align-items-center">
                                                 @if($rental->driver->photo)
-                                                    <img src="/storage/{{ $rental->driver->photo }}" 
+                                                    <img src="{{ Storage::url('drivers/'.$rental->driver->photo) }}" 
                                                          class="avatar avatar-sm rounded-circle me-2" 
                                                          alt="Driver Photo">
                                                 @endif
@@ -107,7 +123,7 @@
                                         @if($rental->conductor)
                                             <div class="d-flex align-items-center">
                                                 @if($rental->conductor->photo)
-                                                    <img src="/storage/{{ $rental->conductor->photo }}" 
+                                                    <img src="{{ asset('storage/conductors/' . $rental->conductor->photo) }}" 
                                                          class="avatar avatar-sm rounded-circle me-2" 
                                                          alt="Conductor Photo">
                                                 @endif
@@ -187,4 +203,71 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
-@endsection 
+@endsection
+
+@push('js')
+<script>
+function confirmStatusUpdate() {
+    const newStatus = document.getElementById('rentalStatus').value;
+    const currentStatus = "{{ $rental->rental_status }}";
+    const paymentStatus = "{{ $rental->payment_status }}";
+    
+    let warningMessage = '';
+    if (newStatus === 'ongoing') {
+        if (paymentStatus === 'unpaid') {
+            warningMessage = 'Status tidak dapat diubah ke ongoing karena belum ada pembayaran sama sekali!';
+        } else if (paymentStatus === 'partial') {
+            warningMessage = 'Perhatian: Masih ada sisa pembayaran yang belum lunas. Yakin ingin melanjutkan?';
+        }
+    } else if (newStatus === 'cancelled') {
+        warningMessage = 'Pesanan yang dibatalkan tidak dapat dikembalikan ke status sebelumnya.';
+    } else if (newStatus === 'completed') {
+        warningMessage = 'Pastikan perjalanan sudah selesai sebelum mengubah status menjadi completed.';
+    }
+
+    if (warningMessage && paymentStatus === 'unpaid' && newStatus === 'ongoing') {
+        Swal.fire({
+            icon: 'error',
+            title: 'Tidak dapat mengubah status',
+            text: warningMessage
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Konfirmasi Update Status',
+        html: `Anda yakin ingin mengubah status dari <b>${currentStatus}</b> menjadi <b>${newStatus}</b>?` + 
+              (warningMessage ? `<br><br><small class="text-warning">${warningMessage}</small>` : ''),
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Update!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('updateStatusForm').submit();
+        }
+    });
+}
+
+// Tampilkan alert jika ada pesan dari controller
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: "{{ session('success') }}",
+        timer: 3000,
+        showConfirmButton: false
+    });
+@endif
+
+@if(session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: "{{ session('error') }}"
+    });
+@endif
+</script>
+@endpush 

@@ -109,9 +109,11 @@
                                 </td>
                                 <td>
                                     <span class="badge badge-sm bg-gradient-{{ 
-                                        $rental->status == 'selesai' ? 'success' : 'info' 
+                                        $rental->status == 'pending' ? 'warning' :
+                                        ($rental->status == 'aktif' ? 'info' :
+                                        ($rental->status == 'selesai' ? 'success' : 'danger'))
                                     }}">
-                                        {{ $rental->status }}
+                                        {{ ucfirst($rental->status) }}
                                     </span>
                                 </td>
                                 <td>

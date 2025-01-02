@@ -67,7 +67,7 @@
                                                 @if($rental->driver)
                                                     <div class="d-flex align-items-center">
                                                         @if($rental->driver->photo)
-                                                            <img src="/storage/{{ $rental->driver->photo }}" 
+                                                            <img src="{{ Storage::url('drivers/'.$rental->driver->photo) }}" 
                                                                  class="avatar avatar-xs rounded-circle me-2" 
                                                                  alt="Driver Photo">
                                                         @endif
@@ -86,7 +86,7 @@
                                                 @if($rental->conductor)
                                                     <div class="d-flex align-items-center">
                                                         @if($rental->conductor->photo)
-                                                            <img src="/storage/{{ $rental->conductor->photo }}" 
+                                                            <img src="{{ asset('storage/conductors/' . $rental->conductor->photo) }}" 
                                                                  class="avatar avatar-xs rounded-circle me-2" 
                                                                  alt="Conductor Photo">
                                                         @endif
@@ -131,13 +131,13 @@
                                             </p>
                                         </td>
                                         <td>
-                                            <span class="badge badge-sm bg-gradient-{{ 
-                                                $rental->status == 'pending' ? 'warning' : 
-                                                ($rental->status == 'confirmed' ? 'success' : 
-                                                ($rental->status == 'cancelled' ? 'danger' : 
-                                                ($rental->status == 'completed' ? 'info' : 'secondary'))) 
+                                            <span class="badge bg-{{ 
+                                                $rental->rental_status === 'pending' ? 'warning' : 
+                                                ($rental->rental_status === 'confirmed' ? 'info' :
+                                                ($rental->rental_status === 'ongoing' ? 'primary' :
+                                                ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                             }}">
-                                                {{ ucfirst($rental->status) }}
+                                                {{ ucfirst($rental->rental_status) }}
                                             </span>
                                         </td>
                                         <td>
