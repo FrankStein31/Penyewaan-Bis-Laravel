@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bus;
+use App\Models\Armada;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -10,29 +11,32 @@ class BusController extends Controller
 {
     public function index()
     {
-        $buses = Bus::all();
+        $buses = Bus::with('armada')->get();
         return view('pages.buses.index', compact('buses'));
     }
 
     public function create()
     {
-        return view('pages.buses.create');
+        $armadas = Armada::all();
+        return view('admin.buses.create', compact('armadas'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'plate_number' => 'required|string|max:255|unique:buses',
-            'type' => 'required|in:umum,pariwisata,antarkota',
-            'capacity' => 'required|integer|min:1',
-            'price_per_day' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
+            'armada_id' => 'required|exists:armada,armada_id',
+            'plate_number' => 'required|unique:buses',
+            'type' => 'required|in:long,short',
+            'price_per_day' => 'required|numeric',
+            'description' => 'nullable',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'status' => 'required|in:tersedia,disewa,maintenance'
         ]);
 
         try {
             $data = $request->all();
+            
+            // Set kapasitas berdasarkan tipe bus
+            $data['capacity'] = $request->type === 'long' ? 63 : 33;
             
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
@@ -59,15 +63,16 @@ class BusController extends Controller
 
     public function edit(Bus $bus)
     {
-        return view('pages.buses.edit', compact('bus'));
+        $armadas = Armada::all();
+        return view('admin.buses.edit', compact('bus', 'armadas'));
     }
 
     public function update(Request $request, Bus $bus)
     {
         $request->validate([
+            'armada_id' => 'required|exists:armada,armada_id',
             'plate_number' => 'required|string|max:255|unique:buses,plate_number,' . $bus->id,
-            'type' => 'required|in:umum,pariwisata,antarkota',
-            'capacity' => 'required|integer|min:1',
+            'type' => 'required|in:long,short',
             'price_per_day' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -77,8 +82,10 @@ class BusController extends Controller
         try {
             $data = $request->all();
             
+            // Set kapasitas berdasarkan tipe bus
+            $data['capacity'] = $request->type === 'long' ? 63 : 33;
+            
             if ($request->hasFile('image')) {
-                // Hapus foto lama jika ada
                 if ($bus->image) {
                     $oldPath = public_path('img/buses/' . $bus->image);
                     if (file_exists($oldPath)) {
@@ -134,7 +141,15 @@ class BusController extends Controller
     {
         $query = Bus::query();
         $query->where('is_active', true);
-        $query->where('status', 'tersedia');
+        
+        if (!$request->filled('status')) {
+            $query->where('status', 'tersedia');
+        }
+
+        // Filter berdasarkan armada
+        if ($request->filled('armada_id')) {
+            $query->where('armada_id', $request->armada_id);
+        }
 
         // Filter berdasarkan tipe bus
         if ($request->filled('type')) {
@@ -154,7 +169,7 @@ class BusController extends Controller
             $query->where('price_per_day', '<=', $request->price_max);
         }
 
-        // Search berdasarkan deskripsi
+        // Search berdasarkan keyword
         if ($request->filled('keyword')) {
             $query->where(function($q) use ($request) {
                 $q->where('plate_number', 'like', '%' . $request->keyword . '%')
@@ -162,7 +177,8 @@ class BusController extends Controller
             });
         }
 
-        $buses = $query->get();
+        $buses = $query->with('armada')->get();
+        $armadas = Armada::all();
 
         if ($request->ajax()) {
             return response()->json([
@@ -170,7 +186,7 @@ class BusController extends Controller
             ]);
         }
 
-        return view('pages.buses.search', compact('buses'));
+        return view('pages.buses.search', compact('buses', 'armadas'));
     }
 
     public function book(Bus $bus)

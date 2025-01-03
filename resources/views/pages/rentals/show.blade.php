@@ -7,19 +7,26 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header pb-0">
-                        <div class="d-flex align-items-center">
+                        <div class="d-flex align-items-center justify-content-between">
                             <h6 class="mb-0">Detail Pesanan</h6>
-                            @if($rental->rental_status === 'pending')
-                                <form action="{{ route('customer.rentals.cancel', $rental) }}" 
-                                      method="POST" class="ms-auto">
-                                    @csrf
-                                    <button type="submit" 
-                                            class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Yakin ingin membatalkan pesanan ini?')">
-                                        <i class="fas fa-times"></i> Batalkan Pesanan
-                                    </button>
-                                </form>
-                            @endif
+                            <div>
+                                @if($rental->rental_status === 'pending')
+                                    <form action="{{ route('customer.rentals.cancel', $rental) }}" 
+                                          method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Yakin ingin membatalkan pesanan ini?')">
+                                            <i class="fas fa-times"></i> Batalkan Pesanan
+                                        </button>
+                                    </form>
+                                @elseif($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
+                                    <a href="{{ route('customer.payments.form', $rental) }}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-credit-card"></i> Bayar Sekarang
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -36,16 +43,20 @@
                                     ($rental->rental_status === 'ongoing' ? 'primary' :
                                     ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                 }}">
-                                    {{ ucfirst($rental->rental_status) }}
+                                    {{ $rental->rental_status === 'pending' ? 'Menunggu' :
+                                       ($rental->rental_status === 'confirmed' ? 'Dikonfirmasi' :
+                                       ($rental->rental_status === 'ongoing' ? 'Sedang Berlangsung' :
+                                       ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
                                 </span>
-                                @if($rental->rental_status === 'confirmed')
-                                    <div class="mt-2">
-                                        <small class="text-warning">
-                                            <i class="fas fa-info-circle"></i>
-                                            Pembayaran (minimal parsial) diperlukan untuk melanjutkan ke status ongoing
-                                        </small>
-                                    </div>
-                                @endif
+                                
+                                <p class="text-sm mb-0 mt-2">Status Pembayaran:</p>
+                                <span class="badge bg-{{ 
+                                    $rental->payment_status === 'unpaid' ? 'danger' : 
+                                    ($rental->payment_status === 'partial' ? 'warning' : 'success') 
+                                }}">
+                                    {{ $rental->payment_status === 'unpaid' ? 'Belum Dibayar' : 
+                                       ($rental->payment_status === 'partial' ? 'Pembayaran Sebagian' : ucfirst($rental->payment_status)) }}
+                                </span>
                             </div>
                         </div>
                         <hr class="horizontal dark">
@@ -93,6 +104,70 @@
                                 <h6>Rp {{ number_format($rental->total_price, 0, ',', '.') }}</h6>
                             </div>
                         </div>
+                        <hr class="horizontal dark">
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p class="text-sm mb-0">Jenis Paket:</p>
+                                <h6>{{ $rental->rental_package === 'day' ? 'Paket Day (1 Hari)' : 'Paket Trip' }}</h6>
+                            </div>
+                        </div>
+                        @if($rental->payments->count() > 0)
+                        <hr class="horizontal dark">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="text-sm mb-2">Riwayat Pembayaran:</p>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Tanggal</th>
+                                                <th>Jumlah</th>
+                                                <th>Metode</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($rental->payments as $payment)
+                                            <tr>
+                                                <td>{{ $payment->created_at->format('d/m/Y H:i') }}</td>
+                                                <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
+                                                <td>{{ $payment->payment_method }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $payment->status === 'verified' ? 'success' : 'warning' }}">
+                                                        {{ ucfirst($payment->status) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        @if($rental->payment_status !== 'paid')
+                        <hr class="horizontal dark">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="text-white mb-0">Sisa Pembayaran:</h6>
+                                            <h4 class="text-white mb-0">
+                                                Rp {{ number_format($rental->total_price - $rental->payments->sum('amount'), 0, ',', '.') }}
+                                            </h4>
+                                        </div>
+                                        @if($rental->rental_status === 'confirmed')
+                                        <a href="{{ route('customer.payments.form', $rental) }}" 
+                                           class="btn btn-white btn-sm">
+                                            Bayar Sekarang
+                                        </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -109,8 +184,12 @@
                         <p class="mb-2">
                             <span class="badge bg-primary">{{ ucfirst($rental->bus->type) }}</span>
                             <span class="badge bg-info">{{ $rental->bus->capacity }} Kursi</span>
+                            <span class="badge bg-secondary">{{ $rental->bus->armada->nama_armada }}</span>
                         </p>
-                        <p class="text-sm mb-2">{{ $rental->bus->description }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-sm">Armada:</span>
+                            <span class="font-weight-bold">{{ $rental->bus->armada->nama_armada }}</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="text-sm">Harga per Hari:</span>
                             <span class="font-weight-bold">

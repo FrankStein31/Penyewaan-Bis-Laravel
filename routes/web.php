@@ -18,6 +18,7 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ArmadaController;
 
 // Landing page (dapat diakses semua orang)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -96,6 +97,8 @@ Route::middleware(['auth'])->group(function () {
         // Payment Routes
         Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
         Route::put('/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
+
+        Route::resource('armada', ArmadaController::class);
     });
 
     // Customer Routes
@@ -131,6 +134,14 @@ Route::middleware(['auth'])->group(function () {
 
         // Routes untuk pembayaran
         Route::post('/rentals/{rental}/pay', [PaymentController::class, 'pay'])->name('pay');
+
+        // Payment Routes
+        Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])
+            ->name('payments.form');
+        Route::post('/payments/{rental}/pay', [PaymentController::class, 'processPayment'])
+            ->name('payments.pay');
+        Route::get('/payments/history', [PaymentController::class, 'history'])
+            ->name('payments.history');
     });
     Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])->name('customer.payments.pay');
     Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])->name('customer.payments.form');

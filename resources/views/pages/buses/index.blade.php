@@ -41,6 +41,7 @@
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Bus</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Armada</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tipe</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Kapasitas</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Harga/Hari</th>
@@ -72,11 +73,13 @@
                                             </div>
                                         </td>
                                         <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ $bus->armada->nama_armada ?? 'Tidak Ada' }}</p>
+                                        </td>
+                                        <td>
                                             <span class="badge badge-sm {{ 
-                                                $bus->type == 'umum' ? 'bg-gradient-info' : 
-                                                ($bus->type == 'pariwisata' ? 'bg-gradient-success' : 'bg-gradient-primary') 
+                                                $bus->type == 'long' ? 'bg-gradient-info' : 'bg-gradient-success'
                                             }}">
-                                                {{ ucfirst($bus->type) }}
+                                                {{ $bus->type == 'long' ? 'Long (63)' : 'Short (33)' }}
                                             </span>
                                         </td>
                                         <td>

@@ -17,6 +17,22 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="armada_id" class="form-control-label">Armada</label>
+                                        <select name="armada_id" class="form-control @error('armada_id') is-invalid @enderror" required>
+                                            <option value="">Pilih Armada</option>
+                                            @foreach($armadas as $armada)
+                                                <option value="{{ $armada->armada_id }}" {{ old('armada_id') == $armada->armada_id ? 'selected' : '' }}>
+                                                    {{ $armada->nama_armada }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('armada_id')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label class="form-control-label">Nomor Plat</label>
                                         <input type="text" name="plate_number" class="form-control @error('plate_number') is-invalid @enderror" 
                                                value="{{ old('plate_number') }}" required>
@@ -28,10 +44,9 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Tipe Bus</label>
-                                        <select name="type" class="form-control @error('type') is-invalid @enderror" required>
-                                            <option value="umum" {{ old('type') == 'umum' ? 'selected' : '' }}>Umum</option>
-                                            <option value="pariwisata" {{ old('type') == 'pariwisata' ? 'selected' : '' }}>Pariwisata</option>
-                                            <option value="antarkota" {{ old('type') == 'antarkota' ? 'selected' : '' }}>Antar Kota</option>
+                                        <select name="type" id="busType" class="form-control @error('type') is-invalid @enderror" required>
+                                            <option value="long" {{ old('type') == 'long' ? 'selected' : '' }}>Long (63 Kursi)</option>
+                                            <option value="short" {{ old('type') == 'short' ? 'selected' : '' }}>Short (33 Kursi)</option>
                                         </select>
                                         @error('type')
                                             <span class="invalid-feedback">{{ $message }}</span>
@@ -41,11 +56,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Kapasitas (Kursi)</label>
-                                        <input type="number" name="capacity" class="form-control @error('capacity') is-invalid @enderror" 
-                                               value="{{ old('capacity') }}" required min="1">
-                                        @error('capacity')
-                                            <span class="invalid-feedback">{{ $message }}</span>
-                                        @enderror
+                                        <input type="number" id="capacity" class="form-control" value="63" disabled>
+                                        <small class="text-muted">Kapasitas akan disesuaikan otomatis berdasarkan tipe bus</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -108,4 +120,12 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
-@endsection 
+@endsection
+
+@push('js')
+<script>
+    document.getElementById('busType').addEventListener('change', function() {
+        document.getElementById('capacity').value = this.value === 'long' ? '63' : '33';
+    });
+</script>
+@endpush

@@ -14,27 +14,39 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-group">
+                                        <label>Armada</label>
+                                        <select name="armada_id" class="form-control" onchange="this.form.submit()">
+                                            <option value="">Semua Armada</option>
+                                            @foreach($armadas as $armada)
+                                                <option value="{{ $armada->armada_id }}" {{ request('armada_id') == $armada->armada_id ? 'selected' : '' }}>
+                                                    {{ $armada->nama_armada }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
                                         <label>Tipe Bus</label>
-                                        <select name="type" class="form-control" onchange="this.form.submit()">
+                                        <select name="type" id="busType" class="form-control" onchange="updateMinValues(this.value)">
                                             <option value="">Semua Tipe</option>
-                                            <option value="umum" {{ request('type') == 'umum' ? 'selected' : '' }}>Umum</option>
-                                            <option value="pariwisata" {{ request('type') == 'pariwisata' ? 'selected' : '' }}>Pariwisata</option>
-                                            <option value="antarkota" {{ request('type') == 'antarkota' ? 'selected' : '' }}>Antar Kota</option>
+                                            <option value="long" {{ request('type') == 'long' ? 'selected' : '' }}>Long (63 Kursi)</option>
+                                            <option value="short" {{ request('type') == 'short' ? 'selected' : '' }}>Short (33 Kursi)</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Kapasitas Minimum</label>
-                                        <input type="number" name="capacity" class="form-control" value="{{ request('capacity') }}" 
-                                               placeholder="Jumlah Kursi" onchange="this.form.submit()">
+                                        <input type="number" name="capacity" id="minCapacity" class="form-control" 
+                                               value="{{ request('capacity') }}" placeholder="Jumlah Kursi">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Harga Minimum</label>
-                                        <input type="number" name="price_min" class="form-control" value="{{ request('price_min') }}" 
-                                               placeholder="Rp" onchange="this.form.submit()">
+                                        <input type="number" name="price_min" id="minPrice" class="form-control" 
+                                               value="{{ request('price_min') }}" placeholder="Rp">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -44,16 +56,19 @@
                                                placeholder="Rp" onchange="this.form.submit()">
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Kata Kunci</label>
-                                        <div class="input-group">
-                                            <input type="text" name="keyword" class="form-control" value="{{ request('keyword') }}" 
-                                                   placeholder="Cari berdasarkan nomor plat atau deskripsi...">
-                                            <button class="btn btn-primary" type="submit">
-                                                <i class="fas fa-search"></i> Cari
-                                            </button>
-                                        </div>
+                                        <input type="text" name="keyword" class="form-control" value="{{ request('keyword') }}" 
+                                               placeholder="Cari berdasarkan nomor plat atau deskripsi...">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <button class="btn btn-primary w-100" type="submit">
+                                            <i class="fas fa-search"></i> Terapkan Filter
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -75,6 +90,7 @@
                                     <p class="card-text">
                                         <span class="badge bg-primary">{{ ucfirst($bus->type) }}</span>
                                         <span class="badge bg-info">{{ $bus->capacity }} Kursi</span>
+                                        <span class="badge bg-secondary">{{ $bus->armada->nama_armada }}</span>
                                     </p>
                                     <p class="card-text">{{ Str::limit($bus->description, 100) }}</p>
                                     <p class="card-text">
@@ -100,3 +116,37 @@
         @include('layouts.footers.auth.footer')
     </div>
 @endsection 
+
+@push('js')
+<script>
+const busData = {!! json_encode([
+    'long' => [
+        'capacity' => 63,
+        'min_price' => $buses->where('type', 'long')->min('price_per_day') ?? 0
+    ],
+    'short' => [
+        'capacity' => 33,
+        'min_price' => $buses->where('type', 'short')->min('price_per_day') ?? 0
+    ]
+]) !!};
+
+function updateMinValues(type) {
+    if (type) {
+        const data = busData[type];
+        document.getElementById('minCapacity').value = data.capacity;
+        document.getElementById('minPrice').value = data.min_price;
+    } else {
+        document.getElementById('minCapacity').value = '';
+        document.getElementById('minPrice').value = '';
+    }
+}
+
+// Set nilai awal jika tipe sudah dipilih tanpa melakukan submit
+document.addEventListener('DOMContentLoaded', function() {
+    const selectedType = document.getElementById('busType').value;
+    if (selectedType) {
+        updateMinValues(selectedType);
+    }
+});
+</script>
+@endpush 

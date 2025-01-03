@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Bus extends Model
 {
     protected $fillable = [
+        'armada_id',
         'plate_number',
         'type',
         'capacity',
@@ -35,5 +36,10 @@ class Bus extends Model
     public function averageRating()
     {
         return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    public function armada()
+    {
+        return $this->belongsTo(Armada::class, 'armada_id', 'armada_id');
     }
 } 

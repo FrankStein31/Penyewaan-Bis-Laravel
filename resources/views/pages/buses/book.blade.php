@@ -23,10 +23,20 @@
                             @endif
                             
                             <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Pilih Paket</label>
+                                        <select name="rental_package" id="rentalPackage" class="form-control" required>
+                                            <option value="day">Paket Day (1 Hari)</option>
+                                            <option value="trip">Paket Tolak (Lebih dari 1 hari)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Tanggal & Jam Mulai</label>
-                                        <input type="datetime-local" name="start_date" 
+                                        <input type="datetime-local" name="start_date" id="startDate"
                                                class="form-control @error('start_date') is-invalid @enderror" 
                                                value="{{ old('start_date') }}" required>
                                         @error('start_date')
@@ -34,12 +44,13 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+
+                                <div class="col-md-6" id="endDateContainer" style="display: none;">
                                     <div class="form-group">
                                         <label class="form-control-label">Tanggal & Jam Selesai</label>
-                                        <input type="datetime-local" name="end_date" 
+                                        <input type="datetime-local" name="end_date" id="endDate"
                                                class="form-control @error('end_date') is-invalid @enderror" 
-                                               value="{{ old('end_date') }}" required>
+                                               value="{{ old('end_date') }}">
                                         @error('end_date')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -48,9 +59,9 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Driver</label>
+                                        <label class="form-control-label">Supir</label>
                                         <select name="driver_id" class="form-control @error('driver_id') is-invalid @enderror" required>
-                                            <option value="">Pilih Driver</option>
+                                            <option value="">Pilih Supir</option>
                                         </select>
                                         @error('driver_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
@@ -60,9 +71,9 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Conductor</label>
+                                        <label class="form-control-label">Kernet</label>
                                         <select name="conductor_id" class="form-control @error('conductor_id') is-invalid @enderror" required>
-                                            <option value="">Pilih Conductor</option>
+                                            <option value="">Pilih Kernet</option>
                                         </select>
                                         @error('conductor_id')
                                             <span class="invalid-feedback">{{ $message }}</span>
@@ -151,28 +162,66 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('bookingForm');
-            const startDate = document.querySelector('input[name="start_date"]');
-            const endDate = document.querySelector('input[name="end_date"]');
+            const packageSelect = document.getElementById('rentalPackage');
+            const startDate = document.getElementById('startDate');
+            const endDate = document.getElementById('endDate');
+            const endDateContainer = document.getElementById('endDateContainer');
             const driverSelect = document.querySelector('select[name="driver_id"]');
             const conductorSelect = document.querySelector('select[name="conductor_id"]');
 
+            // Handle package selection
+            packageSelect.addEventListener('change', function() {
+                if (this.value === 'day') {
+                    endDateContainer.style.display = 'none';
+                    endDate.removeAttribute('required');
+                    // Set end_date 24 jam setelah start_date
+                    if (startDate.value) {
+                        const start = new Date(startDate.value);
+                        const end = new Date(start);
+                        end.setHours(end.getHours() + 24);
+                        endDate.value = end.toISOString().slice(0, 16);
+                    }
+                } else {
+                    endDateContainer.style.display = 'block';
+                    endDate.setAttribute('required', 'required');
+                }
+            });
+
+            // Handle start date change
+            startDate.addEventListener('change', function() {
+                if (packageSelect.value === 'day') {
+                    const start = new Date(this.value);
+                    const end = new Date(start);
+                    end.setHours(end.getHours() + 24);
+                    endDate.value = end.toISOString().slice(0, 16);
+                }
+                loadAvailableCrew();
+            });
+
+            // Handle end date change
+            endDate.addEventListener('change', loadAvailableCrew);
+
             function loadAvailableCrew() {
-                if (startDate.value && endDate.value) {
-                    fetch(`{{ route('customer.rentals.get-available-crew') }}?start_date=${startDate.value}&end_date=${endDate.value}`)
+                const start = startDate.value;
+                const end = packageSelect.value === 'day' ? 
+                    new Date(new Date(start).getTime() + (24 * 60 * 60 * 1000)).toISOString().slice(0, 16) : 
+                    endDate.value;
+
+                if (start && end) {
+                    fetch(`{{ route('customer.rentals.get-available-crew') }}?start_date=${start}&end_date=${end}`)
                         .then(response => response.json())
                         .then(data => {
                             // Reset options
-                            driverSelect.innerHTML = '<option value="">Pilih Driver</option>';
-                            conductorSelect.innerHTML = '<option value="">Pilih Conductor</option>';
+                            driverSelect.innerHTML = '<option value="">Pilih Supir</option>';
+                            conductorSelect.innerHTML = '<option value="">Pilih Kernet</option>';
 
                             // Add drivers
                             if (data.drivers && data.drivers.length > 0) {
                                 data.drivers.forEach(driver => {
-                                    const option = new Option(
+                                    driverSelect.add(new Option(
                                         `${driver.name} (${driver.phone})`, 
                                         driver.id
-                                    );
-                                    driverSelect.add(option);
+                                    ));
                                 });
                             } else {
                                 driverSelect.add(new Option('Tidak ada driver yang tersedia', ''));
@@ -181,11 +230,10 @@
                             // Add conductors
                             if (data.conductors && data.conductors.length > 0) {
                                 data.conductors.forEach(conductor => {
-                                    const option = new Option(
+                                    conductorSelect.add(new Option(
                                         `${conductor.name} (${conductor.phone})`, 
                                         conductor.id
-                                    );
-                                    conductorSelect.add(option);
+                                    ));
                                 });
                             } else {
                                 conductorSelect.add(new Option('Tidak ada conductor yang tersedia', ''));
@@ -198,15 +246,15 @@
                 }
             }
 
+            // Initial setup
+            if (packageSelect.value === 'day') {
+                endDateContainer.style.display = 'none';
+                endDate.removeAttribute('required');
+            }
+
             if (startDate.value && endDate.value) {
                 loadAvailableCrew();
             }
-
-            startDate.addEventListener('change', loadAvailableCrew);
-            endDate.addEventListener('change', loadAvailableCrew);
-
-            // Hapus event listener submit yang lama
-            form.onsubmit = null;
         });
     </script>
     @endpush

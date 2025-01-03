@@ -94,9 +94,13 @@
                                             <small class="text-muted d-block">Tipe Bus</small>
                                             <span>{{ $rental->bus->type }}</span>
                                         </div>
-                                        <div>
+                                        <div class="mb-2">
                                             <small class="text-muted d-block">Kapasitas</small>
                                             <span>{{ $rental->bus->capacity }} Seat</span>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted d-block">Armada</small>
+                                            <span>{{ $rental->bus->armada->nama_armada }}</span>
                                         </div>
                                     </div>
                                 </div>

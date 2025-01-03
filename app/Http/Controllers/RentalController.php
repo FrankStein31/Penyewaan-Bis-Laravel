@@ -26,16 +26,23 @@ class RentalController extends Controller
     public function store(Request $request)
     {
         try {
-            $request->validate([
+            $validationRules = [
                 'bus_id' => 'required|exists:buses,id',
                 'driver_id' => 'required|exists:drivers,id',
                 'conductor_id' => 'required|exists:conductors,id',
                 'start_date' => 'required|date|after_or_equal:today',
-                'end_date' => 'required|date|after_or_equal:start_date',
+                'rental_package' => 'required|in:day,trip',
                 'pickup_location' => 'required|string',
                 'destination' => 'required|string',
                 'notes' => 'nullable|string'
-            ]);
+            ];
+
+            // Tambahkan validasi end_date jika paket trip
+            if ($request->rental_package === 'trip') {
+                $validationRules['end_date'] = 'required|date|after:start_date';
+            }
+
+            $request->validate($validationRules);
 
             $bus = Bus::findOrFail($request->bus_id);
             $driver = Driver::findOrFail($request->driver_id);
@@ -51,27 +58,29 @@ class RentalController extends Controller
 
             // Parse tanggal dengan benar
             $startDate = Carbon::parse($request->start_date);
-            $endDate = Carbon::parse($request->end_date);
+            $endDate = $request->rental_package === 'day' ? 
+                $startDate->copy()->addDay() : 
+                Carbon::parse($request->end_date);
 
-            // Validasi tanggal
-            if ($endDate->lt($startDate)) {
-                return back()->with('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai');
+            // Hitung total hari berdasarkan paket
+            if ($request->rental_package === 'day') {
+                $totalDays = 1; // Paket day selalu 1 hari
+            } else {
+                $totalDays = $startDate->diffInDays($endDate) + 1; // Untuk paket trip
             }
-
-            // Hitung total hari dengan benar - ubah urutan parameter diffInDays
-            $totalDays = $startDate->diffInDays($endDate) + 1;
-
-            // Debug log untuk memastikan perhitungan benar
-            \Log::info('Rental Calculation', [
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-                'total_days' => $totalDays,
-                'price_per_day' => $bus->price_per_day,
-                'total_price' => $bus->price_per_day * $totalDays
-            ]);
 
             // Hitung total harga
             $totalPrice = $bus->price_per_day * $totalDays;
+
+            // Debug log
+            \Log::info('Rental Calculation', [
+                'package' => $request->rental_package,
+                'start_date' => $startDate->format('Y-m-d H:i'),
+                'end_date' => $endDate->format('Y-m-d H:i'),
+                'total_days' => $totalDays,
+                'price_per_day' => $bus->price_per_day,
+                'total_price' => $totalPrice
+            ]);
 
             // Buat rental baru
             $rental = Rental::create([
@@ -86,6 +95,7 @@ class RentalController extends Controller
                 'destination' => $request->destination,
                 'total_days' => $totalDays,
                 'total_price' => $totalPrice,
+                'rental_package' => $request->rental_package,
                 'status' => 'pending',
                 'rental_status' => 'pending',
                 'payment_status' => 'unpaid',

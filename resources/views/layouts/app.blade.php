@@ -242,6 +242,14 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/armada*') ? 'active' : '' }}" href="{{ route('admin.armada.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Data Armada</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ Request::is('admin/buses*') ? 'active' : '' }}" href="{{ route('admin.buses.index') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-bus"></i>
