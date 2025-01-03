@@ -16,6 +16,22 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`penyewaanbis` /*!40100 DEFAULT CHARACTE
 
 USE `penyewaanbis`;
 
+/*Table structure for table `armada` */
+
+DROP TABLE IF EXISTS `armada`;
+
+CREATE TABLE `armada` (
+  `armada_id` int NOT NULL AUTO_INCREMENT,
+  `nama_armada` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`armada_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*Data for the table `armada` */
+
+insert  into `armada`(`armada_id`,`nama_armada`) values 
+(1,'A1'),
+(2,'B1');
+
 /*Table structure for table `bus_ratings` */
 
 DROP TABLE IF EXISTS `bus_ratings`;
@@ -46,8 +62,9 @@ DROP TABLE IF EXISTS `buses`;
 
 CREATE TABLE `buses` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `armada_id` int DEFAULT NULL,
   `plate_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `type` enum('umum','pariwisata','antarkota') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('long','short') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `capacity` int NOT NULL,
   `price_per_day` decimal(12,2) NOT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -58,15 +75,15 @@ CREATE TABLE `buses` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `buses_plate_number_unique` (`plate_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `buses` */
 
-insert  into `buses`(`id`,`plate_number`,`type`,`capacity`,`price_per_day`,`description`,`image`,`status`,`is_active`,`created_at`,`updated_at`) values 
-(1,'AG 6454 BK','umum',32,120000.00,'bus apa lah','1735707605_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-01 05:00:05','2025-01-01 09:35:51'),
-(2,'AG 6454 BG','antarkota',12,200000.00,'asdasaeesf','1735781184_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-01 10:27:25','2025-01-02 03:24:10'),
-(3,'BK 2120 DG','umum',25,50000.00,'asssssssssss','1735781194_Logo Polinema (Politeknik Negeri Malang) (1).png','disewa',1,'2025-01-02 00:38:27','2025-01-02 01:54:39'),
-(4,'AG 6454 BH','pariwisata',45,250000.00,'Ke gunung, kota, lembah ready','1735786298_Logo Polinema.png','tersedia',1,'2025-01-02 02:51:38','2025-01-02 02:51:38');
+insert  into `buses`(`id`,`armada_id`,`plate_number`,`type`,`capacity`,`price_per_day`,`description`,`image`,`status`,`is_active`,`created_at`,`updated_at`) values 
+(5,1,'AG 1111 BK','long',63,3000000.00,'Jawa','1735870073_Logo Polinema.png','tersedia',1,'2025-01-03 02:07:53','2025-01-03 02:24:52'),
+(6,1,'AG 2222 BK','short',33,2000000.00,'Jawa','1735870104_Logo Polinema.png','disewa',1,'2025-01-03 02:08:24','2025-01-03 02:29:19'),
+(7,2,'AG 3333 BK','long',63,3000000.00,'Yogya','1735870142_Logo Polinema.png','disewa',1,'2025-01-03 02:09:02','2025-01-03 02:31:22'),
+(8,2,'AG 4444 BK','short',33,2000000.00,'Yogya','1735870164_Logo Polinema.png','tersedia',1,'2025-01-03 02:09:24','2025-01-03 02:09:24');
 
 /*Table structure for table `conductor_ratings` */
 
@@ -112,9 +129,9 @@ CREATE TABLE `conductors` (
 /*Data for the table `conductors` */
 
 insert  into `conductors`(`id`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(1,'Kernet','111111111','medan','on_duty','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-02 00:36:53'),
-(2,'Agus','2222222222','Kediri','on_duty','1735781129_24164782705.jpg',1,'2025-01-01 10:25:44','2025-01-02 01:54:39'),
-(3,'Net','999999999','asfasczccccccccccccc','on_duty','1735786234_24164782705.jpg',1,'2025-01-02 02:50:34','2025-01-02 03:24:10');
+(1,'Kernet','111111111','medan','on_duty','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-03 02:29:19'),
+(2,'Agus','2222222222','Kediri','on_duty','1735781129_24164782705.jpg',1,'2025-01-01 10:25:44','2025-01-03 02:31:22'),
+(3,'Net','999999999','asfasczccccccccccccc','available','1735786234_24164782705.jpg',1,'2025-01-02 02:50:34','2025-01-02 03:24:10');
 
 /*Table structure for table `driver_ratings` */
 
@@ -163,9 +180,9 @@ CREATE TABLE `drivers` (
 /*Data for the table `drivers` */
 
 insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(2,'Mail','2131730071','333333333','paer','2025-01-03','on_duty','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-02 00:37:24'),
-(3,'Sifaul','2131730071241','4444444444','afsadasdasd','2025-01-03','on_duty','1735781164_2131730071.JPG',1,'2024-12-31 01:47:53','2025-01-02 01:54:39'),
-(4,'Mei','21317300711','8888888888','aaaaaaaaaaaaaaa\r\nasdasdsa','2026-12-02','on_duty','1735786159_2131730071.JPG',1,'2025-01-02 02:49:19','2025-01-02 03:24:10');
+(2,'Mail','2131730071','333333333','paer','2025-01-03','on_duty','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-03 02:29:19'),
+(3,'Sifaul','2131730071241','4444444444','afsadasdasd','2025-01-03','on_duty','1735781164_2131730071.JPG',1,'2024-12-31 01:47:53','2025-01-03 02:31:22'),
+(4,'Mei','21317300711','8888888888','aaaaaaaaaaaaaaa\r\nasdasdsa','2026-12-02','available','1735786159_2131730071.JPG',1,'2025-01-02 02:49:19','2025-01-02 03:24:10');
 
 /*Table structure for table `migrations` */
 
@@ -199,13 +216,12 @@ CREATE TABLE `payments` (
   UNIQUE KEY `payments_payment_code_unique` (`payment_code`),
   KEY `payments_rental_id_foreign` (`rental_id`),
   CONSTRAINT `payments_rental_id_foreign` FOREIGN KEY (`rental_id`) REFERENCES `rentals` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `payments` */
 
 insert  into `payments`(`id`,`rental_id`,`payment_code`,`amount`,`payment_method`,`payment_proof`,`status`,`notes`,`created_at`,`updated_at`) values 
-(5,7,'PAY202501020001',50000.00,'cash','payment-proofs/IiX6gR6OxKs0HOPt6TyF3EYviSRxGjYVxOro3xli.png','pending','1111111111','2025-01-02 04:42:56','2025-01-02 04:42:56'),
-(9,4,'PAY202501020002',100000.00,'cash','payment-proofs/iWFCcOyzegS7nxPOfbn6ISrUyGz7n4nGzfgICgw4.png','pending','aaaaaaaaaaaaaa','2025-01-02 05:04:46','2025-01-02 05:04:46');
+(10,17,'PAY202501030001',2000000.00,'cash','payment-proofs/4zYWSGfMYrCa2J3U6iIT16fFRrP42mr6vCdXjY09.png','pending','qwert','2025-01-03 02:47:51','2025-01-03 02:47:51');
 
 /*Table structure for table `ratings` */
 
@@ -264,14 +280,13 @@ CREATE TABLE `rentals` (
   CONSTRAINT `rentals_conductor_id_foreign` FOREIGN KEY (`conductor_id`) REFERENCES `conductors` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_driver_id_foreign` FOREIGN KEY (`driver_id`) REFERENCES `drivers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rentals_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rentals` */
 
 insert  into `rentals`(`id`,`rental_code`,`user_id`,`bus_id`,`driver_id`,`conductor_id`,`start_date`,`end_date`,`pickup_location`,`destination`,`total_days`,`total_price`,`status`,`rental_status`,`payment_status`,`notes`,`created_at`,`updated_at`) values 
-(4,'RNT202501010001',1,1,2,1,'2025-01-01 16:35:00','2025-01-04 16:35:00','aaaaaaaaaaaaaaa','aeeeeeeeeeeeer',2,240000.00,'aktif','confirmed','partial','rrrrrrrrrrrrrrrr','2025-01-01 09:35:51','2025-01-02 05:04:46'),
-(7,'RNT202501020002',1,3,3,2,'2025-01-02 08:54:00','2025-01-03 08:54:00','qqqqqqqqqqq','qqqqqqqqqqqqq',1,50000.00,'aktif','confirmed','paid','qqqqqqqqqqqqqqq','2025-01-02 01:54:39','2025-01-02 04:42:56'),
-(15,'RNT202501020004',11,2,4,3,'2025-02-01 10:23:00','2025-02-08 10:24:00','111111111111','12222222222223',8,1600138.89,'pending','pending','unpaid','33333333333333','2025-01-02 03:24:10','2025-01-02 03:24:10');
+(17,'RNT202501030001',1,6,2,1,'2025-01-04 10:30:00','2025-01-05 10:30:00','wasd','qwerty',1,2000000.00,'aktif','confirmed','paid','qwertywasd','2025-01-03 02:29:19','2025-01-03 02:47:51'),
+(18,'RNT202501030002',11,7,3,2,'2025-01-05 09:30:00','2025-01-10 09:30:00','qqqqqqqqqqqqqqqqqqqqq','qqqqqqqqqqqqqqqqqqqqq',6,18000000.00,'aktif','confirmed','unpaid','qqqqqqqqqqqqqqqqqqqqq','2025-01-03 02:31:22','2025-01-03 02:40:33');
 
 /*Table structure for table `sessions` */
 
@@ -292,7 +307,7 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('F0UNJunEU5KbMYPDXIXotlg1IPq27jkeVJ9yNUIm',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTkpEcHU3SncxOGNWcnd0RHNwNlBXcWNKeVpSV1Jva3ZoNlhkQmJyWiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9kYXNoYm9hcmQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO30=',1735795020);
+('vD6r0SBsyhcUUp7a0CvZDImqPlesn7Zs1RHRW5bU',9,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiczFBNVYxdFJ6RndHSmJMbDhGeTZ5V3gyUVk3NmE4SlEwblY0Y2kzTyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9vd25lci91c2VycyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjk7fQ==',1735878500);
 
 /*Table structure for table `users` */
 
