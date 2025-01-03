@@ -98,7 +98,7 @@
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm {{ $bus->is_active ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">
-                                                {{ $bus->is_active ? 'Active' : 'Inactive' }}
+                                                {{ $bus->is_active ? 'Aktif' : 'Tidak Aktif' }}
                                             </span>
                                         </td>
                                         <td class="align-middle">

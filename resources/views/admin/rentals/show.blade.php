@@ -19,17 +19,17 @@
                                     @csrf
                                     @method('PUT')
                                     <select name="rental_status" id="rentalStatus" class="form-select form-select-sm bg-white" style="min-width: 140px; border-radius: 0.5rem;">
-                                        <option value="pending" {{ $rental->rental_status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                        <option value="confirmed" {{ $rental->rental_status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                        <option value="ongoing" {{ $rental->rental_status == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
-                                        <option value="completed" {{ $rental->rental_status == 'completed' ? 'selected' : '' }}>Completed</option>
-                                        <option value="cancelled" {{ $rental->rental_status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                        <option value="pending" {{ $rental->rental_status == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                        <option value="confirmed" {{ $rental->rental_status == 'confirmed' ? 'selected' : '' }}>Konfirmasi</option>
+                                        <option value="ongoing" {{ $rental->rental_status == 'ongoing' ? 'selected' : '' }}>Sedang Berlangsung</option>
+                                        <option value="completed" {{ $rental->rental_status == 'completed' ? 'selected' : '' }}>Selesai</option>
+                                        <option value="cancelled" {{ $rental->rental_status == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
                                     </select>
                                     <button type="button" 
                                             onclick="confirmStatusUpdate()" 
                                             class="btn bg-gradient-primary btn-sm mb-0" 
                                             style="border-radius: 0.5rem; width: 100%;">
-                                        Update Status
+                                        Perbarui Status
                                     </button>
                                 </form>
                             </div>
@@ -48,7 +48,10 @@
                                             ($rental->rental_status === 'ongoing' ? 'primary' :
                                             ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                         }} p-2">
-                                            {{ ucfirst($rental->rental_status) }}
+                                            {{ ucfirst($rental->rental_status) === 'Pending' ? 'Menunggu' :
+                                               (ucfirst($rental->rental_status) === 'Confirmed' ? 'Dikonfirmasi' :
+                                               (ucfirst($rental->rental_status) === 'Ongoing' ? 'Sedang Berlangsung' :
+                                               (ucfirst($rental->rental_status) === 'Completed' ? 'Selesai' : 'Dibatalkan'))) }}
                                         </span>
                                     </div>
                                     <div>
@@ -195,7 +198,17 @@
                                                 ($rental->payment_status == 'paid' ? 'success' : 
                                                 ($rental->payment_status == 'cancelled' ? 'danger' : 'secondary'))) 
                                             }}">
-                                                {{ ucfirst(str_replace('_', ' ', $rental->payment_status)) }}
+                                                @if($rental->payment_status == 'unpaid')
+                                                    Belum Dibayar
+                                                @elseif($rental->payment_status == 'partially_paid') 
+                                                    Dibayar Sebagian
+                                                @elseif($rental->payment_status == 'paid')
+                                                    Lunas
+                                                @elseif($rental->payment_status == 'cancelled')
+                                                    Dibatalkan
+                                                @else
+                                                    Tidak Diketahui
+                                                @endif
                                             </span>
                                         </div>
                                         <div class="mb-2">

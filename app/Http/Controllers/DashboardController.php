@@ -39,12 +39,9 @@ class DashboardController extends Controller
             // Statistik per Armada
             'statistikArmada' => $this->getArmadaStatistics(),
             
-            // Grafik dan Chart
+            // Grafik Pendapatan dan Pemesanan
             'chartPendapatan' => $this->getRevenueChart(),
-            'chartPenyewaan' => [
-                'labels' => $this->getLast12Months(),
-                'data' => $this->getRentalDataMonthly()
-            ],
+            'chartPemesanan' => $this->getBookingChart(),
             'topBuses' => $this->getTopBuses(),
             'topDrivers' => $this->getTopDrivers(),
             
@@ -117,14 +114,16 @@ class DashboardController extends Controller
 
     private function getTopBuses()
     {
-        $topBuses = Bus::withCount('rentals')
+        $topBuses = Bus::with('armada')
+                      ->withCount('rentals')
                       ->orderBy('rentals_count', 'desc')
                       ->take(5)
                       ->get();
 
         return [
             'labels' => $topBuses->pluck('plate_number')->toArray(),
-            'data' => $topBuses->pluck('rentals_count')->toArray()
+            'data' => $topBuses->pluck('rentals_count')->toArray(),
+            'armada' => $topBuses->pluck('armada.nama_armada')->toArray()
         ];
     }
 
@@ -216,5 +215,38 @@ class DashboardController extends Controller
                 'rata_rata_pendapatan' => $activeCount > 0 ? $totalRevenue / $activeCount : 0
             ];
         });
+    }
+
+    private function getBookingChart()
+    {
+        $months = collect(range(11, 0))->map(function($i) {
+            $date = now()->startOfMonth()->subMonths($i);
+            return [
+                'label' => $date->format('M Y'),
+                'month' => $date->month,
+                'year' => $date->year
+            ];
+        });
+
+        $bookings = Rental::selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, COUNT(*) as total')
+            ->whereYear('created_at', '>=', now()->subMonths(11)->year)
+            ->groupBy('year', 'month')
+            ->get();
+
+        $data = $months->map(function($month) use ($bookings) {
+            $monthData = $bookings->first(function($booking) use ($month) {
+                return $booking->month == $month['month'] && $booking->year == $month['year'];
+            });
+
+            return [
+                'label' => $month['label'],
+                'total' => $monthData ? $monthData->total : 0
+            ];
+        });
+
+        return [
+            'labels' => $data->pluck('label'),
+            'data' => $data->pluck('total')
+        ];
     }
 }

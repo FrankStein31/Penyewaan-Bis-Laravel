@@ -31,7 +31,7 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Lokasi</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status Pesanan</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pembayaran</th>
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
@@ -57,8 +57,8 @@
                                             <p class="text-xs text-secondary mb-0">{{ $rental->user->phone }}</p>
                                         </td>
                                         <td>
-                                            <p class="text-xs font-weight-bold mb-0">{{ $rental->bus->name }}</p>
-                                            <p class="text-xs text-secondary mb-0">{{ $rental->bus->number_plate }}</p>
+                                            <p class="text-xs font-weight-bold mb-0">{{ $rental->bus->type == 'long' ? 'Long (63)' : 'Short (33)' }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ $rental->bus->plate_number }}</p>
                                             <p class="text-xs text-secondary mb-0">Kapasitas: {{ $rental->bus->capacity }} Seat</p>
                                         </td>
                                         <td>
@@ -137,7 +137,12 @@
                                                 ($rental->rental_status === 'ongoing' ? 'primary' :
                                                 ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                             }}">
-                                                {{ ucfirst($rental->rental_status) }}
+                                                {{ 
+                                                    $rental->rental_status === 'pending' ? 'Menunggu' :
+                                                    ($rental->rental_status === 'confirmed' ? 'Dikonfirmasi' :
+                                                    ($rental->rental_status === 'ongoing' ? 'Sedang Berjalan' :
+                                                    ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan')))
+                                                }}
                                             </span>
                                         </td>
                                         <td>
@@ -147,7 +152,12 @@
                                                 ($rental->payment_status == 'paid' ? 'success' : 
                                                 ($rental->payment_status == 'cancelled' ? 'danger' : 'secondary'))) 
                                             }}">
-                                                {{ ucfirst(str_replace('_', ' ', $rental->payment_status)) }}
+                                                {{ 
+                                                    $rental->payment_status == 'unpaid' ? 'Belum Dibayar' :
+                                                    ($rental->payment_status == 'partially_paid' ? 'Dibayar Sebagian' :
+                                                    ($rental->payment_status == 'paid' ? 'Lunas' :
+                                                    ($rental->payment_status == 'cancelled' ? 'Dibatalkan' : 'Lainnya')))
+                                                }}
                                             </span>
                                         </td>
                                         <td class="align-middle">

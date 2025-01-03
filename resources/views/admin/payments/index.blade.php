@@ -178,7 +178,8 @@
                                             <td>
                                                 <span class="badge badge-sm bg-gradient-{{ $payment['status'] === 'success' ? 'success' : 
                                                     ($payment['status'] === 'pending' ? 'warning' : 'danger') }}">
-                                                    {{ ucfirst($payment['status']) }}
+                                                    {{ $payment['status'] === 'success' ? 'Berhasil' : 
+                                                       ($payment['status'] === 'pending' ? 'Menunggu' : 'Gagal') }}
                                                 </span>
                                             </td>
                                             <td>

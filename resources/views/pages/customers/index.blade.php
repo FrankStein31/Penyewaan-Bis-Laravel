@@ -80,7 +80,7 @@
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             <span class="badge badge-sm {{ $customer->is_active ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">
-                                                {{ $customer->is_active ? 'Active' : 'Inactive' }}
+                                                {{ $customer->is_active ? 'Aktif' : 'Tidak Aktif' }}
                                             </span>
                                         </td>
                                         <td class="align-middle">

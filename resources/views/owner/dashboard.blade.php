@@ -139,6 +139,7 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Bus</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Armada</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Sewa</th>
                                 </tr>
                             </thead>
@@ -154,6 +155,9 @@
                                                 <h6 class="mb-0 text-sm">{{ $plateNumber }}</h6>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-gradient-info">{{ $topBuses['armada'][$index] }}</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-gradient-success">{{ $topBuses['data'][$index] }} kali</span>
@@ -210,6 +214,22 @@
             </div>
         </div>
     </div>
+
+    <!-- Setelah grafik pendapatan, tambahkan grafik pemesanan -->
+    <div class="row mt-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>Grafik Pemesanan 12 Bulan Terakhir</h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="bookingChart" class="chart-canvas" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('js')
@@ -260,6 +280,86 @@
                         drawTicks: false
                     }
                 }
+            }
+        }
+    });
+
+    // Grafik Pemesanan dengan Line Chart
+    new Chart(document.getElementById('bookingChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartPemesanan['labels']) !!},
+            datasets: [{
+                label: 'Jumlah Pemesanan',
+                data: {!! json_encode($chartPemesanan['data']) !!},
+                fill: true,
+                borderColor: '#2dce89',
+                backgroundColor: 'rgba(45, 206, 137, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#2dce89',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#fff',
+                    titleColor: '#000',
+                    bodyColor: '#000',
+                    borderColor: '#e9ecef',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' Pemesanan';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        display: true,
+                        drawOnChartArea: true,
+                        drawTicks: false,
+                        borderDash: [5, 5]
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            if (Math.floor(value) === value) {
+                                return value;
+                            }
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        drawBorder: false,
+                        display: false,
+                        drawOnChartArea: false,
+                        drawTicks: false
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
             }
         }
     });

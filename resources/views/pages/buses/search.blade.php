@@ -27,7 +27,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
-                                        <label>Tipe Bus</label>
+                                        <label>Tipe Bus Pariwisata</label>
                                         <select name="type" id="busType" class="form-control" onchange="updateMinValues(this.value)">
                                             <option value="">Semua Tipe</option>
                                             <option value="long" {{ request('type') == 'long' ? 'selected' : '' }}>Long (63 Kursi)</option>

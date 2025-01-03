@@ -55,7 +55,8 @@
                                     ($rental->payment_status === 'partial' ? 'warning' : 'success') 
                                 }}">
                                     {{ $rental->payment_status === 'unpaid' ? 'Belum Dibayar' : 
-                                       ($rental->payment_status === 'partial' ? 'Pembayaran Sebagian' : ucfirst($rental->payment_status)) }}
+                                       ($rental->payment_status === 'partial' ? 'Dibayar Sebagian' : 
+                                       ($rental->payment_status === 'paid' ? 'Lunas' : 'Dibatalkan')) }}
                                 </span>
                             </div>
                         </div>
@@ -131,10 +132,18 @@
                                             <tr>
                                                 <td>{{ $payment->created_at->format('d/m/Y H:i') }}</td>
                                                 <td>Rp {{ number_format($payment->amount, 0, ',', '.') }}</td>
-                                                <td>{{ $payment->payment_method }}</td>
+                                                <td>
+                                                    @if($payment->payment_method === 'cash')
+                                                        Tunai
+                                                    @elseif($payment->payment_method === 'transfer') 
+                                                        Transfer Bank
+                                                    @else
+                                                        {{ $payment->payment_method }}
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <span class="badge bg-{{ $payment->status === 'verified' ? 'success' : 'warning' }}">
-                                                        {{ ucfirst($payment->status) }}
+                                                        {{ $payment->status === 'verified' ? 'Terverifikasi' : 'Menunggu' }}
                                                     </span>
                                                 </td>
                                             </tr>

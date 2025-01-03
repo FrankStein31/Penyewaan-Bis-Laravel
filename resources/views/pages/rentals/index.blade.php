@@ -13,7 +13,7 @@
         }
         
         .table td {
-            vertical-align: middle !important; /* Memaksa vertical alignment ke tengah */
+            vertical-align: middle !important;
         }
         
         .table td > div {
@@ -41,66 +41,107 @@
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Kode Pesanan</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Bus</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Tanggal</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Status</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Rute</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Periode</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Total</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Status Pesanan</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Pembayaran</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse($rentals as $rental)
                                         <tr>
-                                            <td class="ps-3">
-                                                <div>
-                                                    <span class="text-primary font-weight-bold">#{{ $rental->rental_code }}</span>
+                                            <td>
+                                                <div class="d-flex px-2 py-1">
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">#{{ $rental->rental_code }}</h6>
+                                                        <p class="text-xs text-secondary mb-0">
+                                                            {{ $rental->created_at->format('d/m/Y H:i') }}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td class="ps-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="icon-wrapper bg-gradient-primary text-white me-3">
-                                                        <i class="fas fa-bus"></i>
-                                                    </div>
+                                                    @if($rental->bus->photo)
+                                                        <img src="{{ Storage::url($rental->bus->photo) }}" 
+                                                             class="avatar avatar-sm rounded-circle me-2">
+                                                    @else
+                                                        <div class="icon-wrapper bg-gradient-primary text-white me-2">
+                                                            <i class="fas fa-bus"></i>
+                                                        </div>
+                                                    @endif
                                                     <div>
                                                         <p class="text-sm font-weight-bold mb-0">{{ $rental->bus->plate_number }}</p>
+                                                        <p class="text-xs text-secondary mb-0">Type: {{ $rental->bus->type }}</p>
+                                                        <p class="text-xs text-secondary mb-0">Kapasitas: {{ $rental->bus->capacity }} Seat</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="ps-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="icon-wrapper bg-gradient-info text-white me-3">
-                                                        <i class="fas fa-calendar"></i>
-                                                    </div>
-                                                    <p class="text-sm font-weight-bold mb-0">
-                                                        {{ \Carbon\Carbon::parse($rental->start_date)->format('d/m/Y') }}
-                                                    </p>
-                                                </div>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    Dari: {{ $rental->pickup_location }}
+                                                </p>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    Ke: {{ $rental->destination }}
+                                                </p>
                                             </td>
                                             <td class="ps-3">
-                                                <div>
-                                                    <span class="badge badge-sm bg-gradient-{{ 
-                                                        $rental->rental_status === 'pending' ? 'warning' : 
-                                                        ($rental->rental_status === 'confirmed' ? 'info' :
-                                                        ($rental->rental_status === 'ongoing' ? 'primary' :
-                                                        ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
-                                                    }} px-3 py-2">
-                                                        {{ ucfirst($rental->rental_status) }}
-                                                    </span>
-                                                </div>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    {{ date('d/m/Y', strtotime($rental->start_date)) }}
+                                                </p>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    s/d {{ date('d/m/Y', strtotime($rental->end_date)) }}
+                                                </p>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    ({{ $rental->total_days }} hari)
+                                                </p>
                                             </td>
                                             <td class="ps-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="icon-wrapper bg-gradient-success text-white me-3">
-                                                        <i class="fas fa-money-bill"></i>
-                                                    </div>
-                                                    <p class="text-sm font-weight-bold mb-0">
-                                                        Rp {{ number_format($rental->total_price, 0, ',', '.') }}
-                                                    </p>
-                                                </div>
+                                                <p class="text-xs font-weight-bold mb-0">
+                                                    Rp {{ number_format($rental->total_price, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-xs text-secondary mb-0">
+                                                    @if($rental->payment)
+                                                        DP: Rp {{ number_format($rental->payment->down_payment, 0, ',', '.') }}
+                                                    @endif
+                                                </p>
+                                            </td>
+                                            <td class="ps-3">
+                                                <span class="badge badge-sm bg-gradient-{{ 
+                                                    $rental->rental_status === 'pending' ? 'warning' : 
+                                                    ($rental->rental_status === 'confirmed' ? 'info' :
+                                                    ($rental->rental_status === 'ongoing' ? 'primary' :
+                                                    ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
+                                                }}">
+                                                    {{ 
+                                                        $rental->rental_status === 'pending' ? 'Menunggu' :
+                                                        ($rental->rental_status === 'confirmed' ? 'Dikonfirmasi' :
+                                                        ($rental->rental_status === 'ongoing' ? 'Sedang Berjalan' :
+                                                        ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan')))
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td class="ps-3">
+                                                <span class="badge badge-sm bg-gradient-{{ 
+                                                    $rental->payment_status == 'unpaid' ? 'warning' : 
+                                                    ($rental->payment_status == 'partially_paid' ? 'info' : 
+                                                    ($rental->payment_status == 'paid' ? 'success' : 
+                                                    ($rental->payment_status == 'cancelled' ? 'danger' : 'secondary'))) 
+                                                }}">
+                                                    {{ 
+                                                        $rental->payment_status == 'unpaid' ? 'Belum Dibayar' :
+                                                        ($rental->payment_status == 'partially_paid' ? 'Dibayar Sebagian' :
+                                                        ($rental->payment_status == 'paid' ? 'Lunas' :
+                                                        ($rental->payment_status == 'cancelled' ? 'Dibatalkan' : 'Lainnya')))
+                                                    }}
+                                                </span>
                                             </td>
                                             <td class="ps-3">
                                                 <div class="d-flex align-items-center gap-2">
                                                     <a href="{{ route('customer.rentals.show', $rental) }}" 
-                                                       class="btn btn-sm btn-info px-3">
+                                                       class="btn btn-sm bg-gradient-info text-white px-3">
                                                         <i class="fas fa-eye me-2"></i> Detail
                                                     </a>
                                                     @if($rental->rental_status === 'pending')
@@ -119,7 +160,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="text-center py-5">
+                                            <td colspan="8" class="text-center py-5">
                                                 <div class="d-flex flex-column align-items-center">
                                                     <i class="fas fa-inbox fa-3x text-secondary mb-3"></i>
                                                     <p class="text-secondary font-weight-bold mb-0">Belum ada riwayat pesanan</p>

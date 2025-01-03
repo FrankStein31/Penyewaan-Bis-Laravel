@@ -30,6 +30,7 @@
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Bus</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Armada</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal Sewa</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tujuan</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total</th>
@@ -54,34 +55,65 @@
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm">{{ $booking->bus->plate_number }}</h6>
                                                     <p class="text-xs text-secondary mb-0">{{ ucfirst($booking->bus->type) }}</p>
+                                                    <p class="text-xs text-secondary mb-0">
+                                                        <span class="badge badge-sm bg-gradient-info">
+                                                            {{ $booking->bus->capacity }} Kursi
+                                                        </span>
+                                                    </p>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ $booking->bus->armada->name }}</p>
+                                            <p class="text-xs text-secondary mb-0">
+                                                <span class="badge badge-sm bg-gradient-primary">
+                                                    {{ $booking->package_type }} 
+                                                </span>
+                                            </p>
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">
                                                 {{ $booking->start_date->format('d/m/Y') }} - {{ $booking->end_date->format('d/m/Y') }}
                                             </p>
                                             <p class="text-xs text-secondary mb-0">{{ $booking->total_days }} hari</p>
+                                            <p class="text-xs text-secondary mb-0">
+                                                <span class="badge badge-sm bg-gradient-warning">
+                                                    {{ $booking->trip_type }}
+                                                </span>
+                                            </p>
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">{{ $booking->destination }}</p>
+                                            <p class="text-xs text-secondary mb-0">Dari: {{ $booking->pickup_location }}</p>
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">
                                                 Rp {{ number_format($booking->total_price, 0, ',', '.') }}
                                             </p>
+                                            @if($booking->down_payment)
+                                            <p class="text-xs text-secondary mb-0">
+                                                DP: Rp {{ number_format($booking->down_payment, 0, ',', '.') }}
+                                            </p>
+                                            @endif
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             @php
                                                 $statusClass = [
                                                     'pending' => 'bg-gradient-warning',
-                                                    'confirmed' => 'bg-gradient-success',
+                                                    'confirmed' => 'bg-gradient-success', 
                                                     'cancelled' => 'bg-gradient-danger',
                                                     'completed' => 'bg-gradient-info'
                                                 ][$booking->status];
+
+                                                $statusText = [
+                                                    'pending' => 'Menunggu',
+                                                    'confirmed' => 'Dikonfirmasi',
+                                                    'cancelled' => 'Dibatalkan', 
+                                                    'completed' => 'Selesai'
+                                                ][$booking->status];
                                             @endphp
                                             <span class="badge badge-sm {{ $statusClass }}">
-                                                {{ ucfirst($booking->status) }}
+                                                {{ $statusText }}
                                             </span>
                                         </td>
                                         <td class="align-middle">
@@ -103,7 +135,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
+                                        <td colspan="7" class="text-center py-4">
                                             <p class="text-sm mb-0">Belum ada pemesanan</p>
                                             <a href="{{ route('buses.search') }}" class="btn btn-sm btn-primary mt-3">
                                                 Pesan Bus Sekarang

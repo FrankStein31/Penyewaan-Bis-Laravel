@@ -83,7 +83,10 @@
                                             <span class="badge badge-sm bg-gradient-{{ 
                                                 $driver->status == 'available' ? 'success' : 
                                                 ($driver->status == 'on_duty' ? 'warning' : 'secondary') 
-                                            }}">{{ $driver->status }}</span>
+                                            }}">{{ 
+                                                $driver->status == 'available' ? 'Tersedia' :
+                                                ($driver->status == 'on_duty' ? 'Bertugas' : 'Tidak Tersedia')
+                                            }}</span>
                                         </td>
                                         <td>
                                             <span class="badge badge-sm bg-gradient-{{ $driver->is_active ? 'success' : 'danger' }}">

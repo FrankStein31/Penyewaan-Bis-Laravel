@@ -49,9 +49,9 @@
                                     <div class="form-group">
                                         <label for="status" class="form-control-label">Status</label>
                                         <select class="form-control @error('status') is-invalid @enderror" name="status" required>
-                                            <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Available</option>
-                                            <option value="on_duty" {{ old('status') == 'on_duty' ? 'selected' : '' }}>On Duty</option>
-                                            <option value="off" {{ old('status') == 'off' ? 'selected' : '' }}>Off</option>
+                                            <option value="available" {{ old('status') == 'available' ? 'selected' : '' }}>Tersedia</option>
+                                            <option value="on_duty" {{ old('status') == 'on_duty' ? 'selected' : '' }}>Sedang Bertugas</option>
+                                            <option value="off" {{ old('status') == 'off' ? 'selected' : '' }}>Tidak Aktif</option>
                                         </select>
                                         @error('status')
                                             <span class="invalid-feedback">{{ $message }}</span>

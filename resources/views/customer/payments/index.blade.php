@@ -33,11 +33,48 @@
                                     <tbody>
                                         @foreach($activeRentals as $data)
                                             <tr>
-                                                <td>{{ $data['rental']->rental_code }}</td>
-                                                <td>{{ $data['rental']->bus->name }}</td>
-                                                <td>Rp {{ number_format($data['rental']->total_price) }}</td>
-                                                <td>Rp {{ number_format($data['total_paid']) }}</td>
-                                                <td>Rp {{ number_format($data['remaining_amount']) }}</td>
+                                                <td>
+                                                    <div class="d-flex px-2 py-1">
+                                                        <div class="d-flex flex-column justify-content-center">
+                                                            <h6 class="mb-0 text-sm">#{{ $data['rental']->rental_code }}</h6>
+                                                            <p class="text-xs text-secondary mb-0">
+                                                                {{ $data['rental']->created_at->format('d/m/Y H:i') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        @if($data['rental']->bus->photo)
+                                                            <img src="{{ Storage::url($data['rental']->bus->photo) }}" 
+                                                                 class="avatar avatar-sm rounded-circle me-2">
+                                                        @else
+                                                            <div class="icon-wrapper bg-gradient-primary text-white me-2">
+                                                                <i class="fas fa-bus"></i>
+                                                            </div>
+                                                        @endif
+                                                        <div>
+                                                            <p class="text-sm font-weight-bold mb-0">{{ $data['rental']->bus->plate_number }}</p>
+                                                            <p class="text-xs text-secondary mb-0">Type: {{ $data['rental']->bus->type }}</p>
+                                                            <p class="text-xs text-secondary mb-0">Kapasitas: {{ $data['rental']->bus->capacity }} Seat</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">
+                                                        Rp {{ number_format($data['rental']->total_price, 0, ',', '.') }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">
+                                                        Rp {{ number_format($data['total_paid'], 0, ',', '.') }}
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p class="text-xs font-weight-bold mb-0">
+                                                        Rp {{ number_format($data['remaining_amount'], 0, ',', '.') }}
+                                                    </p>
+                                                </td>
                                                 <td>
                                                     @if($data['rental']->payments->where('status', 'pending')->count() > 0)
                                                         <span class="badge badge-sm bg-gradient-warning">
@@ -45,19 +82,24 @@
                                                         </span>
                                                     @else
                                                         <span class="badge badge-sm bg-gradient-{{ 
-                                                            $data['rental']->payment_status === 'paid' ? 'success' : 
-                                                            ($data['rental']->payment_status === 'partial' ? 'info' : 'danger') 
+                                                            $data['rental']->payment_status == 'paid' ? 'success' : 
+                                                            ($data['rental']->payment_status == 'partially_paid' ? 'info' : 'danger') 
                                                         }}">
-                                                            {{ ucfirst($data['rental']->payment_status) }}
+                                                            {{ 
+                                                                $data['rental']->payment_status == 'paid' ? 'Lunas' :
+                                                                ($data['rental']->payment_status == 'partially_paid' ? 'Dibayar Sebagian' : 'Belum Dibayar')
+                                                            }}
                                                         </span>
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if($data['rental']->rental_status === 'confirmed' && $data['rental']->payment_status !== 'paid')
                                                         <a href="{{ route('customer.payments.form', $data['rental']->id) }}" 
-                                                           class="btn btn-primary btn-sm">
-                                                            Form Pembayaran
+                                                           class="btn btn-sm bg-gradient-info text-white px-3 mb-0">
+                                                            <i class="fas fa-money-bill me-2"></i>Bayar
                                                         </a>
+                                                    @else
+                                                        <span class="text-xs text-secondary">Tidak ada aksi</span>
                                                     @endif
                                                 </td>
                                             </tr>

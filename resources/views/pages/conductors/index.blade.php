@@ -69,16 +69,16 @@
                                         </td>
                                         <td class="align-middle text-center text-sm">
                                             @if($conductor->status == 'available')
-                                                <span class="badge badge-sm bg-gradient-success">Available</span>
+                                                <span class="badge badge-sm bg-gradient-success">Tersedia</span>
                                             @elseif($conductor->status == 'on_duty')
-                                                <span class="badge badge-sm bg-gradient-warning">On Duty</span>
+                                                <span class="badge badge-sm bg-gradient-warning">Bertugas</span>
                                             @else
-                                                <span class="badge badge-sm bg-gradient-secondary">Off</span>
+                                                <span class="badge badge-sm bg-gradient-secondary">Tidak Tersedia</span>
                                             @endif
                                         </td>
                                         <td class="align-middle text-center">
                                             <span class="badge badge-sm {{ $conductor->is_active ? 'bg-gradient-success' : 'bg-gradient-secondary' }}">
-                                                {{ $conductor->is_active ? 'Active' : 'Inactive' }}
+                                                {{ $conductor->is_active ? 'Aktif' : 'Nonaktif' }}
                                             </span>
                                         </td>
                                         <td class="align-middle">
