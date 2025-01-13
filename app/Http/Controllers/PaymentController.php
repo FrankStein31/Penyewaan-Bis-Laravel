@@ -252,4 +252,169 @@ class PaymentController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat memproses pembayaran');
         }
     }
+
+    public function verifyPayment(Payment $payment)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Update status pembayaran menjadi success
+            $payment->status = 'success';
+            $payment->save();
+
+            // Update rental payment status
+            $rental = Rental::find($payment->rental_id);
+            
+            // Hitung total pembayaran yang sudah success
+            $totalPaid = $rental->payments()
+                ->where('status', 'success')
+                ->sum('amount');
+            
+            // Update status pembayaran rental
+            if ($totalPaid >= $rental->total_price) {
+                $rental->payment_status = 'paid';
+            } else {
+                $rental->payment_status = 'partially_paid';
+            }
+            
+            $rental->save();
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Payment Verification Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memverifikasi pembayaran');
+        }
+    }
+
+    // public function startPayment(Rental $rental)
+    // {
+    //     \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    //     \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+    //     \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
+    //     \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
+
+    //     $payment = Payment::create([
+    //         'rental_id' => $rental->id,
+    //         'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
+    //         'amount' => $rental->total_price,
+    //         'payment_method' => 'midtrans',
+    //         'status' => 'pending'
+    //     ]);
+
+    //     $transaction_details = array(
+    //         'order_id' => $payment->payment_code,
+    //         'gross_amount' => (int) $payment->amount
+    //     );
+
+    //     $customer_details = array(
+    //         'first_name' => $rental->user->firstname,
+    //         'last_name' => $rental->user->lastname,
+    //         'email' => $rental->user->email,
+    //         'phone' => $rental->user->phone,
+    //     );
+
+    //     $transaction_data = array(
+    //         'transaction_details' => $transaction_details,
+    //         'customer_details' => $customer_details
+    //     );
+
+    //     try {
+    //         $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
+    //         return response()->json([
+    //             'snap_token' => $snapToken,
+    //             'payment' => $payment
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['message' => $e->getMessage()], 500);
+    //     }
+    // }
+
+    public function startPayment(Rental $rental)
+    {
+        try {
+            // Validasi rental
+            if ($rental->user_id !== auth()->id()) {
+                throw new \Exception('Anda tidak memiliki akses ke rental ini');
+            }
+
+            // Validasi status rental
+            if ($rental->payment_status === 'paid') {
+                throw new \Exception('Rental ini sudah lunas');
+            }
+
+            // Hitung sisa pembayaran
+            $totalPaid = $rental->payments()->where('status', 'success')->sum('amount');
+            $remainingAmount = $rental->total_price - $totalPaid;
+
+            if ($remainingAmount <= 0) {
+                throw new \Exception('Tidak ada sisa pembayaran');
+            }
+
+            DB::beginTransaction();
+
+            // Konfigurasi Midtrans
+            \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+            \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
+            \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
+
+            // Buat payment record
+            $payment = Payment::create([
+                'rental_id' => $rental->id,
+                'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
+                'amount' => $remainingAmount, // Gunakan sisa pembayaran
+                'payment_method' => 'midtrans',
+                'status' => 'pending'
+            ]);
+
+            $transaction_details = array(
+                'order_id' => $payment->payment_code,
+                'gross_amount' => (int) $payment->amount
+            );
+
+            $customer_details = array(
+                'first_name' => $rental->user->firstname,
+                'last_name' => $rental->user->lastname,
+                'email' => $rental->user->email,
+                'phone' => $rental->user->phone ?? '08123456789'
+            );
+
+            $transaction_data = array(
+                'transaction_details' => $transaction_details,
+                'customer_details' => $customer_details
+            );
+
+            $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
+            
+            DB::commit();
+            
+            return response()->json([
+                'snap_token' => $snapToken,
+                'payment' => $payment
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Midtrans Payment Error: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function success()
+    {
+        return view('customer.payments.success');
+    }
+
+    public function pending()
+    {
+        return view('customer.payments.pending');
+    }
+
+    public function error()
+    {
+        return view('customer.payments.error');
+    }
 }

@@ -26,7 +26,8 @@
                                             <th>Total Harga</th>
                                             <th>Sudah Dibayar</th>
                                             <th>Sisa Pembayaran</th>
-                                            <th>Status Pembayaran</th>
+                                            <th>Pembayaran</th>
+                                            <!-- <th>Status Pembayaran</th> -->
                                             <th>Aksi</th>
                                         </tr>
                                     </thead>
@@ -94,10 +95,10 @@
                                                 </td>
                                                 <td>
                                                     @if($data['rental']->rental_status === 'confirmed' && $data['rental']->payment_status !== 'paid')
-                                                        <a href="{{ route('customer.payments.form', $data['rental']->id) }}" 
-                                                           class="btn btn-sm bg-gradient-info text-white px-3 mb-0">
+                                                        <button class="btn btn-sm bg-gradient-info text-white px-3 mb-0" 
+                                                                onclick="payNow({{ $data['rental']->id }})">
                                                             <i class="fas fa-money-bill me-2"></i>Bayar
-                                                        </a>
+                                                        </button>
                                                     @else
                                                         <span class="text-xs text-secondary">Tidak ada aksi</span>
                                                     @endif
@@ -214,7 +215,9 @@
         </div>
     </div>
 
-    @push('scripts')
+    <!-- Midtrans Script -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+
     <script>
     function setupQuickPayment(rentalId, remainingAmount) {
         const form = document.getElementById('quickPaymentForm');
@@ -249,6 +252,36 @@
             }
         });
     }
+
+    function payNow(rentalId) {
+        fetch(`/payments/start/${rentalId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    window.location.href = '/customer/payments/success';
+                },
+                onPending: function(result) {
+                    window.location.href = '/customer/payments/pending';
+                },
+                onError: function(result) {
+                    window.location.href = '/customer/payments/error';
+                },
+                onClose: function() {
+                    alert('Pembayaran dibatalkan');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memproses pembayaran');
+        });
+    }
     </script>
-    @endpush
 @endsection

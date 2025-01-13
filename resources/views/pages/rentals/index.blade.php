@@ -46,6 +46,7 @@
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Total</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Status Pesanan</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Pembayaran</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Status Pembayaran</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7 ps-3">Aksi</th>
                                     </tr>
                                 </thead>
@@ -125,16 +126,29 @@
                                             </td>
                                             <td class="ps-3">
                                                 <span class="badge badge-sm bg-gradient-{{ 
-                                                    $rental->payment_status == 'unpaid' ? 'warning' : 
-                                                    ($rental->payment_status == 'partially_paid' ? 'info' : 
-                                                    ($rental->payment_status == 'paid' ? 'success' : 
-                                                    ($rental->payment_status == 'cancelled' ? 'danger' : 'secondary'))) 
+                                                    $rental->payment_status === 'unpaid' ? 'danger' :
+                                                    ($rental->payment_status === 'partial' ? 'warning' : 'success')
                                                 }}">
                                                     {{ 
-                                                        $rental->payment_status == 'unpaid' ? 'Belum Dibayar' :
-                                                        ($rental->payment_status == 'partially_paid' ? 'Dibayar Sebagian' :
-                                                        ($rental->payment_status == 'paid' ? 'Lunas' :
-                                                        ($rental->payment_status == 'cancelled' ? 'Dibatalkan' : 'Lainnya')))
+                                                        $rental->payment_status === 'unpaid' ? 'Belum Dibayar' :
+                                                        ($rental->payment_status === 'partial' ? 'Pembayaran Sebagian' : 'Lunas')
+                                                    }}
+                                                </span>
+                                            </td>
+                                            <td class="ps-3">
+                                                <span class="badge badge-sm bg-gradient-{{ 
+                                                    $rental->payments && $rental->payments->first() ? 
+                                                        ($rental->payments->first()->status == 'pending' ? 'warning' : 
+                                                        ($rental->payments->first()->status == 'success' ? 'success' : 
+                                                        ($rental->payments->first()->status == 'failed' ? 'danger' : 'secondary')))
+                                                    : 'secondary'
+                                                }}">
+                                                    {{ 
+                                                        $rental->payments && $rental->payments->first() ?
+                                                            ($rental->payments->first()->status == 'pending' ? 'Menunggu Konfirmasi' :
+                                                            ($rental->payments->first()->status == 'success' ? 'Pembayaran Berhasil' :
+                                                            ($rental->payments->first()->status == 'failed' ? 'Pembayaran Gagal' : 'Belum Dibayar')))
+                                                        : 'Belum Dibayar'
                                                     }}
                                                 </span>
                                             </td>

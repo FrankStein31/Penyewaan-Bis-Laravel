@@ -19,6 +19,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ArmadaController;
+use App\Http\Controllers\MidtransController;
 
 // Landing page (dapat diakses semua orang)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -82,7 +83,6 @@ Route::middleware(['auth'])->group(function () {
         // Transaction Management
         Route::resource('rentals', RentalController::class);
         Route::resource('payments', PaymentController::class);
-        Route::put('/payment/{id}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
         
         // Request Management
         Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
@@ -96,7 +96,11 @@ Route::middleware(['auth'])->group(function () {
 
         // Payment Routes
         Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
-        Route::put('/payments/{payment}/verify', [PaymentController::class, 'verify'])->name('payments.verify');
+        Route::post('/payments/{payment}/verify', [PaymentController::class, 'verifyPayment'])->name('payments.verify');
+        Route::post('/payments/midtrans-notification', [PaymentController::class, 'verifyPayment'])->name('payments.midtrans.notification');
+        
+        Route::get('/midtrans', [MidtransController::class, 'index'])->name('midtrans.index');
+        Route::get('/midtrans/dashboard', [MidtransController::class, 'dashboard'])->name('midtrans.dashboard');
 
         Route::resource('armada', ArmadaController::class);
     });
@@ -142,6 +146,12 @@ Route::middleware(['auth'])->group(function () {
             ->name('payments.pay');
         Route::get('/payments/history', [PaymentController::class, 'history'])
             ->name('payments.history');
+
+        Route::post('/payments/{rental}/get-snap-token', [PaymentController::class, 'getSnapToken'])->name('payments.get-snap-token');
+
+        Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
+        Route::get('/payments/pending', [PaymentController::class, 'pending'])->name('payments.pending');
+        Route::get('/payments/error', [PaymentController::class, 'error'])->name('payments.error');
     });
     Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])->name('customer.payments.pay');
     Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])->name('customer.payments.form');
@@ -209,3 +219,6 @@ Route::middleware(['auth'])->group(function () {
     });
     
 });
+
+Route::post('payments/start/{rental}', [PaymentController::class, 'startPayment'])->name('payments.start');
+

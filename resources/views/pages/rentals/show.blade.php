@@ -21,10 +21,9 @@
                                         </button>
                                     </form>
                                 @elseif($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
-                                    <a href="{{ route('customer.payments.form', $rental) }}" 
-                                       class="btn btn-success btn-sm">
+                                    <button class="btn btn-success btn-sm" onclick="payNow({{ $rental->id }})">
                                         <i class="fas fa-credit-card"></i> Bayar Sekarang
-                                    </a>
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -49,14 +48,17 @@
                                        ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
                                 </span>
                                 
-                                <p class="text-sm mb-0 mt-2">Status Pembayaran:</p>
-                                <span class="badge bg-{{ 
-                                    $rental->payment_status === 'unpaid' ? 'danger' : 
-                                    ($rental->payment_status === 'partial' ? 'warning' : 'success') 
+                                <p class="text-sm mb-0 mt-2">Status Pembayaran :</p>
+                                <span class="badge badge-sm bg-gradient-{{ 
+                                    $rental->payments->isNotEmpty() && $rental->payments->first()->status == 'pending' ? 'warning' : 
+                                    ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'success' ? 'success' : 
+                                    ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'failed' ? 'danger' : 'secondary'))
                                 }}">
-                                    {{ $rental->payment_status === 'unpaid' ? 'Belum Dibayar' : 
-                                       ($rental->payment_status === 'partial' ? 'Dibayar Sebagian' : 
-                                       ($rental->payment_status === 'paid' ? 'Lunas' : 'Dibatalkan')) }}
+                                    {{ 
+                                        $rental->payments->isNotEmpty() && $rental->payments->first()->status == 'pending' ? 'Menunggu Konfirmasi' :
+                                        ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'success' ? 'Pembayaran Berhasil' :
+                                        ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'failed' ? 'Pembayaran Gagal' : 'Belum Dibayar'))
+                                    }}
                                 </span>
                             </div>
                         </div>
@@ -137,13 +139,21 @@
                                                         Tunai
                                                     @elseif($payment->payment_method === 'transfer') 
                                                         Transfer Bank
+                                                    @elseif($payment->payment_method === 'midtrans')
+                                                        Midtrans
                                                     @else
                                                         {{ $payment->payment_method }}
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-{{ $payment->status === 'verified' ? 'success' : 'warning' }}">
-                                                        {{ $payment->status === 'verified' ? 'Terverifikasi' : 'Menunggu' }}
+                                                    <span class="badge bg-{{ 
+                                                        $payment->status === 'success' ? 'success' : 
+                                                        ($payment->status === 'pending' ? 'warning' : 'danger') 
+                                                    }}">
+                                                        {{ 
+                                                            $payment->status === 'success' ? 'Berhasil' : 
+                                                            ($payment->status === 'pending' ? 'Menunggu' : 'Gagal') 
+                                                        }}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -167,10 +177,9 @@
                                             </h4>
                                         </div>
                                         @if($rental->rental_status === 'confirmed')
-                                        <a href="{{ route('customer.payments.form', $rental) }}" 
-                                           class="btn btn-white btn-sm">
+                                        <button class="btn btn-white btn-sm" onclick="payNow({{ $rental->id }})">
                                             Bayar Sekarang
-                                        </a>
+                                        </button>
                                         @endif
                                     </div>
                                 </div>
@@ -226,10 +235,6 @@
                                             <small class="d-block text-secondary">
                                                 No. HP: {{ $rental->driver->phone }}
                                             </small>
-                                            <!-- <small class="d-block text-secondary">
-                                                SIM: {{ $rental->driver->license_number }}
-                                                (Exp: {{ date('d/m/Y', strtotime($rental->driver->license_expire)) }})
-                                            </small> -->
                                         </div>
                                     </div>
                                 @else
@@ -265,4 +270,40 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
-@endsection 
+
+    <!-- Midtrans Script -->
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+
+    <script>
+    function payNow(rentalId) {
+        fetch(`/payments/start/${rentalId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    window.location.href = '/customer/payments/success';
+                },
+                onPending: function(result) {
+                    window.location.href = '/customer/payments/pending';
+                },
+                onError: function(result) {
+                    window.location.href = '/customer/payments/error';
+                },
+                onClose: function() {
+                    alert('Pembayaran dibatalkan');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memproses pembayaran');
+        });
+    }
+    </script>
+@endsection

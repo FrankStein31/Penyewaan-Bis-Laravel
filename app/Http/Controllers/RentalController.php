@@ -7,6 +7,7 @@ use App\Models\Bus;
 use App\Models\User;
 use App\Models\Driver;
 use App\Models\Conductor;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,7 @@ class RentalController extends Controller
     public function index()
     {
         $rentals = Rental::where('user_id', auth()->id())
-                        ->with(['bus', 'driver', 'conductor'])
+                        ->with(['bus', 'driver', 'conductor', 'payments'])
                         ->orderBy('created_at', 'desc')
                         ->get();
                           
@@ -119,13 +120,23 @@ class RentalController extends Controller
         }
     }
 
+    // public function show(Rental $rental)
+    // {
+    //     // Pastikan user hanya bisa lihat rentalnya sendiri
+    //     if ($rental->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
+    //         abort(403);
+    //     }
+
+    //     return view('pages.rentals.show', compact('rental'));
+    // }
+
     public function show(Rental $rental)
     {
-        // Pastikan user hanya bisa lihat rentalnya sendiri
         if ($rental->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
             abort(403);
         }
 
+        $rental->load(['bus.armada', 'driver', 'conductor', 'payments']);
         return view('pages.rentals.show', compact('rental'));
     }
 
@@ -327,7 +338,7 @@ class RentalController extends Controller
             ]);
 
             // Update related resources based on status
-            if ($newStatus === 'cancelled') {
+            if ($newStatus === 'cancelled' || $newStatus === 'completed') {
                 // Reset status resources
                 if ($rental->bus) {
                     $rental->bus->update(['status' => 'tersedia']);

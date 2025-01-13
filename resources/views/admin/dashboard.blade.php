@@ -58,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($latestRentals as $rental)
+                        @forelse($latestRentals->where('status', '!=', 'selesai') as $rental)
                         <tr>
                             <td>
                                 <p class="text-sm font-weight-bold mb-0 px-3">{{ $rental->rental_code }}</p>
@@ -78,7 +78,7 @@
                                     ($rental->status == 'aktif' ? 'success' : 
                                     ($rental->status == 'selesai' ? 'info' : 'danger')) 
                                 }}">
-                                    {{ $rental->status }}
+                                    {{ $rental->status == 'pending' ? 'Menunggu' : $rental->status }}
                                 </span>
                             </td>
                             <td>
@@ -113,7 +113,7 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Penyewa</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jumlah</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th>
+                            <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th> -->
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                         </tr>
                     </thead>
@@ -132,16 +132,18 @@
                             <td>
                                 <p class="text-sm font-weight-bold mb-0">{{ $payment->created_at->format('d/m/Y H:i') }}</p>
                             </td>
-                            <td>
+                            <!-- <td>
                                 <a href="#" class="btn btn-sm bg-gradient-info">
                                     <i class="fas fa-image"></i>
                                 </a>
-                            </td>
+                            </td> -->
                             <td>
-                                <a href="{{ route('admin.payments.verify', $payment->id) }}" 
-                                   class="btn btn-sm bg-gradient-success">
-                                    <i class="fas fa-check"></i>
-                                </a>
+                                @if($payment->status === 'pending')
+                                    <form action="{{ route('admin.payments.verify', $payment->id) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-success btn-sm">Verifikasi</button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                         @empty

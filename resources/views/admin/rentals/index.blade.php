@@ -33,6 +33,7 @@
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status Pesanan</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Pembayaran</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status Pembayaran</th>
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
                                 </thead>
@@ -147,16 +148,25 @@
                                         </td>
                                         <td>
                                             <span class="badge badge-sm bg-gradient-{{ 
-                                                $rental->payment_status == 'unpaid' ? 'warning' : 
-                                                ($rental->payment_status == 'partially_paid' ? 'info' : 
-                                                ($rental->payment_status == 'paid' ? 'success' : 
-                                                ($rental->payment_status == 'cancelled' ? 'danger' : 'secondary'))) 
+                                                $rental->payment_status === 'unpaid' ? 'danger' :
+                                                ($rental->payment_status === 'partial' ? 'warning' : 'success')
                                             }}">
                                                 {{ 
-                                                    $rental->payment_status == 'unpaid' ? 'Belum Dibayar' :
-                                                    ($rental->payment_status == 'partially_paid' ? 'Dibayar Sebagian' :
-                                                    ($rental->payment_status == 'paid' ? 'Lunas' :
-                                                    ($rental->payment_status == 'cancelled' ? 'Dibatalkan' : 'Lainnya')))
+                                                    $rental->payment_status === 'unpaid' ? 'Belum Dibayar' :
+                                                    ($rental->payment_status === 'partial' ? 'Pembayaran Sebagian' : 'Lunas')
+                                                }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-sm bg-gradient-{{ 
+                                                $rental->payments->isNotEmpty() && $rental->payments->first()->status == 'pending' ? 'warning' : 
+                                                ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'success' ? 'success' : 
+                                                ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'failed' ? 'danger' : 'secondary'))
+                                            }}">
+                                                {{ 
+                                                    $rental->payments->isNotEmpty() && $rental->payments->first()->status == 'pending' ? 'Menunggu Konfirmasi' :
+                                                    ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'success' ? 'Pembayaran Berhasil' :
+                                                    ($rental->payments->isNotEmpty() && $rental->payments->first()->status == 'failed' ? 'Pembayaran Gagal' : 'Belum Dibayar'))
                                                 }}
                                             </span>
                                         </td>

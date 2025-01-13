@@ -134,7 +134,6 @@
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Jumlah</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Metode</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Status</th>
-                                        <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Bukti</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Aksi</th>
                                     </tr>
                                 </thead>
@@ -182,7 +181,7 @@
                                                        ($payment['status'] === 'pending' ? 'Menunggu' : 'Gagal') }}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <!-- <td>
                                                 @if($payment['proof'])
                                                     <a href="{{ Storage::url($payment['proof']) }}" 
                                                        target="_blank" 
@@ -193,20 +192,12 @@
                                                 @else
                                                     <span class="text-xs text-secondary">Tidak ada</span>
                                                 @endif
-                                            </td>
+                                            </td> -->
                                             <td>
                                                 @if($payment['status'] === 'pending')
-                                                    <form action="{{ route('admin.payments.verify', $payment['id']) }}" 
-                                                          method="POST" 
-                                                          class="d-inline">
+                                                    <form action="{{ route('admin.payments.verify', $payment['id']) }}" method="POST">
                                                         @csrf
-                                                        @method('PUT')
-                                                        <button type="submit" 
-                                                                class="btn btn-link text-success text-sm mb-0"
-                                                                onclick="return confirm('Verifikasi pembayaran ini?')">
-                                                            <i class="fas fa-check-circle me-1"></i>
-                                                            Verifikasi
-                                                        </button>
+                                                        <button type="submit" class="btn btn-success btn-sm">Verifikasi</button>
                                                     </form>
                                                 @endif
                                             </td>
