@@ -104,14 +104,23 @@
                             <span class="badge bg-primary">{{ $armada->buses_count }} Bus</span>
                         </div>
                         <div class="progress">
-                            <div class="progress-bar bg-success" style="width: {{ ($armada->buses_tersedia / $armada->buses_count) * 100 }}%" 
+                            <!-- <div class="progress-bar bg-success" style="width: {{ ($armada->buses_tersedia / $armada->buses_count) * 100 }}%" 
                                  title="{{ $armada->buses_tersedia }} Tersedia">
+                            </div> -->
+                            <div class="progress-bar bg-success" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_tersedia / $armada->buses_count) * 100 : 0 }}%" 
+                                title="{{ $armada->buses_tersedia }} Tersedia">
                             </div>
-                            <div class="progress-bar bg-warning" style="width: {{ ($armada->buses_disewa / $armada->buses_count) * 100 }}%"
+                            <!-- <div class="progress-bar bg-warning" style="width: {{ ($armada->buses_disewa / $armada->buses_count) * 100 }}%"
                                  title="{{ $armada->buses_disewa }} Disewa">
+                            </div> -->
+                            <div class="progress-bar bg-warning" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_disewa / $armada->buses_count) * 100 : 0 }}%"
+                                title="{{ $armada->buses_disewa }} Disewa">
                             </div>
-                            <div class="progress-bar bg-danger" style="width: {{ ($armada->buses_maintenance / $armada->buses_count) * 100 }}%"
+                            <!-- <div class="progress-bar bg-danger" style="width: {{ ($armada->buses_maintenance / $armada->buses_count) * 100 }}%"
                                  title="{{ $armada->buses_maintenance }} Maintenance">
+                            </div> -->
+                            <div class="progress-bar bg-danger" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_maintenance / $armada->buses_count) * 100 : 0 }}%"
+                                title="{{ $armada->buses_maintenance }} Maintenance">
                             </div>
                         </div>
                         <div class="d-flex justify-content-between mt-2">
