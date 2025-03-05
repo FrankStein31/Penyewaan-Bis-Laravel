@@ -115,6 +115,7 @@ DROP TABLE IF EXISTS `conductors`;
 
 CREATE TABLE `conductors` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `nik` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -128,10 +129,10 @@ CREATE TABLE `conductors` (
 
 /*Data for the table `conductors` */
 
-insert  into `conductors`(`id`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(1,'Kernet','111111111','medan','available','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-01-13 02:37:38'),
-(2,'Agus','2222222222','Kediri','available','1735781129_24164782705.jpg',1,'2025-01-01 10:25:44','2025-01-14 01:29:19'),
-(3,'Net','999999999','asfasczccccccccccccc','on_duty','1735786234_24164782705.jpg',1,'2025-01-02 02:50:34','2025-01-14 04:18:02');
+insert  into `conductors`(`id`,`nik`,`name`,`phone`,`address`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
+(1,'12345678','Kernet','111111111','medan','available','1735727156_24164782705.jpg',1,'2025-01-01 03:37:43','2025-03-05 15:34:22'),
+(2,NULL,'Agus','2222222222','Kediri','available','1735781129_24164782705.jpg',1,'2025-01-01 10:25:44','2025-01-14 01:29:19'),
+(3,NULL,'Net','999999999','asfasczccccccccccccc','on_duty','1735786234_24164782705.jpg',1,'2025-01-02 02:50:34','2025-01-14 04:18:02');
 
 /*Table structure for table `driver_ratings` */
 
@@ -164,6 +165,7 @@ DROP TABLE IF EXISTS `drivers`;
 CREATE TABLE `drivers` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jenis_sim` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `license_number` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `address` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -179,10 +181,10 @@ CREATE TABLE `drivers` (
 
 /*Data for the table `drivers` */
 
-insert  into `drivers`(`id`,`name`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
-(2,'Mail','2131730071','333333333','paer','2025-01-03','available','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-01-14 01:29:19'),
-(3,'Sifaul','2131730071241','4444444444','afsadasdasd','2025-01-03','on_duty','1735781164_2131730071.JPG',1,'2024-12-31 01:47:53','2025-01-14 04:18:02'),
-(4,'Mei','21317300711','8888888888','aaaaaaaaaaaaaaa\r\nasdasdsa','2026-12-02','available','1735786159_2131730071.JPG',1,'2025-01-02 02:49:19','2025-01-02 03:24:10');
+insert  into `drivers`(`id`,`name`,`jenis_sim`,`license_number`,`phone`,`address`,`license_expire`,`status`,`photo`,`is_active`,`created_at`,`updated_at`) values 
+(2,'Mail','A','2131730071','333333333','paer','2025-01-03','available','1735727207_2131730093.jpg',1,'2024-12-31 01:24:16','2025-03-05 15:25:08'),
+(3,'Sifaul',NULL,'2131730071241','4444444444','afsadasdasd','2025-01-03','on_duty','1735781164_2131730071.JPG',1,'2024-12-31 01:47:53','2025-01-14 04:18:02'),
+(4,'Mei',NULL,'21317300711','8888888888','aaaaaaaaaaaaaaa\r\nasdasdsa','2026-12-02','available','1735786159_2131730071.JPG',1,'2025-01-02 02:49:19','2025-01-02 03:24:10');
 
 /*Table structure for table `migrations` */
 
@@ -312,8 +314,8 @@ CREATE TABLE `sessions` (
 /*Data for the table `sessions` */
 
 insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
-('x3RVG8ITCBGUMSwWCggsb6xv80giKMDW6pBwBLqF',9,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiR3puQjNTR1lZdG1ybWRzaWQxWkY2b3hIYlV0SUNrMWxnb3BUNUxkUSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9vd25lci9kYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo5O30=',1738287290),
-('xPZ3dcLLMsfmvw1tnROaDNwSpx36aReiTzzScXjZ',1,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiQ2tFTGIwY2RSdlNiQzJMbnJlb2tPcXh0N0dFZVdQTXo5TjVtMkxkWiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jdXN0b21lci9wcm9maWxlL2VkaXQiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=',1737971209);
+('26oOUFPD3XLacKea1g6RfpgMBBA5NDqs7laBGucE',NULL,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0','YTozOntzOjY6Il90b2tlbiI7czo0MDoiODI2QWRJdFVIZUZITXEyeGM0R3JIbEE5VU9ZbmYydmJVcURjVmtuTiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fX0=',1740971908),
+('L5eebe04RUtEnM45EVqW6CWXU1i3bo6BeD1WjODg',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMm9POVN3SDZPbU9OemU3MGxNQVRla2piSFFrd2I3NGEzbWd1WFN3WCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzI6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9jb25kdWN0b3JzIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6Mzt9',1741188862);
 
 /*Table structure for table `users` */
 
