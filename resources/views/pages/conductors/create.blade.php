@@ -17,6 +17,16 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="nik" class="form-control-label">NIK</label>
+                                        <input class="form-control @error('nik') is-invalid @enderror" type="text" 
+                                               name="nik" value="{{ old('nik') }}" required>
+                                        @error('nik')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="name" class="form-control-label">Nama Lengkap</label>
                                         <input class="form-control @error('name') is-invalid @enderror" type="text" 
                                                name="name" value="{{ old('name') }}" required>

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 
 class DriverController extends Controller
 {
+    private $jenisSIMOptions = ['A', 'B1', 'C'];
+
     public function index()
     {
         $drivers = Driver::all();
@@ -16,7 +18,8 @@ class DriverController extends Controller
 
     public function create()
     {
-        return view('pages.drivers.create');
+        $jenisSIMOptions = $this->jenisSIMOptions;
+        return view('pages.drivers.create', compact('jenisSIMOptions'));
     }
 
     public function store(Request $request)
@@ -28,7 +31,8 @@ class DriverController extends Controller
             'address' => 'required|string',
             'license_expire' => 'required|date',
             'status' => 'required|in:available,on_duty,off',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'jenis_sim' => 'required|in:A,B1,C'
         ]);
 
         try {
@@ -60,7 +64,8 @@ class DriverController extends Controller
 
     public function edit(Driver $driver)
     {
-        return view('pages.drivers.edit', compact('driver'));
+        $jenisSIMOptions = $this->jenisSIMOptions;
+        return view('pages.drivers.edit', compact('driver', 'jenisSIMOptions'));
     }
 
     public function update(Request $request, Driver $driver)
@@ -72,7 +77,8 @@ class DriverController extends Controller
             'address' => 'required|string',
             'license_expire' => 'required|date',
             'status' => 'required|in:available,on_duty,off',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'jenis_sim' => 'required|in:A,B1,C'
         ]);
 
         try {

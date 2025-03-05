@@ -64,6 +64,22 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="jenis_sim" class="form-control-label">Jenis SIM</label>
+                                        <select class="form-control @error('jenis_sim') is-invalid @enderror" name="jenis_sim" required>
+                                            <option value="">Pilih Jenis SIM</option>
+                                            @foreach($jenisSIMOptions as $sim)
+                                                <option value="{{ $sim }}" {{ old('jenis_sim', $driver->jenis_sim) == $sim ? 'selected' : '' }}>
+                                                    {{ $sim }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('jenis_sim')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="phone" class="form-control-label">Nomor Telepon</label>
                                         <input class="form-control @error('phone') is-invalid @enderror" type="text" 
                                                name="phone" value="{{ old('phone', $driver->phone) }}" required>

@@ -246,7 +246,7 @@
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-building"></i>
                             </div>
-                            <span class="nav-link-text ms-1">Data Armada</span>
+                            <span class="nav-link-text ms-1">Jenis Armada</span>
                         </a>
                     </li>
                     <li class="nav-item">

@@ -22,6 +22,7 @@ class ConductorController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'nik' => 'required|string|max:255|unique:conductors',
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'required|string',
@@ -63,6 +64,7 @@ class ConductorController extends Controller
     public function update(Request $request, Conductor $conductor)
     {
         $request->validate([
+            'nik' => 'required|string|max:255|unique:conductors,nik,' . $conductor->id,
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:255',
             'address' => 'required|string',

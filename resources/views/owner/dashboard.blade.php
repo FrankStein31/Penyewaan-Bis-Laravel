@@ -38,7 +38,7 @@
                         <i class="fas fa-building fa-lg opacity-10 text-primary"></i>
                     </div>
                     <h3 class="text-white mb-1">{{ $totalArmada }}</h3>
-                    <p class="text-sm mb-0 text-white">Total Armada</p>
+                    <p class="text-sm mb-0 text-white">Jenis Armada</p>
                 </div>
             </div>
         </div>
@@ -104,21 +104,12 @@
                             <span class="badge bg-primary">{{ $armada->buses_count }} Bus</span>
                         </div>
                         <div class="progress">
-                            <!-- <div class="progress-bar bg-success" style="width: {{ ($armada->buses_tersedia / $armada->buses_count) * 100 }}%" 
-                                 title="{{ $armada->buses_tersedia }} Tersedia">
-                            </div> -->
                             <div class="progress-bar bg-success" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_tersedia / $armada->buses_count) * 100 : 0 }}%" 
                                 title="{{ $armada->buses_tersedia }} Tersedia">
                             </div>
-                            <!-- <div class="progress-bar bg-warning" style="width: {{ ($armada->buses_disewa / $armada->buses_count) * 100 }}%"
-                                 title="{{ $armada->buses_disewa }} Disewa">
-                            </div> -->
                             <div class="progress-bar bg-warning" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_disewa / $armada->buses_count) * 100 : 0 }}%"
                                 title="{{ $armada->buses_disewa }} Disewa">
-                            </div>
-                            <!-- <div class="progress-bar bg-danger" style="width: {{ ($armada->buses_maintenance / $armada->buses_count) * 100 }}%"
-                                 title="{{ $armada->buses_maintenance }} Maintenance">
-                            </div> -->
+                            </div>>
                             <div class="progress-bar bg-danger" style="width: {{ $armada->buses_count > 0 ? ($armada->buses_maintenance / $armada->buses_count) * 100 : 0 }}%"
                                 title="{{ $armada->buses_maintenance }} Maintenance">
                             </div>

@@ -41,6 +41,7 @@
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Foto</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis SIM</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">No. SIM</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Telepon</th>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Alamat</th>
@@ -66,6 +67,9 @@
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">{{ $driver->name }}</p>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ $driver->jenis_sim }}</p>
                                         </td>
                                         <td>
                                             <p class="text-xs font-weight-bold mb-0">{{ $driver->license_number }}</p>

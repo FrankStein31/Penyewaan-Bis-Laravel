@@ -14,7 +14,8 @@ class Driver extends Model
         'license_expire',
         'status',
         'photo',
-        'is_active'
+        'is_active',
+        'jenis_sim'
     ];
 
     protected $casts = [
