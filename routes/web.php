@@ -103,6 +103,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/midtrans/dashboard', [MidtransController::class, 'dashboard'])->name('midtrans.dashboard');
 
         Route::resource('armada', ArmadaController::class);
+
+        // Admin Payment Verification Routes
+        Route::post('/payments/{payment}/verify-manual', [PaymentController::class, 'verifyManualPayment'])->name('payments.verify-manual');
+        Route::post('/payments/{payment}/reject-manual', [PaymentController::class, 'rejectManualPayment'])->name('payments.reject-manual');
     });
 
     // Customer Routes
@@ -152,7 +156,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
         Route::get('/payments/pending', [PaymentController::class, 'pending'])->name('payments.pending');
         Route::get('/payments/error', [PaymentController::class, 'error'])->name('payments.error');
+
+        // Manual Payment Routes
+        Route::post('/payments/{rental}/manual', [PaymentController::class, 'manualPayment'])->name('payments.manual');
+        Route::get('/payments/{rental}/upload', [PaymentController::class, 'showUploadForm'])->name('payments.upload');
+        Route::post('/payments/{rental}/upload-proof', [PaymentController::class, 'uploadProof'])->name('payments.upload-proof');
     });
+    
     Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])->name('customer.payments.pay');
     Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])->name('customer.payments.form');
 

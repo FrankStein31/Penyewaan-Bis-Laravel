@@ -11,6 +11,8 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RentalStatusMail;
 
 class RentalController extends Controller
 {
@@ -107,6 +109,12 @@ class RentalController extends Controller
             $bus->update(['status' => 'disewa']);
             $driver->update(['status' => 'on_duty']);
             $conductor->update(['status' => 'on_duty']);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'menunggu konfirmasi', 
+                'Pesanan Anda sedang menunggu konfirmasi dari admin.')
+            );
 
             return redirect()
                 ->route('rentals.show', $rental)
@@ -353,15 +361,18 @@ class RentalController extends Controller
 
             DB::commit();
             
+            // Kirim email notifikasi
             $message = match($newStatus) {
-                'confirmed' => "Status pesanan berhasil diubah menjadi CONFIRMED.\nCustomer harus melakukan pembayaran (minimal parsial) untuk melanjutkan ke status ongoing.",
-                'ongoing' => $rental->payment_status === 'partial' ? 
-                    "Status pesanan berhasil diubah menjadi ONGOING.\nPeringatan: Masih ada sisa pembayaran yang belum lunas!" :
-                    "Status pesanan berhasil diubah menjadi ONGOING.\nPerjalanan dapat dimulai!",
-                'completed' => "Status pesanan berhasil diubah menjadi COMPLETED.\nPesanan telah selesai.",
-                'cancelled' => "Status pesanan berhasil diubah menjadi CANCELLED.\nSemua resource telah direset.",
-                default => "Status pesanan berhasil diubah menjadi " . strtoupper($newStatus)
+                'confirmed' => 'Pesanan Anda telah dikonfirmasi. Silakan lakukan pembayaran.',
+                'cancelled' => 'Pesanan Anda telah ditolak.',
+                'ongoing' => 'Perjalanan Anda telah dimulai.',
+                'completed' => 'Perjalanan Anda telah selesai.',
+                default => "Status pesanan Anda telah diubah menjadi {$newStatus}."
             };
+
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, $newStatus, $message)
+            );
 
             return back()->with('success', $message);
 
@@ -424,11 +435,16 @@ class RentalController extends Controller
 
             DB::commit();
 
+            // Kirim email notifikasi pembayaran
             $message = match($request->payment_status) {
-                'paid' => 'Pembayaran lunas. Status rental diubah menjadi ongoing.',
-                'partial' => 'Pembayaran parsial berhasil dicatat. Status rental diubah menjadi ongoing.',
-                default => 'Status pembayaran berhasil diperbarui'
+                'paid' => 'Pembayaran Anda telah lunas.',
+                'partial' => 'Pembayaran parsial Anda telah diterima.',
+                default => 'Status pembayaran Anda telah diperbarui.'
             };
+
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, $request->payment_status, $message)
+            );
 
             return back()->with('success', $message);
 

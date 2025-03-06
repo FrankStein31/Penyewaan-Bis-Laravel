@@ -113,7 +113,7 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Penyewa</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jumlah</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
-                            <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th> -->
+                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                         </tr>
                     </thead>
@@ -132,11 +132,22 @@
                             <td>
                                 <p class="text-sm font-weight-bold mb-0">{{ $payment->created_at->format('d/m/Y H:i') }}</p>
                             </td>
-                            <!-- <td>
-                                <a href="#" class="btn btn-sm bg-gradient-info">
-                                    <i class="fas fa-image"></i>
-                                </a>
-                            </td> -->
+                            <td>
+                                @if($payment->payment_method === 'transfer' && $payment->proof)
+                                    <a href="{{ Storage::url($payment->proof) }}" 
+                                       target="_blank" 
+                                       class="btn btn-link text-info text-sm mb-0">
+                                        <i class="fas fa-file-image me-1"></i>
+                                        Lihat Bukti
+                                    </a>
+                                @else
+                                    <span class="text-xs text-secondary">
+                                        <a  class="btn btn-link text-info text-sm mb-0">
+                                            <i class="fas fa-minus me-1"></i>
+                                        </a>
+                                    </span>
+                                @endif
+                            </td>
                             <td>
                                 @if($payment->status === 'pending')
                                     <form action="{{ route('admin.payments.verify', $payment->id) }}" method="POST">
@@ -156,5 +167,6 @@
             </div>
         </div>
     </div>
+
 </div>
 @endsection

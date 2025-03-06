@@ -105,6 +105,10 @@
 @endsection
 
 @push('scripts')
+<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" 
+    data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}">
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const paymentMethod = document.getElementById('payment_method');
@@ -124,5 +128,35 @@ document.addEventListener('DOMContentLoaded', function() {
     paymentMethod.addEventListener('change', toggleProofInput);
     toggleProofInput(); // Set initial state
 });
+
+document.getElementById('pay-button').onclick = function() {
+    fetch(`/payments/${rentalId}/get-snap-token`)
+        .then(response => response.json())
+        .then(data => {
+            if(data.error) {
+                alert(data.error);
+                return;
+            }
+            
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    window.location.href = '/payments/success';
+                },
+                onPending: function(result) {
+                    window.location.href = '/payments/pending';
+                },
+                onError: function(result) {
+                    window.location.href = '/payments/error';
+                },
+                onClose: function() {
+                    alert('Anda menutup popup tanpa menyelesaikan pembayaran');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memproses pembayaran');
+        });
+};
 </script>
 @endpush 

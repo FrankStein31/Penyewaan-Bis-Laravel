@@ -7,76 +7,56 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\RentalStatusMail;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
     public function pay(Request $request, Rental $rental)
     {
         try {
-            $request->validate([
-                'amount' => 'required|numeric|min:1',
-                'payment_method' => 'required|string',
-                'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                'notes' => 'nullable|string'
-            ]);
+            if ($request->payment_method === 'transfer') {
+                $request->validate([
+                    'amount' => 'required|numeric|min:1',
+                    'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                    'notes' => 'nullable|string'
+                ]);
 
-            // Validasi jumlah pembayaran
-            $totalPaid = $rental->payments()->where('status', 'success')->sum('amount');
-            $remainingAmount = $rental->total_price - $totalPaid;
-            
-            if ($request->amount > $remainingAmount) {
-                return back()->with('error', 'Jumlah pembayaran melebihi sisa tagihan');
+                // Validasi jumlah pembayaran
+                $totalPaid = $rental->payments()->where('status', 'success')->sum('amount');
+                $remainingAmount = $rental->total_price - $totalPaid;
+                
+                if ($request->amount > $remainingAmount) {
+                    return back()->with('error', 'Jumlah pembayaran melebihi sisa tagihan');
+                }
+
+                // Upload bukti pembayaran
+                $proofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+
+                // Buat payment record
+                $payment = Payment::create([
+                    'rental_id' => $rental->id,
+                    'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
+                    'amount' => $request->amount,
+                    'payment_method' => 'transfer',
+                    'payment_proof' => $proofPath,
+                    'status' => 'pending',
+                    'notes' => $request->notes
+                ]);
+
+                // Kirim email notifikasi
+                $additionalMessage = "Pembayaran sebesar Rp " . number_format($request->amount) . " sedang menunggu verifikasi admin.";
+                Mail::to($rental->user->email)
+                    ->send(new RentalStatusMail($rental, 'payment_pending', $additionalMessage));
+
+                return redirect()->route('rentals.index')
+                    ->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
             }
 
-            DB::beginTransaction();
-
-            // Generate payment code
-            $prefix = 'PAY';
-            $date = now()->format('Ymd');
-            $lastPayment = Payment::whereDate('created_at', today())
-                ->latest()
-                ->first();
-
-            if ($lastPayment) {
-                $lastNumber = intval(substr($lastPayment->payment_code, -4));
-                $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-            } else {
-                $newNumber = '0001';
-            }
-
-            $paymentCode = $prefix . $date . $newNumber;
-
-            // Upload bukti pembayaran
-            $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
-
-            // Buat payment record
-            $payment = Payment::create([
-                'rental_id' => $rental->id,
-                'payment_code' => $paymentCode,
-                'amount' => $request->amount,
-                'payment_method' => $request->payment_method,
-                'payment_proof' => $paymentProofPath,
-                'status' => 'pending',
-                'notes' => $request->notes
-            ]);
-
-            // Update payment status rental
-            $newTotalPaid = $totalPaid + $request->amount;
-            if ($newTotalPaid >= $rental->total_price) {
-                $rental->update(['payment_status' => 'paid']);
-            } else {
-                $rental->update(['payment_status' => 'partial']);
-            }
-
-            DB::commit();
-            return back()->with('success', 'Pembayaran berhasil disubmit. Mohon tunggu verifikasi admin.');
-
+            // Jika bukan transfer, lanjutkan ke Midtrans
+            return $this->getSnapToken($rental);
         } catch (\Exception $e) {
-            DB::rollBack();
-            if (isset($paymentProofPath)) {
-                Storage::disk('public')->delete($paymentProofPath);
-            }
-            return back()->with('error', 'Terjadi kesalahan saat memproses pembayaran: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -279,6 +259,11 @@ class PaymentController extends Controller
             
             $rental->save();
 
+            // Kirim email notifikasi
+            $additionalMessage = "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah diverifikasi.";
+            Mail::to($rental->user->email)
+                ->send(new RentalStatusMail($rental, 'payment_success', $additionalMessage));
+
             DB::commit();
             return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi');
 
@@ -416,5 +401,71 @@ class PaymentController extends Controller
     public function error()
     {
         return view('customer.payments.error');
+    }
+
+    public function getSnapToken(Request $request, Rental $rental)
+    {
+        try {
+            // Set konfigurasi midtrans
+            \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$clientKey = env('MIDTRANS_CLIENT_KEY');
+            \Midtrans\Config::$merchantId = env('MIDTRANS_MERCHANT_ID');
+            \Midtrans\Config::$isProduction = false;
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $remainingAmount = $rental->total_price - $rental->payments()->where('status', 'success')->sum('amount');
+
+            // Buat transaksi
+            $transaction_details = [
+                'order_id' => 'PAY-' . time(),
+                'gross_amount' => (int) $remainingAmount
+            ];
+
+            // Data pelanggan
+            $customer_details = [
+                'first_name' => $rental->user->firstname,
+                'last_name' => $rental->user->lastname,
+                'email' => $rental->user->email,
+                'phone' => $rental->user->phone ?? ''
+            ];
+
+            // Item details
+            $item_details = [
+                [
+                    'id' => $rental->rental_code,
+                    'price' => (int) $remainingAmount,
+                    'quantity' => 1,
+                    'name' => 'Pembayaran Sewa Bus ' . $rental->bus->name,
+                    'merchant_name' => 'PO Bis Ekasari'
+                ]
+            ];
+
+            $transaction_data = [
+                'transaction_details' => $transaction_details,
+                'customer_details' => $customer_details,
+                'item_details' => $item_details,
+                'enabled_payments' => ['credit_card', 'mandiri_clickpay', 'bca_klikbca', 'bca_klikpay', 'bri_epay', 'echannel', 'permata_va', 'bca_va', 'bni_va', 'bri_va', 'other_va', 'gopay', 'indomaret'],
+                'credit_card' => [
+                    'secure' => true,
+                    'channel' => 'migs',
+                    'bank' => 'bca',
+                    'save_card' => true
+                ]
+            ];
+
+            // Dapatkan Snap Token
+            $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
+
+            return response()->json([
+                'snap_token' => $snapToken,
+                'rental' => $rental
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

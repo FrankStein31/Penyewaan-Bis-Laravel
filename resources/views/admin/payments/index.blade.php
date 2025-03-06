@@ -133,6 +133,7 @@
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Bus</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Jumlah</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Metode</th>
+                                        <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Bukti</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Status</th>
                                         <th class="text-uppercase text-dark text-xs font-weight-bold opacity-9">Aksi</th>
                                     </tr>
@@ -175,14 +176,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="badge badge-sm bg-gradient-{{ $payment['status'] === 'success' ? 'success' : 
-                                                    ($payment['status'] === 'pending' ? 'warning' : 'danger') }}">
-                                                    {{ $payment['status'] === 'success' ? 'Berhasil' : 
-                                                       ($payment['status'] === 'pending' ? 'Menunggu' : 'Gagal') }}
-                                                </span>
-                                            </td>
-                                            <!-- <td>
-                                                @if($payment['proof'])
+                                                @if($payment['payment_method'] === 'transfer' && $payment['proof'])
                                                     <a href="{{ Storage::url($payment['proof']) }}" 
                                                        target="_blank" 
                                                        class="btn btn-link text-info text-sm mb-0">
@@ -190,9 +184,20 @@
                                                         Lihat Bukti
                                                     </a>
                                                 @else
-                                                    <span class="text-xs text-secondary">Tidak ada</span>
+                                                    <span class="text-xs text-secondary">
+                                                        <a  class="btn btn-link text-info text-sm mb-0">
+                                                            <i class="fas fa-minus me-1"></i>
+                                                        </a>
+                                                    </span>
                                                 @endif
-                                            </td> -->
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-sm bg-gradient-{{ $payment['status'] === 'success' ? 'success' : 
+                                                    ($payment['status'] === 'pending' ? 'warning' : 'danger') }}">
+                                                    {{ $payment['status'] === 'success' ? 'Berhasil' : 
+                                                       ($payment['status'] === 'pending' ? 'Menunggu' : 'Gagal') }}
+                                                </span>
+                                            </td>
                                             <td>
                                                 @if($payment['status'] === 'pending')
                                                     <form action="{{ route('admin.payments.verify', $payment['id']) }}" method="POST">

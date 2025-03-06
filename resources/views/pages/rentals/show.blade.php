@@ -306,4 +306,63 @@
         });
     }
     </script>
+
+    @if($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Pilih Metode Pembayaran</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-primary w-100 mb-3" onclick="payNow({{ $rental->id }})">
+                            <i class="fas fa-credit-card"></i> Bayar dengan Midtrans
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button class="btn btn-outline-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#manualPaymentModal">
+                            <i class="fas fa-upload"></i> Upload Bukti Transfer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Upload Bukti Transfer -->
+        <div class="modal fade" id="manualPaymentModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('customer.payments.pay', $rental) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title">Upload Bukti Transfer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group mb-3">
+                                <label>Jumlah Pembayaran</label>
+                                <input type="number" name="amount" class="form-control" required 
+                                    min="1" max="{{ $rental->total_price - $rental->payments->where('status', 'success')->sum('amount') }}">
+                                <small class="text-muted">Sisa yang harus dibayar: Rp {{ number_format($rental->total_price - $rental->payments->where('status', 'success')->sum('amount'), 0, ',', '.') }}</small>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Bukti Transfer</label>
+                                <input type="file" name="payment_proof" class="form-control" required accept="image/*">
+                                <small class="text-muted">Format: JPG, PNG (max 2MB)</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Catatan (Opsional)</label>
+                                <textarea name="notes" class="form-control" rows="2"></textarea>
+                            </div>
+                            <input type="hidden" name="payment_method" value="transfer">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
