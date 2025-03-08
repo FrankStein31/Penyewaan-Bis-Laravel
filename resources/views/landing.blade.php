@@ -51,23 +51,70 @@
             color: var(--primary) !important;
         }
 
-        .hero {
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://lidyatrans.web.id/wp-content/uploads/2018/06/Sewa-Bus-Pariwisata-PO-Ekasari-Kediri-Murah.jpg');
+            background-size: cover;
+            background-position: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%),
-                        url('/api/placeholder/1920/1080') center/cover;
-            padding-top: 8rem;
             display: flex;
             align-items: center;
+            position: relative;
         }
 
-        .hero h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1.2;
-            background: linear-gradient(to right, #fff, #e2e8f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero-content {
+            color: white;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
             margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .btn-hero {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--primary);
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hero:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .navbar {
+            background: transparent !important;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-light .navbar-nav .nav-link {
+            color: white;
+        }
+
+        .navbar.scrolled .navbar-nav .nav-link {
+            color: var(--dark);
         }
 
         .feature-card {
@@ -194,7 +241,7 @@
         }
 
         @media (max-width: 768px) {
-            .hero h1 {
+            .hero-content h1 {
                 font-size: 2.5rem;
             }
             
@@ -245,27 +292,11 @@
     </nav>
 
     <!-- Hero -->
-    <section class="hero">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="animate__animated animate__fadeInUp">Perjalanan Nyaman Bersama Kami</h1>
-                    <p class="lead text-white-50 mb-5 animate__animated animate__fadeInUp animate__delay-1s">
-                        Nikmati perjalanan dengan armada bus modern, supir profesional, dan layanan 24/7 untuk kebutuhan transportasi Anda
-                    </p>
-                    <div class="animate__animated animate__fadeInUp animate__delay-2s">
-                        <a href="#fleet" class="btn btn-light btn-lg me-3">
-                            Lihat Armada
-                        </a>
-                        <a href="#contact" class="btn btn-outline-light btn-lg">
-                            Hubungi Kami
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-6 d-none d-lg-block">
-                    <img src="/api/placeholder/600/400" alt="Bus" class="img-fluid rounded-3 animate__animated animate__fadeInRight animate__delay-1s">
-                </div>
-            </div>
+    <section class="hero-section">
+        <div class="hero-content animate__animated animate__fadeIn">
+            <h1>Perjalanan Nyaman Bersama Kami</h1>
+            <p>Nikmati perjalanan dengan armada bus berkualitas dan pelayanan terbaik</p>
+            <a href="#contact" class="btn btn-hero">Pesan Sekarang</a>
         </div>
     </section>
 
