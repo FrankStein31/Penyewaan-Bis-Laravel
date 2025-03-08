@@ -155,21 +155,42 @@ class DashboardController extends Controller
 
     private function getRevenueChart()
     {
-        $months = collect(range(11, 0))->map(function($month) {
-            $date = now()->subMonths($month);
-            $revenue = Payment::whereYear('created_at', $date->year)
-                            ->whereMonth('created_at', $date->month)
-                            ->where('status', 'verified')
-                            ->sum('amount');
-            return [
+        // Ambil data 12 bulan terakhir
+        $revenues = Payment::select(
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('SUM(amount) as total')
+            )
+            ->where('status', 'success') // sesuaikan dengan enum di tabel
+            ->where('created_at', '>=', now()->subMonths(11)->startOfMonth())
+            ->groupBy(DB::raw('YEAR(created_at)'), DB::raw('MONTH(created_at)'))
+            ->orderBy(DB::raw('YEAR(created_at)'))
+            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->get();
+
+        // Debug
+        \Log::info('Revenue Data:', ['data' => $revenues->toArray()]);
+
+        // Generate label dan data untuk 12 bulan
+        $data = collect();
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthRevenue = $revenues->first(function($item) use ($date) {
+                return $item->year == $date->year && $item->month == $date->month;
+            });
+
+            $data->push([
                 'month' => $date->format('M Y'),
-                'revenue' => $revenue
-            ];
-        });
+                'revenue' => $monthRevenue ? (float)$monthRevenue->total : 0
+            ]);
+        }
+
+        // Debug
+        \Log::info('Chart Data:', ['data' => $data->toArray()]);
 
         return [
-            'labels' => $months->pluck('month'),
-            'data' => $months->pluck('revenue')
+            'labels' => $data->pluck('month')->toArray(),
+            'data' => $data->pluck('revenue')->toArray()
         ];
     }
 

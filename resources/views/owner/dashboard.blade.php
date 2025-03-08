@@ -236,17 +236,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     // Grafik Pendapatan
+    const revenueData = {!! json_encode($chartPendapatan['data']) !!};
+    const revenueLabels = {!! json_encode($chartPendapatan['labels']) !!};
+    
     new Chart(document.getElementById('revenueChart').getContext('2d'), {
         type: 'line',
         data: {
-            labels: {!! json_encode($chartPendapatan['labels']) !!},
+            labels: revenueLabels,
             datasets: [{
                 label: 'Pendapatan',
-                data: {!! json_encode($chartPendapatan['data']) !!},
+                data: revenueData,
                 borderColor: '#5e72e4',
-                tension: 0.4,
+                backgroundColor: 'rgba(94, 114, 228, 0.1)',
                 fill: true,
-                backgroundColor: 'rgba(94, 114, 228, 0.1)'
+                tension: 0.4
             }]
         },
         options: {
@@ -255,29 +258,22 @@
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                        }
+                    }
                 }
             },
             scales: {
                 y: {
-                    grid: {
-                        drawBorder: false,
-                        display: true,
-                        drawOnChartArea: true,
-                        drawTicks: false,
-                        borderDash: [5, 5]
-                    },
+                    beginAtZero: true,
                     ticks: {
                         callback: function(value) {
                             return 'Rp ' + value.toLocaleString('id-ID');
                         }
-                    }
-                },
-                x: {
-                    grid: {
-                        drawBorder: false,
-                        display: false,
-                        drawOnChartArea: false,
-                        drawTicks: false
                     }
                 }
             }
