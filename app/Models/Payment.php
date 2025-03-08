@@ -8,6 +8,7 @@ class Payment extends Model
 {
     protected $fillable = [
         'rental_id',
+        'extension_id',
         'payment_code',
         'amount',
         'payment_method',

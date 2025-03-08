@@ -20,6 +20,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ArmadaController;
 use App\Http\Controllers\MidtransController;
+use App\Http\Controllers\RentalExtensionController;
 
 // Landing page (dapat diakses semua orang)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -73,7 +74,19 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
         
-        // Data Management
+        // Extension management routes - letakkan sebelum resource routes
+        Route::get('/rentals/extensions', [RentalController::class, 'extensionRequests'])
+            ->name('rentals.extensions');
+        Route::post('/rentals/extensions/{extension}/approve', [RentalController::class, 'approveExtension'])
+            ->name('rentals.approve-extension');
+        Route::post('/rentals/extensions/{extension}/reject', [RentalController::class, 'rejectExtension'])
+            ->name('rentals.reject-extension');
+        Route::post('/rentals/extensions/{extension}/verify-payment', [RentalController::class, 'verifyExtensionPayment'])
+            ->name('rentals.verify-extension-payment');
+        Route::post('/rentals/extensions/{extension}/reject-payment', [RentalController::class, 'rejectExtensionPayment'])
+            ->name('rentals.reject-extension-payment');
+
+        // Resource routes
         Route::resource('drivers', DriverController::class);
         Route::resource('conductors', ConductorController::class);
         Route::resource('buses', BusController::class);
@@ -141,7 +154,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/rate/{rental}', [RatingController::class, 'store'])->name('rate');
 
         // Routes untuk pembayaran
-        Route::post('/rentals/{rental}/pay', [PaymentController::class, 'pay'])->name('pay');
+        Route::post('/customer/rentals/{rental}/pay', [RentalController::class, 'pay'])
+            ->name('customer.rentals.pay');
 
         // Payment Routes
         Route::get('/payments/{rental}/form', [PaymentController::class, 'showPaymentForm'])
@@ -161,6 +175,16 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/payments/{rental}/manual', [PaymentController::class, 'manualPayment'])->name('payments.manual');
         Route::get('/payments/{rental}/upload', [PaymentController::class, 'showUploadForm'])->name('payments.upload');
         Route::post('/payments/{rental}/upload-proof', [PaymentController::class, 'uploadProof'])->name('payments.upload-proof');
+
+        // Extension routes for customer
+        Route::post('/rentals/{rental}/request-extension', [RentalController::class, 'requestExtension'])
+            ->name('rentals.request-extension');
+        Route::get('/customer/rentals/extensions/{extension}/get-snap-token', 
+            [RentalController::class, 'getExtensionSnapToken'])->name('customer.extensions.get-snap-token');
+        Route::post('/customer/rentals/extensions/{extension}/pay-midtrans', 
+            [RentalController::class, 'payExtensionMidtrans'])->name('customer.extensions.pay-midtrans');
+        Route::post('/customer/rentals/extensions/{extension}/pay', [RentalController::class, 'payExtension'])
+            ->name('customer.rentals.pay-extension');
     });
     
     Route::post('/payments/{rental}/pay', [PaymentController::class, 'pay'])->name('customer.payments.pay');
@@ -228,7 +252,36 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/rentals/{rental}/cancel', [RentalController::class, 'cancel'])->name('rentals.cancel');
     });
     
+    // Pembayaran Perpanjangan
+    Route::post('/customer/rentals/extensions/{extension}/pay', [RentalExtensionController::class, 'pay'])
+        ->name('customer.rentals.extensions.pay');
 });
 
 Route::post('payments/start/{rental}', [PaymentController::class, 'startPayment'])->name('payments.start');
 
+Route::post('/rentals/{rental}/request-extension', [RentalController::class, 'requestExtension'])->name('customer.rentals.request-extension');
+Route::post('/admin/rentals/extensions/{extension}/approve', [RentalController::class, 'approveExtension'])->name('admin.rentals.approve-extension');
+Route::post('/rentals/extensions/{extension}/reject', [RentalController::class, 'rejectExtension'])
+    ->name('admin.rentals.reject-extension');
+Route::post('/rentals/extensions/{extension}/pay', [RentalController::class, 'payExtension'])
+    ->name('customer.rentals.pay-extension');
+
+
+Route::get('/rentals/extensions', [RentalController::class, 'extensionRequests'])
+        ->name('rentals.extensions');
+Route::post('/rentals/extensions/{extension}/approve', [RentalController::class, 'approveExtension'])
+    ->name('rentals.approve-extension');
+Route::post('/rentals/extensions/{extension}/reject', [RentalController::class, 'rejectExtension'])
+    ->name('rentals.reject-extension');
+Route::post('/rentals/extensions/{extension}/verify-payment', [RentalController::class, 'verifyExtensionPayment'])
+    ->name('rentals.verify-extension-payment');
+Route::post('/rentals/extensions/{extension}/reject-payment', [RentalController::class, 'rejectExtensionPayment'])
+    ->name('rentals.reject-extension-payment');
+
+// Pembayaran Rental
+Route::post('/customer/rentals/{rental}/pay', [RentalController::class, 'pay'])
+    ->name('customer.rentals.pay');
+
+// Get Snap Token Midtrans
+Route::get('/customer/rentals/{rental}/get-snap-token', [RentalController::class, 'getSnapToken'])
+    ->name('customer.rentals.get-snap-token');

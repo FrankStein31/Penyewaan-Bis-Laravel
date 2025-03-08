@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentalStatusMail;
+use App\Models\RentalExtension;
 
 class RentalController extends Controller
 {
@@ -536,4 +537,424 @@ class RentalController extends Controller
             return back()->with('error', 'Terjadi kesalahan saat menyelesaikan rental');
         }
     }
+
+    public function requestExtension(Request $request, Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $request->validate([
+                'start_date' => 'required|date|after_or_equal:today',
+                'end_date' => 'required|date|after:start_date',
+                'notes' => 'nullable|string'
+            ]);
+
+            $startDate = Carbon::parse($request->start_date);
+            $endDate = Carbon::parse($request->end_date);
+            $additionalDays = $startDate->diffInDays($endDate) + 1;
+            
+            // Hitung biaya tambahan
+            $additionalPrice = $rental->bus->price_per_day * $additionalDays;
+
+            $extension = $rental->extensions()->create([
+                'additional_days' => $additionalDays,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'notes' => $request->notes,
+                'additional_price' => $additionalPrice,
+                'status' => 'pending',
+                'payment_status' => 'pending'
+            ]);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'extension_pending', 
+                "Pengajuan perpanjangan sewa untuk {$additionalDays} hari dengan biaya Rp " . 
+                number_format($additionalPrice, 0, ',', '.') . " sedang menunggu konfirmasi admin.")
+            );
+
+            DB::commit();
+            return back()->with('success', 'Pengajuan perpanjangan berhasil dikirim');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function approveExtension(Request $request, RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental = $extension->rental;
+            
+            $extension->update([
+                'status' => 'approved',
+                'payment_status' => 'pending'
+            ]);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'extension_approved',
+                "Pengajuan perpanjangan sewa Anda telah disetujui. Silakan lakukan pembayaran sebesar Rp " . 
+                number_format($extension->additional_price, 0, ',', '.'))
+            );
+
+            DB::commit();
+            return back()->with('success', 'Perpanjangan berhasil disetujui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function rejectExtension(Request $request, RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental = $extension->rental;
+            $extension->update(['status' => 'rejected']);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'extension_rejected',
+                "Maaf, pengajuan perpanjangan sewa Anda ditolak.")
+            );
+
+            DB::commit();
+            return back()->with('success', 'Perpanjangan ditolak');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function payExtension(Request $request, RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            $request->validate([
+                'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+                'notes' => 'nullable|string'
+            ]);
+
+            $rental = $extension->rental;
+            
+            // Upload bukti pembayaran
+            $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+
+            // Buat record pembayaran
+            $payment = Payment::create([
+                'rental_id' => $rental->id,
+                'extension_id' => $extension->id,
+                'amount' => $extension->additional_price,
+                'payment_method' => 'transfer',
+                'payment_proof' => $paymentProofPath,
+                'status' => 'pending',
+                'notes' => $request->notes
+            ]);
+
+            $extension->update(['payment_status' => 'pending']);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'payment_pending',
+                "Pembayaran perpanjangan sewa Anda sedang diverifikasi.")
+            );
+
+            DB::commit();
+            return back()->with('success', 'Bukti pembayaran berhasil dikirim');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function showPaymentOptions(RentalExtension $extension)
+    {
+        try {
+            $rental = $extension->rental;
+            return view('pages.rentals.extension-payment', compact('extension', 'rental'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function getExtensionSnapToken(RentalExtension $extension)
+    {
+        try {
+            // Set konfigurasi midtrans
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $orderId = 'EXT-' . $extension->id . '-' . time();
+
+            $transaction_details = [
+                'order_id' => $orderId,
+                'gross_amount' => (int) $extension->additional_price,
+            ];
+
+            $item_details[] = [
+                'id' => 'EXT-' . $extension->id,
+                'price' => (int) $extension->additional_price,
+                'quantity' => 1,
+                'name' => 'Perpanjangan Sewa Bus ' . $extension->rental->bus->name,
+            ];
+
+            $transaction = [
+                'transaction_details' => $transaction_details,
+                'item_details' => $item_details,
+            ];
+
+            $snapToken = \Midtrans\Snap::getSnapToken($transaction);
+
+            return response()->json(['snap_token' => $snapToken]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function payExtensionMidtrans(Request $request, RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Generate payment code
+            $paymentCode = 'PAY-EXT-' . strtoupper(uniqid());
+
+            // Buat record pembayaran
+            $payment = Payment::create([
+                'rental_id' => $extension->rental_id,
+                'payment_code' => $paymentCode,
+                'amount' => $extension->additional_price,
+                'payment_method' => 'midtrans',
+                'status' => 'success',
+                'payment_proof' => null,
+                'notes' => 'Pembayaran perpanjangan via Midtrans'
+            ]);
+
+            // Update status pembayaran extension
+            $extension->update([
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+                'payment_data' => json_encode($request->all())
+            ]);
+
+            DB::commit();
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // Untuk pembayaran manual/upload bukti
+    public function payExtensionManual(Request $request, RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Generate payment code
+            $paymentCode = 'PAY-EXT-' . strtoupper(uniqid());
+
+            // Handle payment proof upload
+            $paymentProofPath = null;
+            if ($request->hasFile('payment_proof')) {
+                $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+            }
+
+            // Buat record pembayaran
+            $payment = Payment::create([
+                'rental_id' => $extension->rental_id,
+                'payment_code' => $paymentCode,
+                'amount' => $extension->additional_price,
+                'payment_method' => 'transfer',
+                'payment_proof' => $paymentProofPath,
+                'status' => 'pending',
+                'notes' => $request->notes
+            ]);
+
+            // Update status pembayaran extension
+            $extension->update([
+                'payment_status' => 'pending',
+                'payment_data' => json_encode([
+                    'payment_id' => $payment->id,
+                    'payment_proof' => $paymentProofPath
+                ])
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function extensionRequests()
+    {
+        try {
+            $extensions = RentalExtension::with(['rental.user', 'rental.bus'])
+                ->where('status', 'pending')
+                ->latest()
+                ->get();
+                
+            return view('admin.rentals.extension-requests', compact('extensions'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function verifyExtensionPayment(RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental = $extension->rental;
+            
+            // Update tanggal selesai rental
+            $rental->update([
+                'end_date' => $extension->end_date,
+                'total_days' => $rental->total_days + $extension->additional_days,
+                'total_price' => $rental->total_price + $extension->additional_price
+            ]);
+
+            // Update status extension dan waktu pembayaran
+            $extension->update([
+                'payment_status' => 'paid',
+                'paid_at' => now()
+            ]);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'extension_paid',
+                "Pembayaran perpanjangan sewa telah diverifikasi. Masa sewa diperpanjang hingga " . 
+                $extension->end_date->format('d/m/Y'))
+            );
+
+            DB::commit();
+            return back()->with('success', 'Pembayaran perpanjangan berhasil diverifikasi');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function rejectExtensionPayment(RentalExtension $extension)
+    {
+        try {
+            DB::beginTransaction();
+
+            $rental = $extension->rental;
+            
+            $extension->update([
+                'payment_status' => 'rejected',
+                'status' => 'rejected'
+            ]);
+
+            // Kirim email notifikasi
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'payment_failed',
+                "Maaf, pembayaran perpanjangan sewa Anda ditolak. Silakan hubungi admin untuk informasi lebih lanjut.")
+            );
+
+            DB::commit();
+            return back()->with('success', 'Pembayaran perpanjangan berhasil ditolak');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function pay(Request $request, Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Generate payment code
+            $paymentCode = 'PAY-' . strtoupper(uniqid());
+
+            // Upload bukti pembayaran
+            $paymentProofPath = null;
+            if ($request->hasFile('payment_proof')) {
+                $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
+            }
+
+            // Buat record pembayaran
+            $payment = Payment::create([
+                'rental_id' => $rental->id,
+                'payment_code' => $paymentCode,
+                'amount' => $request->amount,
+                'payment_method' => $request->payment_method,
+                'payment_proof' => $paymentProofPath,
+                'status' => 'pending',
+                'notes' => $request->notes
+            ]);
+
+            // Update status pembayaran rental
+            $rental->update([
+                'payment_status' => 'partial'
+            ]);
+
+            DB::commit();
+            return back()->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    public function getSnapToken(Rental $rental)
+    {
+        try {
+            // Set konfigurasi midtrans
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            $orderId = 'RNT-' . $rental->id . '-' . time();
+
+            $transaction_details = [
+                'order_id' => $orderId,
+                'gross_amount' => (int) $rental->total_price,
+            ];
+
+            $item_details[] = [
+                'id' => 'RNT-' . $rental->id,
+                'price' => (int) $rental->total_price,
+                'quantity' => 1,
+                'name' => 'Sewa Bus ' . $rental->bus->name,
+            ];
+
+            $transaction = [
+                'transaction_details' => $transaction_details,
+                'item_details' => $item_details,
+                'customer_details' => [
+                    'first_name' => $rental->user->name,
+                    'email' => $rental->user->email,
+                    'phone' => $rental->user->phone ?? '-',
+                ]
+            ];
+
+            $snapToken = \Midtrans\Snap::getSnapToken($transaction);
+
+            return response()->json([
+                'snap_token' => $snapToken
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 } 
+

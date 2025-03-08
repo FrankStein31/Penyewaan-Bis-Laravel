@@ -37,6 +37,10 @@ class RentalStatusMail extends Mailable
             'payment_pending' => 'menunggu verifikasi pembayaran',
             'payment_success' => 'pembayaran telah diverifikasi',
             'payment_failed' => 'pembayaran ditolak',
+            'extension_pending' => 'pengajuan perpanjangan sedang menunggu konfirmasi',
+            'extension_approved' => 'pengajuan perpanjangan telah disetujui',
+            'extension_rejected' => 'pengajuan perpanjangan ditolak',
+            'extension_paid' => 'pembayaran perpanjangan telah diterima',
             default => $status
         };
     }

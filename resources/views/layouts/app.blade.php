@@ -297,12 +297,21 @@
                             <span class="nav-link-text ms-1">Midtrans</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link {{ Request::is('admin/requests*') ? 'active' : '' }}" href="{{ route('admin.requests.index') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-bell"></i>
                             </div>
                             <span class="nav-link-text ms-1">Pengajuan</span>
+                        </a>
+                    </li> -->
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('admin/rentals/extensions*') ? 'active' : '' }}" 
+                        href="{{ route('admin.rentals.extensions') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-clock text-primary text-sm opacity-10"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Perpanjangan Sewa</span>
                         </a>
                     </li>
                     

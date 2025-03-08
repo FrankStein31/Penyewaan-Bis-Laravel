@@ -18,6 +18,7 @@ class Rental extends Model
         'destination',
         'total_days',
         'total_price',
+        'rental_package',
         'status',
         'rental_status',
         'payment_status',
@@ -58,6 +59,11 @@ class Rental extends Model
     public function ratings()
     {
         return $this->hasOne(Rating::class);
+    }
+
+    public function extensions()
+    {
+        return $this->hasMany(RentalExtension::class);
     }
 
     // Generate rental code

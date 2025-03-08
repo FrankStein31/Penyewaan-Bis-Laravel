@@ -113,7 +113,7 @@
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Penyewa</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Jumlah</th>
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tanggal</th>
-                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th>
+                            <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Bukti</th> -->
                             <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
                         </tr>
                     </thead>
@@ -132,7 +132,7 @@
                             <td>
                                 <p class="text-sm font-weight-bold mb-0">{{ $payment->created_at->format('d/m/Y H:i') }}</p>
                             </td>
-                            <td>
+                            <!-- <td>
                                 @if($payment->payment_method === 'transfer' && $payment->proof)
                                     <a href="{{ Storage::url($payment->proof) }}" 
                                        target="_blank" 
@@ -147,7 +147,7 @@
                                         </a>
                                     </span>
                                 @endif
-                            </td>
+                            </td> -->
                             <td>
                                 @if($payment->status === 'pending')
                                     <form action="{{ route('admin.payments.verify', $payment->id) }}" method="POST">

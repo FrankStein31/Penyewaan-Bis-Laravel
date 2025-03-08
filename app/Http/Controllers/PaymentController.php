@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Mail\RentalStatusMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\RentalExtension;
 
 class PaymentController extends Controller
 {
@@ -19,7 +20,8 @@ class PaymentController extends Controller
                 $request->validate([
                     'amount' => 'required|numeric|min:1',
                     'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-                    'notes' => 'nullable|string'
+                    'notes' => 'nullable|string',
+                    'extension_id' => 'nullable|exists:rental_extensions,id'
                 ]);
 
                 // Validasi jumlah pembayaran
@@ -36,6 +38,7 @@ class PaymentController extends Controller
                 // Buat payment record
                 $payment = Payment::create([
                     'rental_id' => $rental->id,
+                    'extension_id' => $request->extension_id,
                     'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
                     'amount' => $request->amount,
                     'payment_method' => 'transfer',
@@ -193,43 +196,46 @@ class PaymentController extends Controller
     {
         $request->validate([
             'rental_id' => 'required|exists:rentals,id',
+            'extension_id' => 'nullable|exists:rental_extensions,id',
             'amount' => 'required|numeric|min:1',
             'payment_method' => 'required|in:transfer,cash',
             'payment_proof' => 'required_if:payment_method,transfer|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
         try {
-            $rental = Rental::findOrFail($request->rental_id);
-            
-            // Cek apakah rental milik user yang login
-            if ($rental->user_id !== auth()->id()) {
-                return back()->with('error', 'Anda tidak memiliki akses ke penyewaan ini');
+            DB::beginTransaction();
+
+            // Upload bukti pembayaran
+            $proofPath = null;
+            if ($request->hasFile('payment_proof')) {
+                $proofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
             }
 
-            // Buat payment baru
-            $payment = new Payment();
-            $payment->rental_id = $request->rental_id;
-            $payment->amount = $request->amount;
-            $payment->payment_method = $request->payment_method;
-            $payment->status = 'pending';
+            // Buat payment record
+            $payment = Payment::create([
+                'rental_id' => $request->rental_id,
+                'extension_id' => $request->extension_id,
+                'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
+                'amount' => $request->amount,
+                'payment_method' => $request->payment_method,
+                'payment_proof' => $proofPath,
+                'status' => 'pending',
+                'notes' => $request->notes
+            ]);
 
-            // Upload bukti pembayaran jika metode transfer
-            if ($request->payment_method === 'transfer' && $request->hasFile('payment_proof')) {
-                $file = $request->file('payment_proof');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/payment_proofs', $filename);
-                $payment->payment_proof = $filename;
+            // Update status extension jika ini pembayaran extension
+            if ($request->extension_id) {
+                RentalExtension::find($request->extension_id)->update([
+                    'payment_status' => 'pending'
+                ]);
             }
 
-            $payment->save();
-
-            // Redirect ke halaman pembayaran dengan pesan sukses
-            return redirect()->route('customer.payments')
-                            ->with('success', 'Pembayaran berhasil disubmit dan menunggu konfirmasi admin');
+            DB::commit();
+            return back()->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
 
         } catch (\Exception $e) {
-            \Log::error('Payment Error: ' . $e->getMessage());
-            return back()->with('error', 'Terjadi kesalahan saat memproses pembayaran');
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -242,27 +248,52 @@ class PaymentController extends Controller
             $payment->status = 'success';
             $payment->save();
 
-            // Update rental payment status
             $rental = Rental::find($payment->rental_id);
-            
-            // Hitung total pembayaran yang sudah success
-            $totalPaid = $rental->payments()
-                ->where('status', 'success')
-                ->sum('amount');
-            
-            // Update status pembayaran rental
-            if ($totalPaid >= $rental->total_price) {
-                $rental->payment_status = 'paid';
-            } else {
-                $rental->payment_status = 'partially_paid';
-            }
-            
-            $rental->save();
 
-            // Kirim email notifikasi
-            $additionalMessage = "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah diverifikasi.";
-            Mail::to($rental->user->email)
-                ->send(new RentalStatusMail($rental, 'payment_success', $additionalMessage));
+            // Cek apakah ini pembayaran extension
+            if ($payment->extension_id) {
+                $extension = RentalExtension::findOrFail($payment->extension_id);
+                
+                // Update tanggal selesai rental
+                $rental->update([
+                    'end_date' => $extension->end_date,
+                    'total_days' => $rental->total_days + $extension->additional_days,
+                    'total_price' => $rental->total_price + $extension->additional_price
+                ]);
+
+                // Update status extension
+                $extension->update([
+                    'payment_status' => 'paid',
+                    'paid_at' => now()
+                ]);
+
+                // Kirim email notifikasi
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'extension_paid',
+                    "Pembayaran perpanjangan sewa telah diverifikasi. Masa sewa diperpanjang hingga " . 
+                    $extension->end_date->format('d/m/Y'))
+                );
+            } else {
+                // Pembayaran rental normal
+                // Hitung total pembayaran yang sudah success
+                $totalPaid = $rental->payments()
+                    ->where('status', 'success')
+                    ->sum('amount');
+                
+                // Update status pembayaran rental
+                if ($totalPaid >= $rental->total_price) {
+                    $rental->payment_status = 'paid';
+                } else {
+                    $rental->payment_status = 'partially_paid';
+                }
+                $rental->save();
+
+                // Kirim email notifikasi pembayaran normal
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah diverifikasi.")
+                );
+            }
 
             DB::commit();
             return redirect()->back()->with('success', 'Pembayaran berhasil diverifikasi');
@@ -270,52 +301,9 @@ class PaymentController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Payment Verification Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Gagal memverifikasi pembayaran');
+            return redirect()->back()->with('error', 'Gagal memverifikasi pembayaran: ' . $e->getMessage());
         }
     }
-
-    // public function startPayment(Rental $rental)
-    // {
-    //     \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-    //     \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
-    //     \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
-    //     \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
-
-    //     $payment = Payment::create([
-    //         'rental_id' => $rental->id,
-    //         'payment_code' => 'PAY' . date('Ymd') . str_pad(Payment::count() + 1, 4, '0', STR_PAD_LEFT),
-    //         'amount' => $rental->total_price,
-    //         'payment_method' => 'midtrans',
-    //         'status' => 'pending'
-    //     ]);
-
-    //     $transaction_details = array(
-    //         'order_id' => $payment->payment_code,
-    //         'gross_amount' => (int) $payment->amount
-    //     );
-
-    //     $customer_details = array(
-    //         'first_name' => $rental->user->firstname,
-    //         'last_name' => $rental->user->lastname,
-    //         'email' => $rental->user->email,
-    //         'phone' => $rental->user->phone,
-    //     );
-
-    //     $transaction_data = array(
-    //         'transaction_details' => $transaction_details,
-    //         'customer_details' => $customer_details
-    //     );
-
-    //     try {
-    //         $snapToken = \Midtrans\Snap::getSnapToken($transaction_data);
-    //         return response()->json([
-    //             'snap_token' => $snapToken,
-    //             'payment' => $payment
-    //         ]);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['message' => $e->getMessage()], 500);
-    //     }
-    // }
 
     public function startPayment(Rental $rental)
     {

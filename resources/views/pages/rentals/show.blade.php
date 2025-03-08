@@ -268,11 +268,185 @@
                 </div>
             </div>
         </div>
+        @if($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6>Pembayaran Manual</h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6>Total yang harus dibayar:</h6>
+                    <h4>Rp {{ number_format($rental->total_price, 0, ',', '.') }}</h4>
+                    <hr>
+                    <h6>Informasi Rekening:</h6>
+                    <p class="mb-0">Bank BCA: 1234567890 <br> a.n PT Sewa Bus</p>
+                </div>
+                
+                <form action="{{ route('customer.rentals.pay', $rental) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group mb-3">
+                        <label>Jumlah Pembayaran</label>
+                        <input type="number" name="amount" class="form-control" required 
+                               min="1" max="{{ $rental->total_price }}"
+                               value="{{ $rental->total_price }}">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Bukti Transfer</label>
+                        <input type="file" name="payment_proof" class="form-control" required accept="image/*">
+                        <small class="text-muted">Format: JPG, PNG (max 2MB)</small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Catatan (Opsional)</label>
+                        <textarea name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <input type="hidden" name="payment_method" value="transfer">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-upload"></i> Kirim Bukti Pembayaran
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endif
+
+        @if($rental->extensions()->exists())
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6>Riwayat Perpanjangan</h6>
+                </div>
+                <div class="card-body px-0 pt-0 pb-2">
+                    <div class="table-responsive p-0">
+                        <table class="table align-items-center mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Pengajuan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Periode</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tambahan Hari</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($rental->extensions as $extension)
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ $extension->created_at->format('d/m/Y H:i') }}</h6>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">
+                                                {{ $extension->start_date->format('d/m/Y') }} - 
+                                                {{ $extension->end_date->format('d/m/Y') }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">{{ $extension->additional_days }} hari</p>
+                                        </td>
+                                        <td>
+                                            <p class="text-xs font-weight-bold mb-0">
+                                                Rp {{ number_format($extension->additional_price, 0, ',', '.') }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-sm bg-gradient-{{ 
+                                                $extension->status === 'pending' ? 'warning' : 
+                                                ($extension->status === 'approved' ? 'success' : 'danger') 
+                                            }}">
+                                                {{ $extension->status === 'pending' ? 'Menunggu' :
+                                                ($extension->status === 'approved' ? 'Disetujui' : 'Ditolak') }}
+                                            </span>
+                                            @if($extension->status === 'approved')
+                                                <br>
+                                                <span class="badge badge-sm bg-gradient-{{ 
+                                                    $extension->payment_status === 'pending' ? 'warning' : 
+                                                    ($extension->payment_status === 'paid' ? 'success' : 'danger') 
+                                                }}">
+                                                    {{ $extension->payment_status === 'pending' ? 'Belum Dibayar' :
+                                                    ($extension->payment_status === 'paid' ? 'Sudah Dibayar' : 'Pembayaran Ditolak') }}
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($extension->status === 'approved' && $extension->payment_status === 'pending')
+                                                <button class="btn btn-primary btn-sm" 
+                                                        onclick="showPaymentOptionsModal({{ $extension->id }}, {{ $extension->additional_price }})">
+                                                    <i class="fas fa-credit-card me-2"></i>Bayar
+                                                </button>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if($rental->rental_status === 'ongoing')
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6>Ajukan Perpanjangan</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('customer.rentals.request-extension', $rental) }}" method="POST">
+                        @csrf
+                        <div class="form-group mb-3">
+                            <label>Tanggal Mulai Perpanjangan</label>
+                            <input type="datetime-local" name="start_date" class="form-control" required 
+                                   onchange="calculateExtensionPrice(this)">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Tanggal Selesai Perpanjangan</label>
+                            <input type="datetime-local" name="end_date" class="form-control" required
+                                   onchange="calculateExtensionPrice(this)">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Biaya Perpanjangan</label>
+                            <div class="form-control-static">
+                                <h5 id="extensionPrice">Rp 0</h5>
+                                <small class="text-muted">Harga per hari: Rp {{ number_format($rental->bus->price_per_day, 0, ',', '.') }}</small>
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label>Catatan (Opsional)</label>
+                            <textarea name="notes" class="form-control" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Ajukan Perpanjangan</button>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+            function calculateExtensionPrice() {
+                const startDate = document.querySelector('input[name="start_date"]').value;
+                const endDate = document.querySelector('input[name="end_date"]').value;
+                
+                if (startDate && endDate) {
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    const pricePerDay = {{ $rental->bus->price_per_day }};
+                    const totalPrice = diffDays * pricePerDay;
+                    
+                    document.getElementById('extensionPrice').textContent = 
+                        'Rp ' + totalPrice.toLocaleString('id-ID');
+                }
+            }
+            </script>
+        @endif
+
+        
+
         @include('layouts.footers.auth.footer')
     </div>
 
     <!-- Midtrans Script -->
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
 
     <script>
     function payNow(rentalId) {
@@ -305,64 +479,124 @@
             alert('Terjadi kesalahan saat memproses pembayaran');
         });
     }
+
+    let currentExtensionId;
+
+    function showPaymentOptionsModal(extensionId, amount) {
+        currentExtensionId = extensionId;
+        document.getElementById('extensionIdInput').value = extensionId;
+        document.getElementById('paymentAmount').textContent = 
+            'Rp ' + parseInt(amount).toLocaleString('id-ID');
+        
+        document.getElementById('uploadForm').action = 
+            `/customer/rentals/extensions/${extensionId}/pay`;
+        
+        const modal = new bootstrap.Modal(document.getElementById('paymentOptionsModal'));
+        modal.show();
+    }
+
+    function showUploadForm() {
+        // Tutup modal pilihan pembayaran
+        bootstrap.Modal.getInstance(document.getElementById('paymentOptionsModal')).hide();
+        
+        // Tampilkan modal upload
+        const uploadModal = new bootstrap.Modal(document.getElementById('uploadModal'));
+        uploadModal.show();
+    }
+
+    function payWithMidtrans() {
+        fetch(`/payments/start/${currentExtensionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            snap.pay(data.snap_token, {
+                onSuccess: function(result) {
+                    window.location.href = '/customer/payments/success';
+                },
+                onPending: function(result) {
+                    window.location.href = '/customer/payments/pending';
+                },
+                onError: function(result) {
+                    window.location.href = '/customer/payments/error';
+                },
+                onClose: function() {
+                    alert('Pembayaran dibatalkan');
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memproses pembayaran');
+        });
+    }
     </script>
 
-    @if($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6>Pilih Metode Pembayaran</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <button class="btn btn-primary w-100 mb-3" onclick="payNow({{ $rental->id }})">
+    <!-- Modal Pilihan Pembayaran Perpanjangan -->
+    <div class="modal fade" id="paymentOptionsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pilih Metode Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6>Total Pembayaran:</h6>
+                        <h4 id="paymentAmount"></h4>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" onclick="payWithMidtrans()">
                             <i class="fas fa-credit-card"></i> Bayar dengan Midtrans
                         </button>
-                    </div>
-                    <div class="col-md-6">
-                        <button class="btn btn-outline-primary w-100 mb-3" data-bs-toggle="modal" data-bs-target="#manualPaymentModal">
+                        <button class="btn btn-secondary" onclick="showUploadForm()">
                             <i class="fas fa-upload"></i> Upload Bukti Transfer
                         </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal Upload Bukti Transfer -->
-        <div class="modal fade" id="manualPaymentModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="{{ route('customer.payments.pay', $rental) }}" method="POST" enctype="multipart/form-data">
+    <!-- Modal Upload Bukti Transfer -->
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Upload Bukti Pembayaran</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6>Informasi Rekening:</h6>
+                        <p class="mb-0">Bank BCA: 1234567890 <br> a.n PT Sewa Bus</p>
+                    </div>
+                    <form id="uploadForm" method="POST" enctype="multipart/form-data">
                         @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title">Upload Bukti Transfer</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <input type="hidden" name="extension_id" value="" id="extensionIdInput">
+                        <div class="form-group mb-3">
+                            <label>Bukti Transfer</label>
+                            <input type="file" name="payment_proof" class="form-control" required accept="image/*">
+                            <small class="text-muted">Format: JPG, PNG (max 2MB)</small>
                         </div>
-                        <div class="modal-body">
-                            <div class="form-group mb-3">
-                                <label>Jumlah Pembayaran</label>
-                                <input type="number" name="amount" class="form-control" required 
-                                    min="1" max="{{ $rental->total_price - $rental->payments->where('status', 'success')->sum('amount') }}">
-                                <small class="text-muted">Sisa yang harus dibayar: Rp {{ number_format($rental->total_price - $rental->payments->where('status', 'success')->sum('amount'), 0, ',', '.') }}</small>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label>Bukti Transfer</label>
-                                <input type="file" name="payment_proof" class="form-control" required accept="image/*">
-                                <small class="text-muted">Format: JPG, PNG (max 2MB)</small>
-                            </div>
-                            <div class="form-group">
-                                <label>Catatan (Opsional)</label>
-                                <textarea name="notes" class="form-control" rows="2"></textarea>
-                            </div>
-                            <input type="hidden" name="payment_method" value="transfer">
+                        <div class="form-group mb-3">
+                            <label>Catatan (Opsional)</label>
+                            <textarea name="notes" class="form-control" rows="2"></textarea>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                            <button type="submit" class="btn btn-primary">Kirim Bukti Pembayaran</button>
-                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-upload"></i> Kirim Bukti Pembayaran
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+
+    
 @endsection
+
+

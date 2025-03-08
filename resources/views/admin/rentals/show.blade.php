@@ -231,6 +231,90 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Extension History -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-12">
+                                <div class="card border shadow-none">
+                                    <div class="card-body">
+                                        <h6 class="text-primary fw-bold mb-3">Riwayat Perpanjangan</h6>
+                                        @if($rental->extensions->isNotEmpty())
+                                            <div class="table-responsive">
+                                                <table class="table align-items-center mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Pengajuan</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Periode</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Tambahan Hari</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Biaya</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status Pengajuan</th>
+                                                            <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status Pembayaran</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($rental->extensions as $extension)
+                                                        <tr>
+                                                            <td>
+                                                                <div class="d-flex px-2 py-1">
+                                                                    <div class="d-flex flex-column justify-content-center">
+                                                                        <h6 class="mb-0 text-sm">{{ $extension->created_at->format('d/m/Y') }}</h6>
+                                                                        <p class="text-xs text-secondary mb-0">{{ $extension->created_at->format('H:i') }}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-xs font-weight-bold mb-0">
+                                                                    {{ $extension->start_date->format('d/m/Y') }} - 
+                                                                    {{ $extension->end_date->format('d/m/Y') }}
+                                                                </p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-xs font-weight-bold mb-0">{{ $extension->additional_days }} hari</p>
+                                                            </td>
+                                                            <td>
+                                                                <p class="text-xs font-weight-bold mb-0">
+                                                                    Rp {{ number_format($extension->additional_price, 0, ',', '.') }}
+                                                                </p>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-sm bg-gradient-{{ 
+                                                                    $extension->status === 'pending' ? 'warning' : 
+                                                                    ($extension->status === 'approved' ? 'success' : 'danger') 
+                                                                }}">
+                                                                    {{ $extension->status === 'pending' ? 'Menunggu' :
+                                                                    ($extension->status === 'approved' ? 'Disetujui' : 'Ditolak') }}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                @if($extension->status === 'approved')
+                                                                    <span class="badge badge-sm bg-gradient-{{ 
+                                                                        $extension->payment_status === 'pending' ? 'warning' : 
+                                                                        ($extension->payment_status === 'paid' ? 'success' : 'danger') 
+                                                                    }}">
+                                                                        {{ $extension->payment_status === 'pending' ? 'Belum Dibayar' :
+                                                                        ($extension->payment_status === 'paid' ? 'Sudah Dibayar' : 'Pembayaran Ditolak') }}
+                                                                    </span>
+                                                                    @if($extension->payment_status === 'paid')
+                                                                        <p class="text-xs text-secondary mb-0 mt-1">
+                                                                            Dibayar: {{ $extension->paid_at ? $extension->paid_at->format('d/m/Y H:i') : '-' }}
+                                                                        </p>
+                                                                    @endif
+                                                                @else
+                                                                    <span class="text-xs text-secondary">-</span>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        @else
+                                            <p class="text-sm text-secondary mb-0">Belum ada riwayat perpanjangan</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
