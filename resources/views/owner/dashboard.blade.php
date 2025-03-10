@@ -183,7 +183,7 @@
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Driver</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Total Trip</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Rating</th>
+                                    <!-- <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Rating</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -202,9 +202,9 @@
                                     <td>
                                         <span class="badge bg-gradient-info">{{ $driver->rentals_count }} trip</span>
                                     </td>
-                                    <td>
+                                    <!-- <td>
                                         <span class="badge bg-gradient-warning">{{ number_format($driver->ratings_avg_rating, 1) }} ⭐</span>
-                                    </td>
+                                    </td> -->
                                 </tr>
                                 @endforeach
                             </tbody>

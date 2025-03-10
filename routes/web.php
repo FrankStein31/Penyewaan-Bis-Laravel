@@ -21,9 +21,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ArmadaController;
 use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\RentalExtensionController;
+use App\Http\Controllers\LandingController;
 
 // Landing page (dapat diakses semua orang)
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('landing');
 
 // Auth routes (hanya untuk guest/belum login)
 Route::middleware('guest')->group(function () {

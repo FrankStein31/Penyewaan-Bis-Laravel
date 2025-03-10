@@ -22,6 +22,7 @@
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--dark);
+            overflow-x: hidden;
         }
 
         .navbar {
@@ -150,6 +151,7 @@
             overflow: hidden;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            height: 100%;
         }
 
         .bus-card:hover {
@@ -165,33 +167,6 @@
 
         .bus-card:hover img {
             transform: scale(1.05);
-        }
-
-        .testimonial-card {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            height: 100%;
-        }
-
-        .testimonial-card .quote {
-            font-size: 4rem;
-            color: var(--primary);
-            line-height: 1;
-            margin-bottom: 1rem;
-        }
-
-        .contact-form .form-control {
-            border: 1px solid #e2e8f0;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .contact-form .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .btn-primary {
@@ -237,7 +212,24 @@
 
         footer {
             background: var(--secondary);
-            padding: 5rem 0 2rem;
+            padding: 3rem 0 2rem;
+        }
+
+        .service-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: var(--primary);
+        }
+
+        .service-item {
+            transition: all 0.3s ease;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .service-item:hover {
+            background: rgba(37, 99, 235, 0.05);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 768px) {
@@ -270,12 +262,6 @@
                     <li class="nav-item">
                         <a class="nav-link px-3 fw-medium" href="#fleet">Armada</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3 fw-medium" href="#testimonials">Testimonial</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link px-3 fw-medium" href="#contact">Kontak</a>
-                    </li>
                     <li class="nav-item ms-lg-3">
                         <a class="btn btn-outline-primary px-4 fw-semibold" href="/login">
                             <i class="fas fa-sign-in-alt me-2"></i>Masuk
@@ -296,7 +282,7 @@
         <div class="hero-content animate__animated animate__fadeIn">
             <h1>Perjalanan Nyaman Bersama Kami</h1>
             <p>Nikmati perjalanan dengan armada bus berkualitas dan pelayanan terbaik</p>
-            <a href="#contact" class="btn btn-hero">Pesan Sekarang</a>
+            <a href="#fleet" class="btn btn-hero">Pilih Armada</a>
         </div>
     </section>
 
@@ -352,7 +338,7 @@
                                 <span class="badge bg-primary">59 Seats</span>
                             </div>
                             <p class="text-muted mb-4">Luxury bus dengan fasilitas lengkap untuk perjalanan jarak jauh</p>
-                            <a href="#contact" class="btn btn-primary w-100">Pesan Sekarang</a>
+                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
                         </div>
                     </div>
                 </div>
@@ -365,7 +351,7 @@
                                 <span class="badge bg-primary">35 Seats</span>
                             </div>
                             <p class="text-muted mb-4">Bus nyaman untuk grup sedang dan perjalanan wisata</p>
-                            <a href="#contact" class="btn btn-primary w-100">Pesan Sekarang</a>
+                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
                         </div>
                     </div>
                 </div>
@@ -378,7 +364,7 @@
                                 <span class="badge bg-primary">17 Seats</span>
                             </div>
                             <p class="text-muted mb-4">Ideal untuk grup kecil dan perjalanan keluarga</p>
-                            <a href="#contact" class="btn btn-primary w-100">Pesan Sekarang</a>
+                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
                         </div>
                     </div>
                 </div>
@@ -386,123 +372,47 @@
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="py-5 bg-light" id="testimonials">
+    <!-- Services -->
+    <section class="py-5 bg-light">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-heading">Apa Kata Mereka?</h2>
-                <p class="section-subheading">Testimonial dari pelanggan setia kami</p>
+                <h2 class="section-heading">Layanan Kami</h2>
+                <p class="section-subheading">Solusi transportasi untuk berbagai kebutuhan Anda</p>
             </div>
-            <div class <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="testimonial-card">
-                        <div class="quote">"</div>
-                        <p class="mb-4">Pelayanan sangat memuaskan, armada bus modern dan nyaman. Supir sangat profesional dan berpengalaman. Recommended!</p>
-                        <div class="d-flex align-items-center">
-                            <img src="/api/placeholder/48/48" alt="User" class="rounded-circle">
-                            <div class="ms-3">
-                                <h5 class="mb-0">Budi Santoso</h5>
-                                <small class="text-muted">Pengusaha</small>
-                            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="service-item d-flex align-items-start">
+                        <i class="fas fa-mountain service-icon"></i>
+                        <div>
+                            <h4>Wisata Domestik</h4>
+                            <p class="text-muted mb-0">Nikmati perjalanan wisata di dalam negeri dengan armada bus yang nyaman dan aman</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="testimonial-card">
-                        <div class="quote">"</div>
-                        <p class="mb-4">Sudah berkali-kali sewa bus di Ekasari untuk study tour sekolah. Pelayanan konsisten bagus dan harga bersaing.</p>
-                        <div class="d-flex align-items-center">
-                            <img src="/api/placeholder/48/48" alt="User" class="rounded-circle">
-                            <div class="ms-3">
-                                <h5 class="mb-0">Dewi Putri</h5>
-                                <small class="text-muted">Guru</small>
-                            </div>
+                <div class="col-md-6">
+                    <div class="service-item d-flex align-items-start">
+                        <i class="fas fa-briefcase service-icon"></i>
+                        <div>
+                            <h4>Transportasi Karyawan</h4>
+                            <p class="text-muted mb-0">Solusi transportasi untuk antar jemput karyawan perusahaan Anda</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
-                    <div class="testimonial-card">
-                        <div class="quote">"</div>
-                        <p class="mb-4">Bus selalu dalam kondisi prima, AC dingin, dan staff yang ramah. Pasti akan menggunakan jasa Ekasari lagi!</p>
-                        <div class="d-flex align-items-center">
-                            <img src="/api/placeholder/48/48" alt="User" class="rounded-circle">
-                            <div class="ms-3">
-                                <h5 class="mb-0">Made Wirawan</h5>
-                                <small class="text-muted">Tour Guide</small>
-                            </div>
+                <div class="col-md-6">
+                    <div class="service-item d-flex align-items-start">
+                        <i class="fas fa-graduation-cap service-icon"></i>
+                        <div>
+                            <h4>Study Tour</h4>
+                            <p class="text-muted mb-0">Layanan khusus untuk kegiatan study tour sekolah dengan pengalaman terbaik</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact -->
-    <section class="py-5" id="contact">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 mb-5 mb-lg-0">
-                    <h2 class="section-heading">Hubungi Kami</h2>
-                    <p class="section-subheading">Ada pertanyaan? Kami siap membantu Anda</p>
-                    
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="icon-shape" style="width: 48px; height: 48px;">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h5 class="mb-1">Alamat</h5>
-                            <p class="text-muted mb-0">Jl. Raya No. 123, Denpasar, Bali</p>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="icon-shape" style="width: 48px; height: 48px; background: #10b981;">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h5 class="mb-1">Telepon</h5>
-                            <p class="text-muted mb-0">(0361) 123456</p>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center">
-                        <div class="icon-shape" style="width: 48px; height: 48px; background: #6366f1;">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="ms-3">
-                            <h5 class="mb-1">Email</h5>
-                            <p class="text-muted mb-0">info@ekasari.com</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body p-4">
-                            <form class="contact-form">
-                                <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nama Lengkap</label>
-                                        <input type="text" class="form-control" placeholder="Masukkan nama lengkap">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" placeholder="nama@email.com">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Subjek</label>
-                                        <input type="text" class="form-control" placeholder="Subjek pesan">
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Pesan</label>
-                                        <textarea class="form-control" rows="5" placeholder="Tulis pesan Anda disini..."></textarea>
-                                    </div>
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-paper-plane me-2"></i>Kirim Pesan
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                <div class="col-md-6">
+                    <div class="service-item d-flex align-items-start">
+                        <i class="fas fa-users service-icon"></i>
+                        <div>
+                            <h4>Acara Keluarga</h4>
+                            <p class="text-muted mb-0">Transportasi nyaman untuk reunian keluarga, pernikahan, dan acara spesial lainnya</p>
                         </div>
                     </div>
                 </div>
@@ -513,9 +423,12 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="row g-4 g-lg-5 mb-5">
-                <div class="col-lg-4">
-                    <h4 class="mb-4">PO Bis Ekasari</h4>
+            <div class="row g-4 g-lg-5 mb-4">
+                <div class="col-lg-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-bus me-2" style="font-size: 28px; color: var(--primary)"></i>
+                        <h4 class="mb-0">PO Bis Ekasari</h4>
+                    </div>
                     <p class="text-muted">Melayani penyewaan bis untuk berbagai kebutuhan perjalanan Anda dengan armada berkualitas dan pelayanan terbaik.</p>
                     <div class="d-flex gap-3 mt-4">
                         <a href="#" class="btn btn-light rounded-circle">
@@ -529,23 +442,22 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-2">
-                    <h5 class="mb-4">Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-3"><a href="#features" class="text-muted text-decoration-none">Layanan</a></li>
-                        <li class="mb-3"><a href="#fleet" class="text-muted text-decoration-none">Armada</a></li>
-                        <li class="mb-3"><a href="#testimonials" class="text-muted text-decoration-none">Testimonial</a></li>
-                        <li><a href="#contact" class="text-muted text-decoration-none">Kontak</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3">
+                <div class="col-lg-4">
                     <h5 class="mb-4">Layanan</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Sewa Bus Pariwisata</a></li>
-                        <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Antar Jemput Karyawan</a></li>
-                        <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Study Tour</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">City Tour</a></li>
-                    </ul>
+                    <div class="row">
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Sewa Bus Pariwisata</a></li>
+                                <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Antar Jemput Karyawan</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-3"><a href="#" class="text-muted text-decoration-none">Study Tour</a></li>
+                                <li><a href="#" class="text-muted text-decoration-none">City Tour</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-lg-3">
                     <h5 class="mb-4">Kontak</h5>
@@ -557,7 +469,7 @@
                 </div>
             </div>
             <hr>
-            <div class="row py-4">
+            <div class="row py-3">
                 <div class="col-md-6 text-center text-md-start">
                     <p class="mb-0 text-muted">&copy; 2024 PO Bis Ekasari. All rights reserved.</p>
                 </div>

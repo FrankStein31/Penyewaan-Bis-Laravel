@@ -15,10 +15,11 @@ class StatisticsController extends Controller
     {
         $data = [
             'rentals' => Rental::whereDate('created_at', today())
+                              ->whereIn('status', ['selesai'])
                               ->count(),
-            'income' => Payment::whereDate('created_at', today())
-                             ->where('status', 'verified')
-                             ->sum('amount'),
+            'income' => Rental::whereDate('created_at', today())
+                             ->whereIn('status', ['selesai'])
+                             ->sum('total_price'),
             'hourlyStats' => $this->getHourlyStats(),
         ];
 
@@ -29,10 +30,11 @@ class StatisticsController extends Controller
     {
         $data = [
             'rentals' => Rental::whereMonth('created_at', now()->month)
+                              ->whereIn('status', ['selesai'])
                               ->count(),
-            'income' => Payment::whereMonth('created_at', now()->month)
-                             ->where('status', 'verified')
-                             ->sum('amount'),
+            'income' => Rental::whereMonth('created_at', now()->month)
+                             ->whereIn('status', ['selesai'])
+                             ->sum('total_price'),
             'dailyStats' => $this->getDailyStats(),
         ];
 
@@ -43,10 +45,11 @@ class StatisticsController extends Controller
     {
         $data = [
             'rentals' => Rental::whereYear('created_at', now()->year)
+                              ->whereIn('status', ['selesai'])
                               ->count(),
-            'income' => Payment::whereYear('created_at', now()->year)
-                             ->where('status', 'verified')
-                             ->sum('amount'),
+            'income' => Rental::whereYear('created_at', now()->year)
+                             ->whereIn('status', ['selesai'])
+                             ->sum('total_price'),
             'monthlyStats' => $this->getMonthlyStats(),
         ];
 
@@ -57,9 +60,14 @@ class StatisticsController extends Controller
     {
         $data = [
             'busStats' => Bus::withCount('rentals')
-                           ->withAvg('ratings', 'rating')
-                           ->get(),
+                            ->withSum('rentals', 'total_price')
+                            ->withAvg('ratings', 'rating')
+                            ->get(),
             'usageByType' => $this->getBusUsageByType(),
+            'totalIncome' => Rental::whereIn('status', ['selesai'])
+                                  ->sum('total_price'),
+            'totalRentals' => Rental::whereIn('status', ['selesai'])
+                                   ->count()
         ];
 
         return view('owner.statistics.bus', $data);

@@ -356,7 +356,7 @@
                             <span class="nav-link-text ms-1">Statistik Penggunaan Bis</span>
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link {{ Request::is('owner/statistics/driver') ? 'active' : '' }}" href="{{ route('owner.statistics.driver') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-user"></i>
@@ -364,15 +364,15 @@
                             <span class="nav-link-text ms-1">Jam Terbang Supir</span>
                         </a>
                         
-                    </li>
-                    <li class="nav-item">
+                    </li> -->
+                    <!-- <li class="nav-item">
                         <a class="nav-link {{ Request::is('owner/statistics/fleet') ? 'active' : '' }}" href="{{ route('owner.statistics.fleet') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-trophy"></i>
                             </div>
                             <span class="nav-link-text ms-1">Ranking Armada</span>
                         </a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('owner/users*') ? 'active' : '' }}" href="{{ route('owner.users.index') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
@@ -415,14 +415,14 @@
                             <span class="nav-link-text ms-1">Pembayaran</span>
                         </a>
                     </li> -->
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a class="nav-link {{ Request::is('customer/ratings*') ? 'active' : '' }}" href="{{ route('customer.ratings') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-star"></i>
                             </div>
                             <span class="nav-link-text ms-1">Beri Rating</span>
                         </a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <a class="nav-link {{ Request::is('customer/profile*') ? 'active' : '' }}" href="{{ route('customer.profile.edit') }}">
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
