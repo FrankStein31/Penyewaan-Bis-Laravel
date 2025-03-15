@@ -103,7 +103,8 @@ class RentalController extends Controller
                 'status' => 'pending',
                 'rental_status' => 'pending',
                 'payment_status' => 'unpaid',
-                'notes' => $request->notes
+                'notes' => $request->notes,
+                'created_at' => now()
             ]);
 
             // Update status
@@ -343,7 +344,8 @@ class RentalController extends Controller
             // Update rental status
             $rental->update([
                 'rental_status' => $newStatus,
-                'status' => $this->mapRentalStatus($newStatus)
+                'status' => $this->mapRentalStatus($newStatus),
+                'updated_at' => now()
             ]);
 
             // Update related resources based on status
@@ -956,5 +958,72 @@ class RentalController extends Controller
             ], 500);
         }
     }
+
+    public function cancelUnpaid(Rental $rental)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Cek apakah sudah 24 jam sejak konfirmasi
+            $confirmedAt = Carbon::parse($rental->updated_at);
+            $deadline = $confirmedAt->copy()->addHours(24);
+            
+            if (now()->isAfter($deadline) && 
+                $rental->rental_status === 'confirmed' && 
+                $rental->payment_status !== 'paid') {
+                
+                // Update status rental
+                $rental->update([
+                    'status' => 'dibatalkan',
+                    'rental_status' => 'cancelled',
+                    'payment_status' => 'unpaid'
+                ]);
+                
+                // Kembalikan status bus
+                if ($rental->bus) {
+                    $rental->bus->update(['status' => 'tersedia']);
+                }
+                
+                // Kembalikan status driver
+                if ($rental->driver) {
+                    $rental->driver->update(['status' => 'available']);
+                }
+                
+                // Kembalikan status conductor
+                if ($rental->conductor) {
+                    $rental->conductor->update(['status' => 'available']);
+                }
+
+                // Kirim email notifikasi pembatalan
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail(
+                        $rental,
+                        'cancelled',
+                        'Pesanan Anda dibatalkan secara otomatis karena melewati batas waktu pembayaran (24 jam)'
+                    )
+                );
+                
+                DB::commit();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pesanan dibatalkan karena melewati batas waktu pembayaran'
+                ]);
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak dapat dibatalkan'
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 } 
+
 

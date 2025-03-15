@@ -21,8 +21,13 @@
                                         </button>
                                     </form>
                                 @elseif($rental->rental_status === 'confirmed' && $rental->payment_status !== 'paid')
-                                    <button class="btn btn-success btn-sm" onclick="payNow({{ $rental->id }})">
-                                        <i class="fas fa-credit-card"></i> Bayar Sekarang
+                                    <div class="mb-3 text-center">
+                                        <div id="countdown" class="text-danger">
+                                            <span class="badge bg-danger"><i class="fas fa-clock me-1"></i> Sisa waktu: <span id="timer" class="fw-bold">00:15:00</span></span>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success w-100" onclick="payNow({{ $rental->id }})">
+                                        <i class="fas fa-credit-card me-2"></i> Bayar Sekarang
                                     </button>
                                 @endif
                             </div>
@@ -596,7 +601,49 @@
         </div>
     </div>
 
-    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmedAt = new Date('{{ $rental->updated_at }}').getTime();
+            const deadline = confirmedAt + (24 * 60 * 60 * 1000); // 24 jam
+            
+            function updateTimer() {
+                const now = new Date().getTime();
+                const distance = deadline - now;
+                
+                if (distance < 0) {
+                    document.getElementById('timer').innerHTML = 'Waktu habis';
+                    cancelUnpaidRental();
+                    return;
+                }
+                
+                const hours = Math.floor(distance / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('timer').innerHTML = 
+                    hours + "j " + minutes + "m " + seconds + "d";
+            }
+            
+            function cancelUnpaidRental() {
+                fetch(`/rentals/cancel-unpaid/{{ $rental->id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    }
+                });
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        });
+    </script>
 @endsection
 
 

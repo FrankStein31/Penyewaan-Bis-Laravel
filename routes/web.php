@@ -286,3 +286,7 @@ Route::post('/customer/rentals/{rental}/pay', [RentalController::class, 'pay'])
 // Get Snap Token Midtrans
 Route::get('/customer/rentals/{rental}/get-snap-token', [RentalController::class, 'getSnapToken'])
     ->name('customer.rentals.get-snap-token');
+
+Route::post('/rentals/cancel-unpaid/{rental}', [RentalController::class, 'cancelUnpaid'])
+    ->name('rentals.cancel-unpaid');
+
