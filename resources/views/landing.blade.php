@@ -442,7 +442,7 @@
             <hr>
             <div class="row py-3">
                 <div class="col-md-6 text-center text-md-start">
-                    <p class="mb-0 text-muted">&copy; 2024 PO Bis Ekasari. All rights reserved.</p>
+                    <p class="mb-0 text-muted">&copy; 2025 PO Bis Ekasari. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">
