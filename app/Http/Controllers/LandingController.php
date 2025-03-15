@@ -11,14 +11,15 @@ class LandingController extends Controller
     public function index()
     {
         // Get top 3 most rented buses
-        $topBuses = Bus::select('buses.*', DB::raw('COUNT(rentals.id) as rental_count'))
-            ->leftJoin('rentals', 'buses.id', '=', 'rentals.bus_id')
-            ->where('rentals.status', 'selesai')
-            ->groupBy('buses.id')
-            ->orderBy('rental_count', 'desc')
-            ->limit(3)
-            ->get();
+        $buses = Bus::select('buses.*')
+            ->withCount('rentals')
+            ->where('status', 'tersedia')
+            ->where('is_active', 1)
+            ->orderBy('rentals_count', 'desc')
+            ->take(3)
+            ->get()
+            ->groupBy('type');
 
-        return view('landing', compact('topBuses'));
+        return view('landing', compact('buses'));
     }
 }

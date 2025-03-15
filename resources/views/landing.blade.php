@@ -147,60 +147,50 @@
 
         .bus-card {
             border: 0;
-            border-radius: 1rem;
+            border-radius: 1.5rem;
             overflow: hidden;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             height: 100%;
+            background: white;
         }
 
         .bus-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
         }
 
         .bus-card img {
-            height: 240px;
+            height: 250px;
+            width: 100%;
             object-fit: cover;
             transition: all 0.5s ease;
         }
 
-        .bus-card:hover img {
-            transform: scale(1.05);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
+        .badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
-            transition: all 0.3s ease;
+            border-radius: 1rem;
         }
 
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline-primary {
-            border: 2px solid var(--primary);
+        .price-tag {
+            font-size: 1.5rem;
             color: var(--primary);
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 700;
         }
 
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
+        .price-period {
+            font-size: 1rem;
+            color: #64748b;
         }
 
         .section-heading {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.75rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
         }
 
@@ -325,49 +315,33 @@
     <section class="py-5" id="fleet">
         <div class="container">
             <div class="text-center mb-5">
-                <h2 class="section-heading">Armada Kami</h2>
-                <p class="section-subheading">Pilihan bus premium untuk setiap kebutuhan perjalanan Anda</p>
+                <h2 class="section-heading">Armada Terpopuler</h2>
+                <p class="section-subheading">Bus premium pilihan terbaik untuk perjalanan Anda</p>
             </div>
             <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="bus-card">
-                        <img src="/api/placeholder/400/300" alt="Big Bus" class="img-fluid">
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="mb-0">Big Bus</h4>
-                                <span class="badge bg-primary">59 Seats</span>
+                @foreach($buses as $type => $busList)
+                    @foreach($busList as $bus)
+                    <div class="col-lg-4">
+                        <div class="bus-card">
+                            <img src="{{ asset('img/buses/' . $bus->image) }}" alt="{{ $bus->type }}" class="img-fluid">
+                            <div class="p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="mb-0 fw-bold">{{ $type == 'long' ? 'Big Bus' : 'Medium Bus' }}</h4>
+                                    <span class="badge bg-primary">{{ $bus->capacity }} Kursi</span>
+                                </div>
+                                <p class="text-muted mb-3">{{ $bus->description }}</p>
+                                <div class="d-flex align-items-baseline mb-4">
+                                    <span class="price-tag">Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}</span>
+                                    <span class="price-period ms-2">/hari</span>
+                                </div>
+                                <a href="/login" class="btn btn-primary w-100 py-3 fw-bold">
+                                    <i class="fas fa-ticket-alt me-2"></i>Pesan Sekarang
+                                </a>
                             </div>
-                            <p class="text-muted mb-4">Luxury bus dengan fasilitas lengkap untuk perjalanan jarak jauh</p>
-                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="bus-card">
-                        <img src="/api/placeholder/400/300" alt="Medium Bus" class="img-fluid">
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="mb-0">Medium Bus</h4>
-                                <span class="badge bg-primary">35 Seats</span>
-                            </div>
-                            <p class="text-muted mb-4">Bus nyaman untuk grup sedang dan perjalanan wisata</p>
-                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="bus-card">
-                        <img src="/api/placeholder/400/300" alt="Mini Bus" class="img-fluid">
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h4 class="mb-0">Mini Bus</h4>
-                                <span class="badge bg-primary">17 Seats</span>
-                            </div>
-                            <p class="text-muted mb-4">Ideal untuk grup kecil dan perjalanan keluarga</p>
-                            <a href="/register" class="btn btn-primary w-100">Pesan Sekarang</a>
-                        </div>
-                    </div>
-                </div>
+                    @endforeach
+                @endforeach
             </div>
         </div>
     </section>
@@ -431,13 +405,10 @@
                     </div>
                     <p class="text-muted">Melayani penyewaan bis untuk berbagai kebutuhan perjalanan Anda dengan armada berkualitas dan pelayanan terbaik.</p>
                     <div class="d-flex gap-3 mt-4">
-                        <a href="#" class="btn btn-light rounded-circle">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="btn btn-light rounded-circle">
+                        <a href="https://www.instagram.com/steinliejoki/" class="btn btn-light rounded-circle">
                             <i class="fab fa-instagram"></i>
                         </a>
-                        <a href="#" class="btn btn-light rounded-circle">
+                        <a href="https://wa.me/628883866931" class="btn btn-light rounded-circle">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     </div>
@@ -464,7 +435,7 @@
                     <ul class="list-unstyled">
                         <li class="mb-3 text-muted"><i class="fas fa-phone me-2"></i>(0361) 123456</li>
                         <li class="mb-3 text-muted"><i class="fas fa-envelope me-2"></i>info@ekasari.com</li>
-                        <li class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Jl. Raya No. 123, Denpasar, Bali</li>
+                        <li class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Kediri, Indonesia</li>
                     </ul>
                 </div>
             </div>
@@ -475,8 +446,8 @@
                 </div>
                 <div class="col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">
-                        <li class="list-inline-item"><a href="#" class="text-muted text-decoration-none">Terms</a></li>
-                        <li class="list-inline-item ms-3"><a href="#" class="text-muted text-decoration-none">Privacy</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted text-decoration-none">Created by</a></li>
+                        <li class="list-inline-item"><a href="https://www.instagram.com/steinliejoki/" class="text-muted text-decoration-none">Owner</a></li>
                     </ul>
                 </div>
             </div>
