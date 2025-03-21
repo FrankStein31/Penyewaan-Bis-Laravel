@@ -117,7 +117,7 @@
                                                     ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                                 }}">
                                                     {{ 
-                                                        $rental->rental_status === 'pending' ? 'Menunggu' :
+                                                        $rental->rental_status === 'pending' ? 'Menunggu Konfrimasi' :
                                                         ($rental->rental_status === 'confirmed' ? 'Dikonfirmasi' :
                                                         ($rental->rental_status === 'ongoing' ? 'Sedang Berjalan' :
                                                         ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan')))

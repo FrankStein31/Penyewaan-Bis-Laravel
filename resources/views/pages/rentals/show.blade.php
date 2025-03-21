@@ -47,7 +47,7 @@
                                     ($rental->rental_status === 'ongoing' ? 'primary' :
                                     ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                 }}">
-                                    {{ $rental->rental_status === 'pending' ? 'Menunggu' :
+                                    {{ $rental->rental_status === 'pending' ? 'Menunggu Konfirmasi' :
                                        ($rental->rental_status === 'confirmed' ? 'Dikonfirmasi' :
                                        ($rental->rental_status === 'ongoing' ? 'Sedang Berlangsung' :
                                        ($rental->rental_status === 'completed' ? 'Selesai' : 'Dibatalkan'))) }}
@@ -466,12 +466,18 @@
         .then(data => {
             snap.pay(data.snap_token, {
                 onSuccess: function(result) {
+                    // Kirim notifikasi ke server untuk mengirim email
+                    updatePaymentStatus(rentalId, 'success', result);
                     window.location.href = '/customer/payments/success';
                 },
                 onPending: function(result) {
+                    // Kirim notifikasi ke server untuk mengirim email
+                    updatePaymentStatus(rentalId, 'pending', result);
                     window.location.href = '/customer/payments/pending';
                 },
                 onError: function(result) {
+                    // Kirim notifikasi ke server untuk mengirim email
+                    updatePaymentStatus(rentalId, 'error', result);
                     window.location.href = '/customer/payments/error';
                 },
                 onClose: function() {
@@ -482,6 +488,22 @@
         .catch(error => {
             console.error('Error:', error);
             alert('Terjadi kesalahan saat memproses pembayaran');
+        });
+    }
+
+    // Fungsi untuk mengirim status pembayaran ke server
+    function updatePaymentStatus(rentalId, status, result) {
+        fetch(`/payments/midtrans-status-update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({
+                rental_id: rentalId,
+                status: status,
+                result: result
+            })
         });
     }
 
