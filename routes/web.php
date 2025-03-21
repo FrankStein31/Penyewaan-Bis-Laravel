@@ -111,7 +111,7 @@ Route::middleware(['auth'])->group(function () {
         // Payment Routes
         Route::get('/payments', [PaymentController::class, 'adminIndex'])->name('payments.index');
         Route::post('/payments/{payment}/verify', [PaymentController::class, 'verifyPayment'])->name('payments.verify');
-        Route::post('/payments/midtrans-notification', [PaymentController::class, 'verifyPayment'])->name('payments.midtrans.notification');
+        Route::post('/payments/midtrans-notification', [PaymentController::class, 'handleMidtransNotification'])->name('payments.midtrans-notification');
         
         Route::get('/midtrans', [MidtransController::class, 'index'])->name('midtrans.index');
         Route::get('/midtrans/dashboard', [MidtransController::class, 'dashboard'])->name('midtrans.dashboard');
@@ -289,4 +289,7 @@ Route::get('/customer/rentals/{rental}/get-snap-token', [RentalController::class
 
 Route::post('/rentals/cancel-unpaid/{rental}', [RentalController::class, 'cancelUnpaid'])
     ->name('rentals.cancel-unpaid');
+
+// Untuk update status pembayaran Midtrans dari client-side
+Route::post('payments/midtrans-status-update', [PaymentController::class, 'updatePaymentStatus'])->name('payments.midtrans-status-update');
 

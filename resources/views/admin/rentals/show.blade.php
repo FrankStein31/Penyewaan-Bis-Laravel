@@ -19,7 +19,7 @@
                                     @csrf
                                     @method('PUT')
                                     <select name="rental_status" id="rentalStatus" class="form-select form-select-sm bg-white" style="min-width: 140px; border-radius: 0.5rem;">
-                                        <option value="pending" {{ $rental->rental_status == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                        <option value="pending" {{ $rental->rental_status == 'pending' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
                                         <option value="confirmed" {{ $rental->rental_status == 'confirmed' ? 'selected' : '' }}>Konfirmasi</option>
                                         <option value="ongoing" {{ $rental->rental_status == 'ongoing' ? 'selected' : '' }}>Sedang Berlangsung</option>
                                         <option value="completed" {{ $rental->rental_status == 'completed' ? 'selected' : '' }}>Selesai</option>
@@ -48,7 +48,7 @@
                                             ($rental->rental_status === 'ongoing' ? 'primary' :
                                             ($rental->rental_status === 'completed' ? 'success' : 'danger'))) 
                                         }} p-2">
-                                            {{ ucfirst($rental->rental_status) === 'Pending' ? 'Menunggu' :
+                                            {{ ucfirst($rental->rental_status) === 'Pending' ? 'Menunggu Konfirmasi' :
                                                (ucfirst($rental->rental_status) === 'Confirmed' ? 'Dikonfirmasi' :
                                                (ucfirst($rental->rental_status) === 'Ongoing' ? 'Sedang Berlangsung' :
                                                (ucfirst($rental->rental_status) === 'Completed' ? 'Selesai' : 'Dibatalkan'))) }}
@@ -208,7 +208,7 @@
                                                 ($rental->payment_status === 'partial' ? 'warning' : 'success')
                                             }}">
                                                 {{ 
-                                                    $rental->payment_status === 'unpaid' ? 'Lunas atau Partial' :
+                                                    $rental->payment_status === 'unpaid' ? 'Belum Lunas' :
                                                     ($rental->payment_status === 'partial' ? 'Pembayaran Sebagian' : 'Lunas')
                                                 }}
                                             </span>

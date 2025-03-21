@@ -112,10 +112,17 @@ class RentalController extends Controller
             $driver->update(['status' => 'on_duty']);
             $conductor->update(['status' => 'on_duty']);
 
-            // Kirim email notifikasi
+            // Kirim email notifikasi ke user
             Mail::to($rental->user->email)->send(
                 new RentalStatusMail($rental, 'menunggu konfirmasi', 
                 'Pesanan Anda sedang menunggu konfirmasi dari admin.')
+            );
+            
+            // Kirim email notifikasi ke admin
+            $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+            Mail::to($adminEmails)->send(
+                new RentalStatusMail($rental, 'pesanan baru', 
+                'Ada pesanan baru dari ' . $rental->user->firstname . ' ' . $rental->user->lastname)
             );
 
             return redirect()
@@ -568,11 +575,19 @@ class RentalController extends Controller
                 'payment_status' => 'pending'
             ]);
 
-            // Kirim email notifikasi
+            // Kirim email notifikasi ke user
             Mail::to($rental->user->email)->send(
                 new RentalStatusMail($rental, 'extension_pending', 
                 "Pengajuan perpanjangan sewa untuk {$additionalDays} hari dengan biaya Rp " . 
                 number_format($additionalPrice, 0, ',', '.') . " sedang menunggu konfirmasi admin.")
+            );
+            
+            // Kirim email notifikasi ke admin
+            $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+            Mail::to($adminEmails)->send(
+                new RentalStatusMail($rental, 'extension_pending', 
+                "Ada pengajuan perpanjangan sewa dari " . $rental->user->firstname . ' ' . $rental->user->lastname .
+                " untuk {$additionalDays} hari dengan biaya Rp " . number_format($additionalPrice, 0, ',', '.'))
             );
 
             DB::commit();
@@ -770,6 +785,8 @@ class RentalController extends Controller
                 $paymentProofPath = $request->file('payment_proof')->store('payment-proofs', 'public');
             }
 
+            $rental = $extension->rental;
+
             // Buat record pembayaran
             $payment = Payment::create([
                 'rental_id' => $extension->rental_id,
@@ -789,6 +806,20 @@ class RentalController extends Controller
                     'payment_proof' => $paymentProofPath
                 ])
             ]);
+            
+            // Kirim email notifikasi ke user
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'payment_pending',
+                "Pembayaran perpanjangan sewa Anda sedang diverifikasi.")
+            );
+            
+            // Kirim email notifikasi ke admin
+            $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+            Mail::to($adminEmails)->send(
+                new RentalStatusMail($rental, 'payment_pending',
+                "Ada pembayaran perpanjangan sewa sebesar Rp " . number_format($extension->additional_price) . 
+                " dari " . $rental->user->firstname . ' ' . $rental->user->lastname . " yang menunggu verifikasi.")
+            );
 
             DB::commit();
             return back()->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
@@ -903,6 +934,20 @@ class RentalController extends Controller
             $rental->update([
                 'payment_status' => 'partial'
             ]);
+            
+            // Kirim email notifikasi ke user
+            Mail::to($rental->user->email)->send(
+                new RentalStatusMail($rental, 'payment_pending', 
+                "Pembayaran sebesar Rp " . number_format($request->amount) . " sedang menunggu verifikasi admin.")
+            );
+            
+            // Kirim email notifikasi ke admin
+            $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+            Mail::to($adminEmails)->send(
+                new RentalStatusMail($rental, 'payment_pending', 
+                "Ada pembayaran baru sebesar Rp " . number_format($request->amount) . " dari " . 
+                $rental->user->firstname . ' ' . $rental->user->lastname . " yang menunggu verifikasi.")
+            );
 
             DB::commit();
             return back()->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');

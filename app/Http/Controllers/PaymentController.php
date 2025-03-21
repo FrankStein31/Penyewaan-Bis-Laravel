@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Mail\RentalStatusMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\RentalExtension;
+use App\Models\User;
 
 class PaymentController extends Controller
 {
@@ -47,10 +48,16 @@ class PaymentController extends Controller
                     'notes' => $request->notes
                 ]);
 
-                // Kirim email notifikasi
+                // Kirim email notifikasi ke user
                 $additionalMessage = "Pembayaran sebesar Rp " . number_format($request->amount) . " sedang menunggu verifikasi admin.";
                 Mail::to($rental->user->email)
                     ->send(new RentalStatusMail($rental, 'payment_pending', $additionalMessage));
+                
+                // Kirim email notifikasi ke admin
+                $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+                Mail::to($adminEmails)->send(
+                    new RentalStatusMail($rental, 'payment_pending', "Ada pembayaran baru sebesar Rp " . number_format($request->amount) . " yang menunggu verifikasi.")
+                );
 
                 return redirect()->route('rentals.index')
                     ->with('success', 'Bukti pembayaran berhasil dikirim dan menunggu verifikasi admin');
@@ -267,11 +274,19 @@ class PaymentController extends Controller
                     'paid_at' => now()
                 ]);
 
-                // Kirim email notifikasi
+                // Kirim email notifikasi ke user
                 Mail::to($rental->user->email)->send(
                     new RentalStatusMail($rental, 'extension_paid',
                     "Pembayaran perpanjangan sewa telah diverifikasi. Masa sewa diperpanjang hingga " . 
                     $extension->end_date->format('d/m/Y'))
+                );
+                
+                // Kirim email notifikasi ke admin
+                $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+                Mail::to($adminEmails)->send(
+                    new RentalStatusMail($rental, 'extension_paid',
+                    "Pembayaran perpanjangan dari " . $rental->user->firstname . ' ' . $rental->user->lastname . 
+                    " telah diverifikasi. Masa sewa diperpanjang hingga " . $extension->end_date->format('d/m/Y'))
                 );
             } else {
                 // Pembayaran rental normal
@@ -288,10 +303,18 @@ class PaymentController extends Controller
                 }
                 $rental->save();
 
-                // Kirim email notifikasi pembayaran normal
+                // Kirim email notifikasi pembayaran normal ke user
                 Mail::to($rental->user->email)->send(
                     new RentalStatusMail($rental, 'payment_success', 
                     "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah diverifikasi.")
+                );
+                
+                // Kirim email notifikasi ke admin
+                $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+                Mail::to($adminEmails)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran dari " . $rental->user->firstname . ' ' . $rental->user->lastname . 
+                    " sebesar Rp " . number_format($payment->amount) . " telah diverifikasi.")
                 );
             }
 
@@ -454,6 +477,182 @@ class PaymentController extends Controller
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    // Tambahkan method ini untuk menangani notifikasi dari Midtrans
+    public function handleMidtransNotification(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+
+            $notif = new \Midtrans\Notification();
+            
+            $transaction = $notif->transaction_status;
+            $type = $notif->payment_type;
+            $order_id = $notif->order_id;
+            $fraud = $notif->fraud_status;
+            
+            \Log::info('Midtrans Notification', ['order_id' => $order_id, 'status' => $transaction]);
+            
+            // Cari payment berdasarkan order_id (payment_code)
+            $payment = Payment::where('payment_code', $order_id)->first();
+            
+            if (!$payment) {
+                \Log::error('Payment not found: ' . $order_id);
+                return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+            }
+            
+            $rental = Rental::find($payment->rental_id);
+            
+            if ($transaction == 'capture') {
+                // Untuk kartu kredit
+                if ($type == 'credit_card'){
+                    if($fraud == 'challenge'){
+                        $payment->status = 'challenge';
+                    } else {
+                        $payment->status = 'success';
+                    }
+                }
+            } 
+            elseif ($transaction == 'settlement') {
+                // Pembayaran berhasil
+                $payment->status = 'success';
+                
+                // Update status pembayaran rental
+                $totalPaid = $rental->payments()
+                    ->where('status', 'success')
+                    ->sum('amount');
+                
+                if ($totalPaid >= $rental->total_price) {
+                    $rental->payment_status = 'paid';
+                } else {
+                    $rental->payment_status = 'partially_paid';
+                }
+                $rental->save();
+                
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah berhasil melalui " . ucfirst($type))
+                );
+                
+                // Kirim email notifikasi ke admin
+                $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+                Mail::to($adminEmails)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran dari " . $rental->user->firstname . ' ' . $rental->user->lastname . 
+                    " sebesar Rp " . number_format($payment->amount) . " telah berhasil melalui " . ucfirst($type))
+                );
+            } 
+            elseif($transaction == 'pending'){
+                // Pembayaran pending
+                $payment->status = 'pending';
+                
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_pending', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " sedang menunggu pembayaran Anda melalui " . ucfirst($type))
+                );
+            } 
+            elseif ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
+                // Pembayaran ditolak/batal/expire
+                $payment->status = 'failed';
+                
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_failed', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " gagal/dibatalkan. Status: " . ucfirst($transaction))
+                );
+            }
+            
+            $payment->save();
+            DB::commit();
+            
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Midtrans Notification Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updatePaymentStatus(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            
+            $rentalId = $request->rental_id;
+            $status = $request->status;
+            $result = $request->result;
+            
+            // Cari rental dan payment terkait
+            $rental = Rental::findOrFail($rentalId);
+            $payment = Payment::where('rental_id', $rentalId)
+                             ->where('payment_method', 'midtrans')
+                             ->where('status', 'pending')
+                             ->latest()
+                             ->first();
+            
+            if (!$payment) {
+                return response()->json(['status' => 'error', 'message' => 'Payment not found'], 404);
+            }
+            
+            // Update status payment berdasarkan status dari Midtrans
+            if ($status === 'success') {
+                $payment->status = 'success';
+                
+                // Update status pembayaran rental
+                $totalPaid = $rental->payments()
+                    ->where('status', 'success')
+                    ->sum('amount');
+                
+                if ($totalPaid >= $rental->total_price) {
+                    $rental->payment_status = 'paid';
+                } else {
+                    $rental->payment_status = 'partially_paid';
+                }
+                $rental->save();
+                
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " telah berhasil")
+                );
+                
+                // Kirim email notifikasi ke admin
+                $adminEmails = User::where('role', 'admin')->where('is_active', 1)->pluck('email')->toArray();
+                Mail::to($adminEmails)->send(
+                    new RentalStatusMail($rental, 'payment_success', 
+                    "Pembayaran dari " . $rental->user->firstname . ' ' . $rental->user->lastname . 
+                    " sebesar Rp " . number_format($payment->amount) . " telah berhasil")
+                );
+            } 
+            elseif ($status === 'pending') {
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_pending', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " sedang dalam proses")
+                );
+            } 
+            elseif ($status === 'error') {
+                $payment->status = 'failed';
+                
+                // Kirim email notifikasi ke user
+                Mail::to($rental->user->email)->send(
+                    new RentalStatusMail($rental, 'payment_failed', 
+                    "Pembayaran sebesar Rp " . number_format($payment->amount) . " gagal. Silakan coba lagi.")
+                );
+            }
+            
+            $payment->save();
+            DB::commit();
+            
+            return response()->json(['status' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Midtrans Status Update Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

@@ -58,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($latestRentals->where('status', '!=', 'selesai') as $rental)
+                        @forelse($latestRentals->where('status', '!=', 'selesai')->where('status', '!=', 'dibatalkan') as $rental)
                         <tr>
                             <td>
                                 <p class="text-sm font-weight-bold mb-0 px-3">{{ $rental->rental_code }}</p>
