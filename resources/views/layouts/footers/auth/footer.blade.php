@@ -9,10 +9,15 @@
                             document.write(new Date().getFullYear())
                         </script>
                         made with <i class="fa fa-heart text-danger mx-1"></i> by
-                        <a href="https://www.instagram.com/steinliejoki?igsh=ODRkeGpuN3U3MGhp" 
+                        <!-- <a href="https://www.instagram.com/steinliejoki?igsh=ODRkeGpuN3U3MGhp" 
                            class="font-weight-bold text-primary" 
                            target="_blank">
                             Owner
+                        </a> -->
+                        <a href="" 
+                           class="font-weight-bold text-primary" 
+                           target="_blank">
+                            Masrupin
                         </a>
                     </div>
                 </div>
