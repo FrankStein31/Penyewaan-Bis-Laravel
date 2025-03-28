@@ -404,14 +404,14 @@
                         <h4 class="mb-0">PO Bis Ekasari</h4>
                     </div>
                     <p class="text-muted">Melayani penyewaan bis untuk berbagai kebutuhan perjalanan Anda dengan armada berkualitas dan pelayanan terbaik.</p>
-                    <div class="d-flex gap-3 mt-4">
+                    <!-- <div class="d-flex gap-3 mt-4">
                         <a href="https://www.instagram.com/steinliejoki/" class="btn btn-light rounded-circle">
                             <i class="fab fa-instagram"></i>
                         </a>
                         <a href="https://wa.me/628883866931" class="btn btn-light rounded-circle">
                             <i class="fab fa-whatsapp"></i>
                         </a>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="col-lg-4">
                     <h5 class="mb-4">Layanan</h5>
@@ -447,7 +447,7 @@
                 <div class="col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">
                         <li class="list-inline-item"><a href="#" class="text-muted text-decoration-none">Created by</a></li>
-                        <li class="list-inline-item"><a href="https://www.instagram.com/steinliejoki/" class="text-muted text-decoration-none">Owner</a></li>
+                        <li class="list-inline-item"><a href="https://www.instagram.com/steinliejoki/" class="text-muted text-decoration-none">Masrupin</a></li>
                     </ul>
                 </div>
             </div>
