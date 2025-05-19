@@ -27,13 +27,13 @@ class DashboardController extends Controller
             
             // Pendapatan
             'pendapatanHariIni' => Payment::whereDate('created_at', today())
-                                        ->where('status', 'verified')
+                                        ->where('status', 'success')
                                         ->sum('amount'),
             'pendapatanBulan' => Payment::whereMonth('created_at', now()->month)
-                                      ->where('status', 'verified')
+                                      ->where('status', 'success')
                                       ->sum('amount'),
             'pendapatanTahun' => Payment::whereYear('created_at', now()->year)
-                                      ->where('status', 'verified')
+                                      ->where('status', 'success')
                                       ->sum('amount'),
             
             // Statistik per Armada
@@ -217,7 +217,7 @@ class DashboardController extends Controller
             $query->withCount('rentals')
                   ->withSum(['rentals' => function($query) {
                       $query->join('payments', 'rentals.id', '=', 'payments.rental_id')
-                            ->where('payments.status', 'verified')
+                            ->where('payments.status', 'success')
                             ->select(DB::raw('COALESCE(SUM(payments.amount), 0)'));
                   }], 'payments.amount as revenue');
         }])
