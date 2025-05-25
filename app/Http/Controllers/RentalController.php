@@ -295,18 +295,40 @@ class RentalController extends Controller
     public function adminIndex()
     {
         try {
-            \Log::info('Accessing admin rental index');  // Log akses
+            \Log::info('Accessing admin rental index');
             
-            $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])
-                            ->latest()
-                            ->get();
+            $query = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments']);
+
+            // Filter berdasarkan nama pelanggan
+            if (request('search')) {
+                $search = request('search');
+                $query->whereHas('user', function($q) use ($search) {
+                    $q->where('firstname', 'like', "%{$search}%")
+                      ->orWhere('lastname', 'like', "%{$search}%");
+                });
+            }
+
+            // Filter berdasarkan tipe bus
+            if (request('bus_type')) {
+                $query->whereHas('bus', function($q) {
+                    $q->where('type', request('bus_type'));
+                });
+            }
+
+            // Filter berdasarkan supir
+            if (request('driver')) {
+                $query->where('driver_id', request('driver'));
+            }
             
-            \Log::info('Successfully retrieved rentals: ' . $rentals->count());  // Log jumlah data
+            $rentals = $query->latest()->get();
+            $drivers = \App\Models\Driver::where('is_active', true)->get();
             
-            return view('admin.rentals.index', compact('rentals'));
+            \Log::info('Successfully retrieved rentals: ' . $rentals->count());
+            
+            return view('admin.rentals.index', compact('rentals', 'drivers'));
         } catch (\Exception $e) {
             \Log::error('Admin Rental Index Error: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());  // Log stack trace
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
             return back()->with('error', 'Terjadi kesalahan saat memuat data rental');
         }
     }
@@ -1081,11 +1103,33 @@ class RentalController extends Controller
 
     public function ownerIndex()
     {
-        $rentals = Rental::with(['user', 'bus', 'driver', 'payments'])
-                        ->latest()
-                        ->paginate(10);
+        $query = Rental::with(['user', 'bus', 'driver', 'payments']);
 
-        return view('owner.rentals.index', compact('rentals'));
+        // Filter berdasarkan nama pelanggan
+        if (request('search')) {
+            $search = request('search');
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                  ->orWhere('lastname', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter berdasarkan tipe bus
+        if (request('bus_type')) {
+            $query->whereHas('bus', function($q) {
+                $q->where('type', request('bus_type'));
+            });
+        }
+
+        // Filter berdasarkan supir
+        if (request('driver')) {
+            $query->where('driver_id', request('driver'));
+        }
+
+        $rentals = $query->latest()->paginate(10);
+        $drivers = \App\Models\Driver::where('is_active', true)->get();
+
+        return view('owner.rentals.index', compact('rentals', 'drivers'));
     }
 } 
 

@@ -17,7 +17,35 @@
 
                 <div class="card mb-4">
                     <div class="card-header pb-0">
-                        <h6>Data Penyewaan</h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6>Data Penyewaan</h6>
+                            <div class="d-flex gap-2">
+                                <form action="{{ route('owner.rentals.index') }}" method="GET" class="d-flex gap-2">
+                                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Cari nama pelanggan..." value="{{ request('search') }}">
+                                    <select name="bus_type" class="form-select form-select-sm" style="width: 250px;">
+                                        <option value="">Semua Tipe Bus</option>
+                                        <option value="long" {{ request('bus_type') == 'long' ? 'selected' : '' }}>Long (63)</option>
+                                        <option value="short" {{ request('bus_type') == 'short' ? 'selected' : '' }}>Short (33)</option>
+                                    </select>
+                                    <select name="driver" class="form-select form-select-sm" style="width: 250px;">
+                                        <option value="">Semua Supir</option>
+                                        @foreach($drivers as $driver)
+                                            <option value="{{ $driver->id }}" {{ request('driver') == $driver->id ? 'selected' : '' }}>
+                                                {{ $driver->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        Cari
+                                    </button>
+                                    @if(request()->has('search') || request()->has('bus_type') || request()->has('driver'))
+                                        <a href="{{ route('owner.rentals.index') }}" class="btn btn-sm btn-danger">
+                                            Reset
+                                        </a>
+                                    @endif
+                                </form>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -187,4 +215,16 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
-@endsection 
+@endsection
+
+@push('js')
+<script>
+    $(document).ready(function() {
+        // Inisialisasi select2 untuk dropdown supir
+        $('.form-select').select2({
+            theme: 'bootstrap-5',
+            width: '100%'
+        });
+    });
+</script>
+@endpush 
