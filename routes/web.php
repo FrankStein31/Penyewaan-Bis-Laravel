@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     // Owner Routes
-    Route::prefix('owner')->name('owner.')->group(function () {
+    Route::prefix('owner')->name('owner.')->middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'ownerDashboard'])->name('dashboard');
         
         // Statistics Routes
@@ -70,13 +70,14 @@ Route::middleware(['auth'])->group(function () {
 
         // Rental Routes
         Route::get('/rentals', [RentalController::class, 'ownerIndex'])->name('rentals.index');
+        Route::get('/rentals/export', [RentalController::class, 'ownerExport'])->name('rentals.export');
         Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
 
         Route::resource('users', UserController::class);
     });
 
     // Admin Routes
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
         
         // Extension management routes - letakkan sebelum resource routes
@@ -99,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('customers', CustomerController::class);
         
         // Transaction Management
+        Route::get('/rentals/export', [RentalController::class, 'adminExport'])->name('rentals.export');
         Route::resource('rentals', RentalController::class);
         Route::resource('payments', PaymentController::class);
         

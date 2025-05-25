@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RentalStatusMail;
 use App\Models\RentalExtension;
+use App\Exports\RentalsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RentalController extends Controller
 {
@@ -1130,6 +1132,128 @@ class RentalController extends Controller
         $drivers = \App\Models\Driver::where('is_active', true)->get();
 
         return view('owner.rentals.index', compact('rentals', 'drivers'));
+    }
+
+    public function adminExport()
+    {
+        $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])->latest()->get();
+        
+        // Set header untuk download excel
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=data-penyewaan-'.date('Y-m-d').'.xls');
+        
+        // Buat header tabel
+        echo "
+        <table border='1'>
+            <tr>
+                <th>Kode Booking</th>
+                <th>Tanggal</th>
+                <th>Pelanggan</th>
+                <th>Email</th>
+                <th>No HP</th>
+                <th>Bus</th>
+                <th>Plat Nomor</th>
+                <th>Supir</th>
+                <th>Kondektur</th>
+                <th>Lokasi Jemput</th>
+                <th>Tujuan</th>
+                <th>Tanggal Mulai</th>
+                <th>Tanggal Selesai</th>
+                <th>Total Hari</th>
+                <th>Total Harga</th>
+                <th>Status</th>
+                <th>Pembayaran</th>
+            </tr>
+        ";
+        
+        // Isi data
+        foreach($rentals as $rental) {
+            echo "
+            <tr>
+                <td>".$rental->rental_code."</td>
+                <td>".$rental->created_at->format('d/m/Y H:i')."</td>
+                <td>".$rental->user->firstname.' '.$rental->user->lastname."</td>
+                <td>".$rental->user->email."</td>
+                <td>".$rental->user->phone."</td>
+                <td>".($rental->bus->type == 'long' ? 'Long (63)' : 'Short (33)')."</td>
+                <td>".$rental->bus->plate_number."</td>
+                <td>".($rental->driver->name ?? '-')."</td>
+                <td>".($rental->conductor->name ?? '-')."</td>
+                <td>".$rental->pickup_location."</td>
+                <td>".$rental->destination."</td>
+                <td>".$rental->start_date->format('d/m/Y')."</td>
+                <td>".$rental->end_date->format('d/m/Y')."</td>
+                <td>".$rental->total_days."</td>
+                <td>".$rental->total_price."</td>
+                <td>".$rental->rental_status."</td>
+                <td>".$rental->payment_status."</td>
+            </tr>
+            ";
+        }
+        
+        echo "</table>";
+        exit;
+    }
+
+    public function ownerExport()
+    {
+        $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])->latest()->get();
+        
+        // Set header untuk download excel
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename=data-penyewaan-'.date('Y-m-d').'.xls');
+        
+        // Buat header tabel
+        echo "
+        <table border='1'>
+            <tr>
+                <th>Kode Booking</th>
+                <th>Tanggal</th>
+                <th>Pelanggan</th>
+                <th>Email</th>
+                <th>No HP</th>
+                <th>Bus</th>
+                <th>Plat Nomor</th>
+                <th>Supir</th>
+                <th>Kondektur</th>
+                <th>Lokasi Jemput</th>
+                <th>Tujuan</th>
+                <th>Tanggal Mulai</th>
+                <th>Tanggal Selesai</th>
+                <th>Total Hari</th>
+                <th>Total Harga</th>
+                <th>Status</th>
+                <th>Pembayaran</th>
+            </tr>
+        ";
+        
+        // Isi data
+        foreach($rentals as $rental) {
+            echo "
+            <tr>
+                <td>".$rental->rental_code."</td>
+                <td>".$rental->created_at->format('d/m/Y H:i')."</td>
+                <td>".$rental->user->firstname.' '.$rental->user->lastname."</td>
+                <td>".$rental->user->email."</td>
+                <td>".$rental->user->phone."</td>
+                <td>".($rental->bus->type == 'long' ? 'Long (63)' : 'Short (33)')."</td>
+                <td>".$rental->bus->plate_number."</td>
+                <td>".($rental->driver->name ?? '-')."</td>
+                <td>".($rental->conductor->name ?? '-')."</td>
+                <td>".$rental->pickup_location."</td>
+                <td>".$rental->destination."</td>
+                <td>".$rental->start_date->format('d/m/Y')."</td>
+                <td>".$rental->end_date->format('d/m/Y')."</td>
+                <td>".$rental->total_days."</td>
+                <td>".$rental->total_price."</td>
+                <td>".$rental->rental_status."</td>
+                <td>".$rental->payment_status."</td>
+            </tr>
+            ";
+        }
+        
+        echo "</table>";
+        exit;
     }
 } 
 

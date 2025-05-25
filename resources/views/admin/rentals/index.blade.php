@@ -20,6 +20,9 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <h6>Data Penyewaan</h6>
                             <div class="d-flex gap-2">
+                                <a href="{{ route('admin.rentals.export') }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-file-excel me-2"></i>Export Excel
+                                </a>
                                 <form action="{{ route('admin.rentals.index') }}" method="GET" class="d-flex gap-2">
                                     <input type="text" name="search" class="form-control form-control-sm" placeholder="Cari nama pelanggan..." value="{{ request('search') }}">
                                     <select name="bus_type" class="form-select form-select-sm" style="width: 250px;">
