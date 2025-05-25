@@ -68,6 +68,10 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/fleet', [StatisticsController::class, 'fleetRanking'])->name('fleet');
         });
 
+        // Rental Routes
+        Route::get('/rentals', [RentalController::class, 'ownerIndex'])->name('rentals.index');
+        Route::get('/rentals/{rental}', [RentalController::class, 'show'])->name('rentals.show');
+
         Route::resource('users', UserController::class);
     });
 

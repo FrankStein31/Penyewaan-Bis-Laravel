@@ -149,12 +149,21 @@ class RentalController extends Controller
 
     public function show(Rental $rental)
     {
-        if ($rental->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403);
+        // Cek apakah user adalah owner atau pemilik rental
+        if (auth()->user()->role === 'owner' || $rental->user_id === auth()->id() || auth()->user()->role === 'admin') {
+            $rental->load(['bus.armada', 'driver', 'conductor', 'payments', 'extensions']);
+            
+            // Jika user adalah owner atau admin, gunakan view admin
+            if (auth()->user()->role === 'owner') {
+                return view('owner.rentals.show', compact('rental'));
+            } else if (auth()->user()->role === 'admin') {
+                return view('admin.rentals.show', compact('rental'));
+            }
+            
+            return view('pages.rentals.show', compact('rental'));
         }
 
-        $rental->load(['bus.armada', 'driver', 'conductor', 'payments']);
-        return view('pages.rentals.show', compact('rental'));
+        abort(403, 'Unauthorized action.');
     }
 
     public function cancel(Rental $rental)
@@ -1068,6 +1077,15 @@ class RentalController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function ownerIndex()
+    {
+        $rentals = Rental::with(['user', 'bus', 'driver', 'payments'])
+                        ->latest()
+                        ->paginate(10);
+
+        return view('owner.rentals.index', compact('rentals'));
     }
 } 
 

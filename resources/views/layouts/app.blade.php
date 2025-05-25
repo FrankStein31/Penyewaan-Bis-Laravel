@@ -262,7 +262,7 @@
                             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                                 <i class="fas fa-users"></i>
                             </div>
-                            <span class="nav-link-text ms-1">Data Pelanggan</span>
+                            <span class="nav-link-text ms-1">Data Customer</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -379,6 +379,14 @@
                                 <i class="fas fa-cogs"></i>
                             </div>
                             <span class="nav-link-text ms-1">Manajemen User</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ Request::is('owner/rentals*') ? 'active' : '' }}" href="{{ route('owner.rentals.index') }}">
+                            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <span class="nav-link-text ms-1">Transaksi Penyewaan</span>
                         </a>
                     </li>
                     
