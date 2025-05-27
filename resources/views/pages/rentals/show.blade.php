@@ -40,7 +40,9 @@
                                 <h6>{{ $rental->rental_code }}</h6>
                             </div>
                             <div class="col-md-6 text-end">
-                                <p class="text-sm mb-0">Status Pesanan:</p>
+                                <p class="text-sm mb-0">Tanggal Pemesanan:</p>
+                                <h6>{{ $rental->created_at->format('d/m/Y H:i') }}</h6>
+                                <p class="text-sm mb-0 mt-2">Status Pesanan:</p>
                                 <span class="badge bg-{{ 
                                     $rental->rental_status === 'pending' ? 'warning' : 
                                     ($rental->rental_status === 'confirmed' ? 'info' :

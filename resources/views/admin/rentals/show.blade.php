@@ -11,6 +11,7 @@
                             <div>
                                 <h5 class="mb-0 text-primary fw-bold">Detail Penyewaan</h5>
                                 <p class="text-sm mb-0">Kode Sewa: {{ $rental->rental_code }}</p>
+                                <p class="text-sm mb-0">Tanggal Pemesanan: {{ $rental->created_at->format('d/m/Y H:i') }}</p>
                             </div>
                             <div>
                                 @if($rental->rental_status !== 'completed' && $rental->rental_status !== 'cancelled')

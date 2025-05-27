@@ -7,7 +7,11 @@
             <div class="card mb-4">
                 <div class="card-header pb-0">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h6>Detail Penyewaan</h6>
+                        <div>
+                            <h6>Detail Penyewaan</h6>
+                            <p class="text-sm mb-0">Kode Booking: {{ $rental->rental_code }}</p>
+                            <p class="text-sm mb-0">Tanggal Pemesanan: {{ $rental->created_at->format('d/m/Y H:i') }}</p>
+                        </div>
                         <a href="{{ route('owner.rentals.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left me-2"></i>Kembali
                         </a>
