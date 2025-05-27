@@ -80,19 +80,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Status</label>
-                                        <select name="status" class="form-control @error('status') is-invalid @enderror" required>
-                                            <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
-                                            <option value="disewa" {{ old('status') == 'disewa' ? 'selected' : '' }}>Disewa</option>
-                                            <option value="maintenance" {{ old('status') == 'maintenance' ? 'selected' : '' }}>Maintenance</option>
-                                        </select>
-                                        @error('status')
-                                            <span class="invalid-feedback">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
+                                <input type="hidden" name="status" value="tersedia">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Foto Bus</label>
@@ -102,12 +90,7 @@
                                         @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-12">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" name="is_active" id="is_active" checked>
-                                        <label class="form-check-label" for="is_active">Status Aktif</label>
-                                    </div>
-                                </div>
+                                <input type="hidden" name="is_active" value="1">
                             </div>
                             <div class="d-flex justify-content-end mt-4">
                                 <a href="{{ route('buses.index') }}" class="btn btn-light m-0">Kembali</a>
