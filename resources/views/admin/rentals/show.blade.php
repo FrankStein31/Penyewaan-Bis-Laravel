@@ -13,6 +13,7 @@
                                 <p class="text-sm mb-0">Kode Sewa: {{ $rental->rental_code }}</p>
                             </div>
                             <div>
+                                @if($rental->rental_status !== 'completed' && $rental->rental_status !== 'cancelled')
                                 <form id="updateStatusForm" action="{{ route('admin.rentals.update-status', $rental) }}" 
                                     method="POST" 
                                     class="d-flex align-items-center gap-3">
@@ -32,6 +33,7 @@
                                         Perbarui Status
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </div>
                     </div>
