@@ -21,11 +21,26 @@ class RentalController extends Controller
 {
     public function index()
     {
-        $rentals = Rental::where('user_id', auth()->id())
-                        ->with(['bus', 'driver', 'conductor', 'payments'])
-                        ->orderBy('created_at', 'desc')
-                        ->get();
-                          
+        $query = Rental::with(['bus', 'driver'])
+            ->where('user_id', auth()->id())
+            ->latest();
+
+        if (request('search')) {
+            $query->where('rental_code', 'like', '%' . request('search') . '%');
+        }
+
+        if (request('bus_type')) {
+            $query->whereHas('bus', function ($q) {
+                $q->where('type', request('bus_type'));
+            });
+        }
+
+        if (request('status')) {
+            $query->where('rental_status', request('status'));
+        }
+
+        $rentals = $query->paginate(10);
+
         return view('pages.rentals.index', compact('rentals'));
     }
 

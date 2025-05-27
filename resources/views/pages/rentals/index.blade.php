@@ -32,6 +32,32 @@
                                 <h6 class="mb-0 font-weight-bold text-lg">Daftar Pesanan Saya</h6>
                                 <p class="text-sm text-muted mb-0">Kelola semua pesanan sewa bus Anda di sini</p>
                             </div>
+                            <div class="col">
+                                <form action="{{ route('customer.rentals.index') }}" method="GET" class="d-flex gap-2">
+                                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Cari kode booking..." value="{{ request('search') }}">
+                                    <select name="bus_type" class="form-select form-select-sm">
+                                        <option value="">Semua Tipe Bus</option>
+                                        <option value="long" {{ request('bus_type') == 'long' ? 'selected' : '' }}>Long (63)</option>
+                                        <option value="short" {{ request('bus_type') == 'short' ? 'selected' : '' }}>Short (33)</option>
+                                    </select>
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="">Semua Status</option>
+                                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Konfirmasi</option>
+                                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Dikonfirmasi</option>
+                                        <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Sedang Berjalan</option>
+                                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        Cari
+                                    </button>
+                                    @if(request()->has('search') || request()->has('bus_type') || request()->has('status'))
+                                        <a href="{{ route('customer.rentals.index') }}" class="btn btn-sm btn-danger">
+                                            Reset
+                                        </a>
+                                    @endif
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body px-0 pt-3 pb-2">
