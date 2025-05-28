@@ -110,6 +110,10 @@
                                 <label class="form-control-label">Tanggal Sewa</label>
                                 <p class="font-weight-bold">{{ $rental->start_date->format('d/m/Y') }} - {{ $rental->end_date->format('d/m/Y') }}</p>
                                 <p class="text-sm">({{ $rental->total_days }} hari)</p>
+                                <p class="text-sm mb-0">Waktu Ambil Armada:</p>
+                                <p class="font-weight-bold">{{ $rental->start_date->subHours(2)->format('d/m/Y H:i') }}</p>
+                                <p class="text-sm mb-0">Waktu Kembali Armada:</p>
+                                <p class="font-weight-bold">{{ $rental->end_date->addHours(2)->format('d/m/Y H:i') }}</p>
                             </div>
                             <div class="form-group">
                                 <label class="form-control-label">Total Harga</label>

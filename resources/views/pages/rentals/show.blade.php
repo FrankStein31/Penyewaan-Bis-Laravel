@@ -74,10 +74,14 @@
                             <div class="col-md-6">
                                 <p class="text-sm mb-0">Tanggal Mulai:</p>
                                 <h6>{{ \Carbon\Carbon::parse($rental->start_date)->format('d M Y H:i') }}</h6>
+                                <p class="text-sm mb-0 mt-2">Waktu Ambil Armada:</p>
+                                <h6>{{ \Carbon\Carbon::parse($rental->start_date)->subHours(2)->format('d M Y H:i') }}</h6>
                             </div>
                             <div class="col-md-6">
                                 <p class="text-sm mb-0">Tanggal Selesai:</p>
                                 <h6>{{ \Carbon\Carbon::parse($rental->end_date)->format('d M Y H:i') }}</h6>
+                                <p class="text-sm mb-0 mt-2">Waktu Kembali Armada:</p>
+                                <h6>{{ \Carbon\Carbon::parse($rental->end_date)->addHours(2)->format('d M Y H:i') }}</h6>
                             </div>
                         </div>
                         <hr class="horizontal dark">

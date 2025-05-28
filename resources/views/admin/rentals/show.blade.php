@@ -184,6 +184,10 @@
                                             <small class="text-muted d-block">Periode Sewa</small>
                                             <span>{{ date('d/m/Y', strtotime($rental->start_date)) }} - {{ date('d/m/Y', strtotime($rental->end_date)) }}</span>
                                             <small class="text-muted d-block">Total: {{ $rental->total_days }} hari</small>
+                                            <small class="text-muted d-block mt-2">Waktu Ambil Armada:</small>
+                                            <span>{{ \Carbon\Carbon::parse($rental->start_date)->subHours(2)->format('d/m/Y H:i') }}</span>
+                                            <small class="text-muted d-block mt-2">Waktu Kembali Armada:</small>
+                                            <span>{{ \Carbon\Carbon::parse($rental->end_date)->addHours(2)->format('d/m/Y H:i') }}</span>
                                         </div>
                                     </div>
                                 </div>
