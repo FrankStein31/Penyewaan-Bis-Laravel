@@ -80,26 +80,68 @@
                     @forelse($buses as $bus)
                         <div class="col-md-4 mb-4">
                             <div class="card">
-                                @if($bus->image)
-                                    <img src="{{ asset('img/buses/' . $bus->image) }}" class="card-img-top" alt="Bus Image">
-                                @else
-                                    <img src="{{ asset('img/bus-placeholder.png') }}" class="card-img-top" alt="Bus Image">
-                                @endif
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ $bus->plate_number }}</h5>
-                                    <p class="card-text">
+                                <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
+                                    @if($bus->image)
+                                        <img src="{{ asset('img/buses/' . $bus->image) }}" 
+                                             class="img-fluid border-radius-lg" alt="Bus Image">
+                                    @else
+                                        <img src="{{ asset('img/bus-placeholder.png') }}" 
+                                             class="img-fluid border-radius-lg" alt="Bus Image">
+                                    @endif
+                                </div>
+
+                                <div class="card-body pt-2">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h5 class="mb-0">{{ $bus->plate_number }}</h5>
+                                        <span class="badge badge-sm {{ 
+                                            $bus->status == 'tersedia' ? 'bg-gradient-success' : 
+                                            ($bus->status == 'disewa' ? 'bg-gradient-warning' : 'bg-gradient-danger') 
+                                        }}">
+                                            {{ ucfirst($bus->status) }}
+                                        </span>
+                                    </div>
+                                    <p class="mb-2">
                                         <span class="badge bg-primary">{{ ucfirst($bus->type) }}</span>
                                         <span class="badge bg-info">{{ $bus->capacity }} Kursi</span>
                                         <span class="badge bg-secondary">{{ $bus->armada->nama_armada }}</span>
                                     </p>
-                                    <p class="card-text">{{ Str::limit($bus->description, 100) }}</p>
-                                    <p class="card-text">
-                                        <strong>Harga per Hari:</strong> 
-                                        Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}
-                                    </p>
-                                    <a href="{{ route('buses.book', $bus) }}" class="btn btn-primary">
-                                        <i class="fas fa-book"></i> Pesan Sekarang
-                                    </a>
+                                    <p class="text-sm mb-2">{{ Str::limit($bus->description, 100) }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-sm">Harga per Hari:</span>
+                                        <span class="font-weight-bold">
+                                            Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+
+                                    @if($bus->rentals->isNotEmpty())
+                                    <div class="alert alert-warning py-2 mb-2">
+                                        <p class="text-sm mb-0"><strong>Jadwal Terpesan:</strong></p>
+                                        <ul class="mb-0 ps-3">
+                                            @foreach($bus->rentals->sortBy('start_date') as $rental)
+                                            <li class="text-sm">
+                                                {{ $rental->start_date->format('d M Y H:i') }} - 
+                                                {{ $rental->end_date->format('d M Y H:i') }}
+                                                <span class="badge badge-sm {{ 
+                                                    $rental->rental_status == 'confirmed' ? 'bg-gradient-info' : 
+                                                    ($rental->rental_status == 'ongoing' ? 'bg-gradient-primary' : 'bg-gradient-secondary') 
+                                                }}">
+                                                    {{ 
+                                                        $rental->rental_status == 'confirmed' ? 'Dikonfirmasi' : 
+                                                        ($rental->rental_status == 'ongoing' ? 'Sedang Berlangsung' : ucfirst($rental->rental_status))
+                                                    }}
+                                                </span>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                    @endif
+
+                                    <div class="text-center">
+                                        <a href="{{ route('buses.book', $bus) }}" 
+                                           class="btn bg-gradient-primary w-100">
+                                            <i class="fas fa-calendar-plus me-2"></i>Pesan Sekarang
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -151,6 +151,17 @@
                                 Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}
                             </span>
                         </div>
+
+                        @if($upcomingBookings->isNotEmpty())
+                        <div class="alert alert-warning mt-3">
+                            <h6 class="text-warning mb-2">Jadwal Pemesanan:</h6>
+                            <ul class="mb-0">
+                                @foreach($upcomingBookings as $booking)
+                                <li>{{ $booking->start_date->format('d M Y H:i') }} - {{ $booking->end_date->format('d M Y H:i') }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -169,12 +180,45 @@
             const driverSelect = document.querySelector('select[name="driver_id"]');
             const conductorSelect = document.querySelector('select[name="conductor_id"]');
 
+            // Data jadwal pemesanan yang sudah ada
+            const existingBookings = @json($upcomingBookings);
+
+            // Fungsi untuk mengecek konflik jadwal
+            function checkBookingConflict(start, end) {
+                const startTime = new Date(start).getTime();
+                const endTime = new Date(end).getTime();
+
+                for (const booking of existingBookings) {
+                    const bookingStart = new Date(booking.start_date).getTime();
+                    const bookingEnd = new Date(booking.end_date).getTime();
+
+                    if ((startTime >= bookingStart && startTime <= bookingEnd) || 
+                        (endTime >= bookingStart && endTime <= bookingEnd) ||
+                        (startTime <= bookingStart && endTime >= bookingEnd)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                const start = startDate.value;
+                const end = packageSelect.value === 'day' ? 
+                    new Date(new Date(start).getTime() + (24 * 60 * 60 * 1000)).toISOString().slice(0, 16) : 
+                    endDate.value;
+
+                if (checkBookingConflict(start, end)) {
+                    e.preventDefault();
+                    alert('Maaf, bus sudah dipesan untuk periode waktu yang dipilih. Silakan pilih tanggal lain.');
+                }
+            });
+
             // Handle package selection
             packageSelect.addEventListener('change', function() {
                 if (this.value === 'day') {
                     endDateContainer.style.display = 'none';
                     endDate.removeAttribute('required');
-                    // Set end_date 24 jam setelah start_date
                     if (startDate.value) {
                         const start = new Date(startDate.value);
                         const end = new Date(start);

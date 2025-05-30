@@ -69,19 +69,30 @@ class RentalController extends Controller
             $driver = Driver::findOrFail($request->driver_id);
             $conductor = Conductor::findOrFail($request->conductor_id);
 
-            // Cek ketersediaan
-            if ($bus->status !== 'tersedia') {
-                return back()->with('error', 'Bus tidak tersedia untuk disewa');
-            }
-            if ($driver->status !== 'available' || $conductor->status !== 'available') {
-                return back()->with('error', 'Driver atau conductor tidak tersedia');
-            }
-
             // Parse tanggal dengan benar
             $startDate = Carbon::parse($request->start_date);
             $endDate = $request->rental_package === 'day' ? 
                 $startDate->copy()->addDay() : 
                 Carbon::parse($request->end_date);
+
+            // Cek konflik jadwal
+            $existingBooking = Rental::where('bus_id', $bus->id)
+                ->where('rental_status', '!=', 'cancelled')
+                ->where(function($query) use ($startDate, $endDate) {
+                    $query->whereBetween('start_date', [$startDate, $endDate])
+                        ->orWhereBetween('end_date', [$startDate, $endDate])
+                        ->orWhere(function($q) use ($startDate, $endDate) {
+                            $q->where('start_date', '<=', $startDate)
+                              ->where('end_date', '>=', $endDate);
+                        });
+                })
+                ->first();
+
+            if ($existingBooking) {
+                return back()
+                    ->withInput()
+                    ->with('error', 'Bus sudah dipesan untuk periode waktu yang dipilih. Silakan pilih tanggal lain.');
+            }
 
             // Hitung total hari berdasarkan paket
             if ($request->rental_package === 'day') {

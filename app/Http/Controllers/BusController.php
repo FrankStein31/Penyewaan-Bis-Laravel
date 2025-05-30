@@ -140,11 +140,6 @@ class BusController extends Controller
     public function search(Request $request)
     {
         $query = Bus::query();
-        $query->where('is_active', true);
-        
-        if (!$request->filled('status')) {
-            $query->where('status', 'tersedia');
-        }
 
         // Filter berdasarkan armada
         if ($request->filled('armada_id')) {
@@ -177,7 +172,12 @@ class BusController extends Controller
             });
         }
 
-        $buses = $query->with('armada')->get();
+        $buses = $query->with(['armada', 'rentals' => function($query) {
+            $query->where('start_date', '>=', now())
+                  ->whereNotIn('rental_status', ['cancelled', 'completed'])
+                  ->select('id', 'bus_id', 'start_date', 'end_date', 'rental_status');
+        }])->get();
+
         $armadas = Armada::all();
 
         if ($request->ajax()) {
@@ -191,11 +191,13 @@ class BusController extends Controller
 
     public function book(Bus $bus)
     {
-        // Pastikan bus tersedia
-        if ($bus->status !== 'tersedia') {
-            return back()->with('error', 'Bus tidak tersedia untuk disewa');
-        }
+        // Ambil jadwal pemesanan bus yang akan datang dan belum selesai
+        $upcomingBookings = $bus->rentals()
+            ->where('start_date', '>=', now())
+            ->whereNotIn('rental_status', ['cancelled', 'completed'])
+            ->orderBy('start_date')
+            ->get(['start_date', 'end_date']);
 
-        return view('pages.buses.book', compact('bus'));
+        return view('pages.buses.book', compact('bus', 'upcomingBookings'));
     }
 } 
