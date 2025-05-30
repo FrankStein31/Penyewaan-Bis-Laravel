@@ -298,6 +298,8 @@ class PaymentController extends Controller
                 // Update status pembayaran rental
                 if ($totalPaid >= $rental->total_price) {
                     $rental->payment_status = 'paid';
+                    $rental->rental_status = 'ongoing';
+                    $rental->status = 'aktif';
                 } else {
                     $rental->payment_status = 'partially_paid';
                 }
@@ -512,6 +514,11 @@ class PaymentController extends Controller
                         $payment->status = 'challenge';
                     } else {
                         $payment->status = 'success';
+                        $rental->update([
+                            'payment_status' => 'paid',
+                            'rental_status' => 'ongoing',
+                            'status' => 'aktif'
+                        ]);
                     }
                 }
             } 
@@ -519,17 +526,12 @@ class PaymentController extends Controller
                 // Pembayaran berhasil
                 $payment->status = 'success';
                 
-                // Update status pembayaran rental
-                $totalPaid = $rental->payments()
-                    ->where('status', 'success')
-                    ->sum('amount');
-                
-                if ($totalPaid >= $rental->total_price) {
-                    $rental->payment_status = 'paid';
-                } else {
-                    $rental->payment_status = 'partially_paid';
-                }
-                $rental->save();
+                // Update status rental langsung menjadi paid dan ongoing
+                $rental->update([
+                    'payment_status' => 'paid',
+                    'rental_status' => 'ongoing',
+                    'status' => 'aktif'
+                ]);
                 
                 // Kirim email notifikasi ke user
                 Mail::to($rental->user->email)->send(
@@ -602,17 +604,12 @@ class PaymentController extends Controller
             if ($status === 'success') {
                 $payment->status = 'success';
                 
-                // Update status pembayaran rental
-                $totalPaid = $rental->payments()
-                    ->where('status', 'success')
-                    ->sum('amount');
-                
-                if ($totalPaid >= $rental->total_price) {
-                    $rental->payment_status = 'paid';
-                } else {
-                    $rental->payment_status = 'partially_paid';
-                }
-                $rental->save();
+                // Update status rental langsung menjadi paid dan ongoing
+                $rental->update([
+                    'payment_status' => 'paid',
+                    'rental_status' => 'ongoing',
+                    'status' => 'aktif'
+                ]);
                 
                 // Kirim email notifikasi ke user
                 Mail::to($rental->user->email)->send(
@@ -629,6 +626,7 @@ class PaymentController extends Controller
                 );
             } 
             elseif ($status === 'pending') {
+                $payment->status = 'pending';
                 // Kirim email notifikasi ke user
                 Mail::to($rental->user->email)->send(
                     new RentalStatusMail($rental, 'payment_pending', 
