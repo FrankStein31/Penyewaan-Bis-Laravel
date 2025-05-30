@@ -18,7 +18,7 @@
                 <div class="card mb-4">
                     <div class="card-header pb-0">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6>Data Penyewaan</h6>
+                        <h6>Data Penyewaan</h6>
                             <div class="d-flex gap-2">
                                 <a href="{{ route('admin.rentals.export') }}" class="btn btn-sm btn-success">
                                     <i class="fas fa-file-excel me-2"></i>Export Excel
@@ -218,7 +218,7 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
-@endsection
+@endsection 
 
 @push('js')
 <script>

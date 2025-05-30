@@ -40,7 +40,7 @@ class RentalController extends Controller
         }
 
         $rentals = $query->paginate(10);
-
+                          
         return view('pages.rentals.index', compact('rentals'));
     }
 
@@ -177,7 +177,7 @@ class RentalController extends Controller
                 return view('admin.rentals.show', compact('rental'));
             }
             
-            return view('pages.rentals.show', compact('rental'));
+        return view('pages.rentals.show', compact('rental'));
         }
 
         abort(403, 'Unauthorized action.');
