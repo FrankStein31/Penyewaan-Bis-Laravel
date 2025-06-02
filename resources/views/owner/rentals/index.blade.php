@@ -38,10 +38,26 @@
                                             </option>
                                         @endforeach
                                     </select>
+                                    <select name="month" class="form-select form-select-sm" style="width: 250px;">
+                                        <option value="">Pilih Bulan</option>
+                                        @foreach($months as $key => $month)
+                                            <option value="{{ $key }}" {{ request('month') == $key ? 'selected' : '' }}>
+                                                {{ $month }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <select name="year" class="form-select form-select-sm" style="width: 250px;">
+                                        <option value="">Pilih Tahun</option>
+                                        @foreach($years as $year)
+                                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>
+                                                {{ $year }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                     <button type="submit" class="btn btn-sm btn-primary">
-                                        Cari
+                                        Filter
                                     </button>
-                                    @if(request()->has('search') || request()->has('bus_type') || request()->has('driver'))
+                                    @if(request()->has('search') || request()->has('bus_type') || request()->has('driver') || request()->has('month') || request()->has('year'))
                                         <a href="{{ route('owner.rentals.index') }}" class="btn btn-sm btn-danger">
                                             Reset
                                         </a>
@@ -51,6 +67,18 @@
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="alert alert-info">
+                                    <h5 class="mb-0">
+                                        Total Pendapatan: Rp {{ number_format($totalIncome, 0, ',', '.') }}
+                                        @if(request('month') && request('year'))
+                                            <small>({{ $months[request('month')] }} {{ request('year') }})</small>
+                                        @endif
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0">
                                 <thead>

@@ -1154,10 +1154,28 @@ class RentalController extends Controller
             $query->where('driver_id', request('driver'));
         }
 
+        // Filter berdasarkan bulan
+        if (request('month') && request('year')) {
+            $query->whereMonth('created_at', request('month'))
+                  ->whereYear('created_at', request('year'));
+        }
+
         $rentals = $query->latest()->paginate(10);
         $drivers = \App\Models\Driver::where('is_active', true)->get();
 
-        return view('owner.rentals.index', compact('rentals', 'drivers'));
+        // Hitung total pendapatan berdasarkan filter
+        $totalIncome = $query->sum('total_price');
+
+        // Data untuk dropdown filter bulan
+        $months = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $months[$i] = date('F', mktime(0, 0, 0, $i, 1));
+        }
+
+        // Data untuk dropdown filter tahun (5 tahun terakhir)
+        $years = range(date('Y'), date('Y') - 4);
+
+        return view('owner.rentals.index', compact('rentals', 'drivers', 'totalIncome', 'months', 'years'));
     }
 
     public function adminExport()
@@ -1247,7 +1265,33 @@ class RentalController extends Controller
 
     public function ownerExport()
     {
-        $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])->latest()->get();
+        $query = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments']);
+
+        // Terapkan filter yang sama seperti di index
+        if (request('search')) {
+            $search = request('search');
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('firstname', 'like', "%{$search}%")
+                  ->orWhere('lastname', 'like', "%{$search}%");
+            });
+        }
+
+        if (request('bus_type')) {
+            $query->whereHas('bus', function($q) {
+                $q->where('type', request('bus_type'));
+            });
+        }
+
+        if (request('driver')) {
+            $query->where('driver_id', request('driver'));
+        }
+
+        if (request('month') && request('year')) {
+            $query->whereMonth('created_at', request('month'))
+                  ->whereYear('created_at', request('year'));
+        }
+
+        $rentals = $query->latest()->get();
         
         // Hitung total
         $totalOrders = $rentals->count();
@@ -1257,7 +1301,13 @@ class RentalController extends Controller
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename=data-penyewaan-'.date('Y-m-d').'.xls');
         
-        // Buat header tabel
+        // Buat header tabel dengan informasi filter
+        $periodText = "Semua Periode";
+        if (request('month') && request('year')) {
+            $monthName = date('F', mktime(0, 0, 0, request('month'), 1));
+            $periodText = "$monthName " . request('year');
+        }
+
         echo "
         <table border='1'>
             <tr>
@@ -1267,7 +1317,7 @@ class RentalController extends Controller
             </tr>
             <tr>
                 <td colspan='17' align='center'>
-                    Periode: ".date('d/m/Y')."
+                    Periode: $periodText
                 </td>
             </tr>
             <tr>
