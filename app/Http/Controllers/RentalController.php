@@ -1164,6 +1164,10 @@ class RentalController extends Controller
     {
         $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])->latest()->get();
         
+        // Hitung total
+        $totalOrders = $rentals->count();
+        $totalIncome = $rentals->sum('total_price');
+        
         // Set header untuk download excel
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename=data-penyewaan-'.date('Y-m-d').'.xls');
@@ -1172,6 +1176,26 @@ class RentalController extends Controller
         echo "
         <table border='1'>
             <tr>
+                <td colspan='17' align='center' style='font-weight: bold; font-size: 16px;'>
+                    LAPORAN PENYEWAAN BUS
+                </td>
+            </tr>
+            <tr>
+                <td colspan='17' align='center'>
+                    Periode: ".date('d/m/Y')."
+                </td>
+            </tr>
+            <tr>
+                <td colspan='17'>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan='8' style='font-weight: bold;'>Total Pesanan: ".$totalOrders."</td>
+                <td colspan='9' style='font-weight: bold;'>Total Pendapatan: Rp ".number_format($totalIncome, 0, ',', '.')."</td>
+            </tr>
+            <tr>
+                <td colspan='17'>&nbsp;</td>
+            </tr>
+            <tr style='background-color: #f0f0f0;'>
                 <th>Kode Booking</th>
                 <th>Tanggal</th>
                 <th>Pelanggan</th>
@@ -1210,9 +1234,9 @@ class RentalController extends Controller
                 <td>".$rental->start_date->format('d/m/Y')."</td>
                 <td>".$rental->end_date->format('d/m/Y')."</td>
                 <td>".$rental->total_days."</td>
-                <td>".$rental->total_price."</td>
-                <td>".$rental->rental_status."</td>
-                <td>".$rental->payment_status."</td>
+                <td>Rp ".number_format($rental->total_price, 0, ',', '.')."</td>
+                <td>".ucfirst($rental->rental_status)."</td>
+                <td>".ucfirst($rental->payment_status)."</td>
             </tr>
             ";
         }
@@ -1225,6 +1249,10 @@ class RentalController extends Controller
     {
         $rentals = Rental::with(['user', 'bus', 'driver', 'conductor', 'payments'])->latest()->get();
         
+        // Hitung total
+        $totalOrders = $rentals->count();
+        $totalIncome = $rentals->sum('total_price');
+        
         // Set header untuk download excel
         header('Content-Type: application/vnd.ms-excel');
         header('Content-Disposition: attachment;filename=data-penyewaan-'.date('Y-m-d').'.xls');
@@ -1233,6 +1261,26 @@ class RentalController extends Controller
         echo "
         <table border='1'>
             <tr>
+                <td colspan='17' align='center' style='font-weight: bold; font-size: 16px;'>
+                    LAPORAN PENYEWAAN BUS
+                </td>
+            </tr>
+            <tr>
+                <td colspan='17' align='center'>
+                    Periode: ".date('d/m/Y')."
+                </td>
+            </tr>
+            <tr>
+                <td colspan='17'>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan='8' style='font-weight: bold;'>Total Pesanan: ".$totalOrders."</td>
+                <td colspan='9' style='font-weight: bold;'>Total Pendapatan: Rp ".number_format($totalIncome, 0, ',', '.')."</td>
+            </tr>
+            <tr>
+                <td colspan='17'>&nbsp;</td>
+            </tr>
+            <tr style='background-color: #f0f0f0;'>
                 <th>Kode Booking</th>
                 <th>Tanggal</th>
                 <th>Pelanggan</th>
@@ -1271,9 +1319,9 @@ class RentalController extends Controller
                 <td>".$rental->start_date->format('d/m/Y')."</td>
                 <td>".$rental->end_date->format('d/m/Y')."</td>
                 <td>".$rental->total_days."</td>
-                <td>".$rental->total_price."</td>
-                <td>".$rental->rental_status."</td>
-                <td>".$rental->payment_status."</td>
+                <td>Rp ".number_format($rental->total_price, 0, ',', '.')."</td>
+                <td>".ucfirst($rental->rental_status)."</td>
+                <td>".ucfirst($rental->payment_status)."</td>
             </tr>
             ";
         }

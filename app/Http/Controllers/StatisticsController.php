@@ -41,16 +41,32 @@ class StatisticsController extends Controller
         return view('owner.statistics.monthly', $data);
     }
 
-    public function yearly()
+    public function yearly(Request $request)
     {
+        $selectedMonth = $request->get('month', now()->month);
+        $selectedYear = $request->get('year', now()->year);
+
+        $monthlyIncomes = Payment::selectRaw('MONTH(created_at) as month, SUM(amount) as total')
+            ->whereYear('created_at', $selectedYear)
+            ->where('status', 'success')
+            ->groupBy('month')
+            ->get()
+            ->pluck('total', 'month')
+            ->toArray();
+
         $data = [
-            'rentals' => Rental::whereYear('created_at', now()->year)
+            'rentals' => Rental::whereYear('created_at', $selectedYear)
                               ->whereIn('status', ['selesai'])
                               ->count(),
-            'income' => Payment::whereYear('created_at', now()->year)
+            'income' => Payment::whereYear('created_at', $selectedYear)
+                             ->whereMonth('created_at', $selectedMonth)
                              ->where('status', 'success')
                              ->sum('amount'),
-            'monthlyStats' => $this->getMonthlyStats(),
+            'monthlyStats' => $this->getMonthlyStats($selectedYear),
+            'monthlyIncomes' => $monthlyIncomes,
+            'selectedMonth' => $selectedMonth,
+            'selectedYear' => $selectedYear,
+            'totalYearlyIncome' => array_sum($monthlyIncomes)
         ];
 
         return view('owner.statistics.yearly', $data);
@@ -118,9 +134,9 @@ class StatisticsController extends Controller
                     ->get();
     }
 
-    private function getMonthlyStats()
+    private function getMonthlyStats($year)
     {
-        return Rental::whereYear('created_at', now()->year)
+        return Rental::whereYear('created_at', $year)
                     ->select(DB::raw('MONTH(created_at) as month'), DB::raw('count(*) as total'))
                     ->groupBy('month')
                     ->orderBy('month')

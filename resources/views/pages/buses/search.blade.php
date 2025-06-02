@@ -81,13 +81,13 @@
                         <div class="col-md-4 mb-4">
                             <div class="card">
                                 <div class="card-header p-0 mx-3 mt-3 position-relative z-index-1">
-                                    @if($bus->image)
+                                @if($bus->image)
                                         <img src="{{ asset('img/buses/' . $bus->image) }}" 
                                              class="img-fluid border-radius-lg" alt="Bus Image">
-                                    @else
+                                @else
                                         <img src="{{ asset('img/bus-placeholder.png') }}" 
                                              class="img-fluid border-radius-lg" alt="Bus Image">
-                                    @endif
+                                @endif
                                 </div>
 
                                 <div class="card-body pt-2">
@@ -109,7 +109,7 @@
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="text-sm">Harga per Hari:</span>
                                         <span class="font-weight-bold">
-                                            Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}
+                                        Rp {{ number_format($bus->price_per_day, 0, ',', '.') }}
                                         </span>
                                     </div>
 
@@ -140,7 +140,7 @@
                                         <a href="{{ route('buses.book', $bus) }}" 
                                            class="btn bg-gradient-primary w-100">
                                             <i class="fas fa-calendar-plus me-2"></i>Pesan Sekarang
-                                        </a>
+                                    </a>
                                     </div>
                                 </div>
                             </div>
